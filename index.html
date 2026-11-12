@@ -12,7 +12,7 @@
 <script>(function(){var t;try{t=localStorage.getItem("taller_theme")}catch(e){}if(!t)t=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";document.documentElement.dataset.theme=t})()</script>
 <title>Taller — Recepción y servicio técnico</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
@@ -464,6 +464,20 @@ html[data-theme=dark] .hero .gt{background-image:linear-gradient(90deg,#f0fdf4,#
 #login{background:transparent!important}
 #login .card{background:var(--surface-hi)}
 .thb{font-size:17px}
+
+.bsig{font-family:"Dancing Script",cursive;font-weight:700;font-size:16px;line-height:1.1;margin-top:3px;background:linear-gradient(90deg,#4ade80,#fbbf24 60%,#fb923c);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:.01em}
+.msig{display:flex;align-items:center;gap:11px;padding:6px 12px 12px;border-bottom:1px solid var(--line2);margin-bottom:6px}
+.msig .logo{width:40px;height:40px;border-radius:11px}
+.scanbox{position:relative;border-radius:18px;overflow:hidden;background:#000;aspect-ratio:1/1;max-width:420px;margin:0 auto}
+.scanbox video{width:100%;height:100%;object-fit:cover;display:block}
+.scfr{position:absolute;inset:16%;border-radius:18px;box-shadow:0 0 0 999px rgba(0,0,0,.35);border:3px solid rgba(74,222,128,.9)}
+.scfr::after{content:"";position:absolute;left:6%;right:6%;height:3px;border-radius:3px;background:linear-gradient(90deg,transparent,#4ade80,transparent);box-shadow:0 0 12px #4ade80;animation:scanl 1.8s ease-in-out infinite alternate}
+@keyframes scanl{from{top:6%}to{top:92%}}
+.mes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.mes>div{border-radius:14px;padding:12px;background:var(--soft);border:1px solid var(--line2)}
+.mes b{display:block;font-size:22px;font-weight:800;line-height:1.1}
+.mes span{font-size:12px;color:var(--muted);font-weight:600}
+@media (max-width:860px){.mes{grid-template-columns:1fr 1fr}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
 @media (max-width:860px){
   .bnav{left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));padding:6px 6px;border-radius:24px;background:color-mix(in srgb,var(--bg) 60%,transparent);backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);border:1px solid var(--glass-b);box-shadow:var(--sh2)}
@@ -488,10 +502,10 @@ html[data-theme=dark] .hero .gt{background-image:linear-gradient(90deg,#f0fdf4,#
 </head>
 <body>
 <div class="bgfx"><i class="b1"></i><i class="b2"></i><i class="b3"></i><i class="b4"></i></div>
-<div id="splash"><div id="splashSaw"></div><div class="sn" id="splashName">Taller</div><div class="bar"><i></i></div></div>
+<div id="splash"><div id="splashSaw"></div><div class="sn" id="splashName">Taller</div><div class="bsig" style="font-size:20px;margin-top:-10px">ForBillyComputer</div><div class="bar"><i></i></div></div>
 <div class="shell">
   <aside class="side">
-    <div class="brand"><div class="logo" id="logoBox">T</div><div style="min-width:0"><div class="bname" id="bizName">Mi taller</div><div class="bsub">Servicio técnico</div></div></div>
+    <div class="brand"><div class="logo" id="logoBox">T</div><div style="min-width:0"><div class="bname" id="bizName">Mi taller</div><div class="bsub">Servicio técnico</div><div class="bsig">✍️ ForBillyComputer</div></div></div>
     <button class="recv" data-act="recibir"></button>
     <nav class="nav" id="nav"></nav>
     <div class="sfoot">Diseñado por BillMGcompuTerc.r</div>
@@ -501,7 +515,7 @@ html[data-theme=dark] .hero .gt{background-image:linear-gradient(90deg,#f0fdf4,#
       <div class="mtitle"><div class="logo" id="logoBoxM">T</div><span id="mTitle">Inicio</span></div>
       <div class="tsearch" id="tsearch"><span id="srchIc"></span><input id="qGlobal" data-ui="q" placeholder="Buscar cliente, teléfono, serie, orden, repuesto…" autocomplete="off"></div>
       <span class="sp hide-m"></span>
-      <button class="ib" id="mSearchBtn" data-act="mSearch" style="display:none"></button>
+      <button class="ib" id="mSearchBtn" data-act="mSearch" style="display:none"></button><button class="ib thb" data-act="scan" title="Escanear etiqueta QR">📷</button>
       <button class="ib thb" id="thBtn" data-act="theme" title="Cambiar tema claro/oscuro"></button><div id="whoBox"></div><div id="roleBox"></div>
     </div>
     <div class="content"><div id="status" class="status"></div><div id="view"></div></div>
@@ -597,7 +611,7 @@ const PIPE=['Recibido','En diagnóstico','En reparación','Control de calidad','
 const CERR=['Entregado','Cancelado'];
 const PROVINCIAS=['San José','Alajuela','Cartago','Heredia','Guanacaste','Puntarenas','Limón'];
 const TIPO_EM=[['motosierra','🪚'],['desbroz','🌿'],['guadaña','🌿'],['cortac','🌱'],['tractor','🚜'],['fumig','💦'],['espalda','💦'],['motobomba','💧'],['bomba','💧'],['generador','⚡'],['hidrolav','🚿'],['soplad','💨'],['cortaset','✂️'],['motocult','🚜'],['podadora','🌳'],['ahoyador','🕳️'],['motor','⚙️']];
-const DEF_CFG={nombre:'Servicio Técnico de Equipos Agrícolas, Forestales y de Jardín',cedula:'',telefono:'',correo:'',direccion:'',garantia:30,stockMinDef:2,logo:'',diasRetiro:15,diasSinMov:5,diasTaller:15,ultimoRespaldo:0,diasAprob:3,diasPedido:7,appUrl:'',
+const DEF_CFG={nombre:'Servicio Técnico de Equipos Agrícolas, Forestales y de Jardín',cedula:'',telefono:'',correo:'',direccion:'',garantia:30,stockMinDef:2,logo:'',diasRetiro:15,diasSinMov:5,diasTaller:15,mesesMant:6,ultimoRespaldo:0,diasAprob:3,diasPedido:7,appUrl:'',
  terminos:'1. Todo equipo se recibe sujeto a diagnóstico. Se comunicará al cliente antes de realizar la reparación.\n2. Es indispensable presentar este comprobante para retirar el equipo.\n3. Equipos no retirados 30 días naturales después de notificado que están listos podrán generar cargo por bodegaje.\n4. La garantía cubre el trabajo realizado y los repuestos nuevos instalados por el plazo indicado. Los repuestos usados no tienen garantía salvo indicación.\n5. El taller no se responsabiliza por accesorios no detallados en este comprobante.'};
 const DEF_CAT={
  tipos:['Motosierra','Desbrozadora / Motoguadaña','Cortacésped','Tractor de jardín','Bomba de espalda / Fumigadora','Motobomba','Generador','Hidrolavadora','Sopladora','Cortasetos','Motocultor','Podadora de altura','Ahoyador','Motor estacionario'],
@@ -853,7 +867,7 @@ function shell(){
   $('#roleBox').innerHTML=pinOn()?(isAdmin()?`<button class="role adm" data-act="lockAdm" title="Cerrar administrador">${ic('unlock')}<span class="hide-m">Administrador</span></button>`:`<button class="role mec" data-act="unlock" title="Entrar como administrador">${ic('lock')}<span class="hide-m">Admin</span></button>`):'';
   const bn=[['inicio','home','Inicio'],['ordenes','clip','Órdenes'],['+','plus',''],['repuestos','box','Repuestos'],['mas','more','Más']];const nAl=cnt.alertas;
   $('#bnav').innerHTML=bn.map(([k,i,l])=>k==='+'?`<button class="fabb" data-act="recibir" aria-label="Recibir máquina"><span>${ic('plus')}</span></button>`:`<button style="position:relative" data-act="${k==='mas'?'moreOpen':'nav'}" data-page="${k}" class="${(k===p||(k==='mas'&&['alertas','clientes','equipos','pedidos','catalogo','reportes','ajustes'].includes(p)))&&!q?'on':''}"><span class="bem">${EMO[i]||'☰'}</span>${l}${k==='mas'&&nAl?`<span style="position:absolute;top:0;right:22%;background:#dc2626;color:#fff;border-radius:9px;font-size:10px;padding:0 5px">${nAl}</span>`:''}</button>`).join('');
-  $('#moreSheet').innerHTML=NAV.filter(([k])=>!['inicio','ordenes','repuestos'].includes(k)).map(([k,i,l])=>`<button data-act="nav" data-page="${k}">${nem(i)}${l}${cnt[k]?` <span class="nb" style="background:var(--soft);color:var(--ink)">${cnt[k]}</span>`:''}</button>`).join('');
+  $('#moreSheet').innerHTML=`<div class="msig"><div class="logo">${logoHTML()}</div><div style="min-width:0"><div style="font-weight:700;font-size:14px" class="ell">${esc(CFG.nombre||'Mi taller')}</div><div class="small muted">Servicio técnico</div><div class="bsig">✍️ ForBillyComputer</div></div></div>`+NAV.filter(([k])=>!['inicio','ordenes','repuestos'].includes(k)).map(([k,i,l])=>`<button data-act="nav" data-page="${k}">${nem(i)}${l}${cnt[k]?` <span class="nb" style="background:var(--soft);color:var(--ink)">${cnt[k]}</span>`:''}</button>`).join('');
   document.title=(CFG.nombre||'Taller')+' — Servicio técnico';
 }
 function render(){
@@ -886,6 +900,18 @@ function bandejas(){
     out.push(card('check','Para entregar al cliente','No hay equipos esperando al cliente.',e,b=>{const d=daysSince(iso(new Date(b.recepRecibio.t)));const w=waLink(cli(b.clienteId)?.telefono,waMsg(b));return row(b,`<span class="small ${d>num(CFG.diasRetiro)?'low':'muted'}">${d} d</span>${w?`<a class="btn sm wa" href="${esc(w)}" target="_blank" rel="noopener">${ic('msg')}</a>`:''}<button class="btn sm p" data-act="entregar" data-id="${b.id}">Entregar</button>`)}))}
   return out.length?`<div class="grid ${out.length>1?'g'+Math.min(out.length,3):''}" style="align-items:start;margin-bottom:16px">${out.join('')}</div>`:'';
 }
+function resumenMes(){
+  const n=new Date(),ym=iso(n).slice(0,7),mes=n.toLocaleDateString('es-CR',{month:'long'});
+  const bs=arr(S.boletas).filter(b=>b.estado!=='Cancelado');
+  const entr=bs.filter(b=>b.estado==='Entregado'&&String(b.fechaEntrega||'').slice(0,7)===ym);
+  const inn=bs.filter(b=>String(b.fechaIngreso||'').slice(0,7)===ym);
+  const rp={};let nrp=0;inn.concat(entr.filter(b=>!inn.includes(b))).forEach(b=>(b.repuestos||[]).forEach(l=>{const c=num(l.cant);nrp+=c;rp[l.nombre]=(rp[l.nombre]||0)+c}));
+  const tc={};entr.forEach(b=>{if(b.tecnico)tc[b.tecnico]=(tc[b.tecnico]||0)+1});const top=Object.entries(tc).sort((a,b)=>b[1]-a[1])[0];
+  const trp=Object.entries(rp).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  return `<div class="card" style="margin-top:16px"><div class="ch"><h2><span class="hem">📅</span> Resumen de ${esc(mes)}</h2><button class="btn sm" data-act="nav" data-page="reportes">${ic('chart')} Reportes</button></div><div class="cp-in">
+   <div class="mes"><div><b>${inn.length}</b><span>📥 Entraron</span></div><div><b>${entr.length}</b><span>🤝 Entregadas</span></div><div><b>${nrp}</b><span>🔩 Repuestos instalados</span></div><div><b class="ell" style="font-size:${top?'16px':'22px'};padding:${top?'3px 0':'0'}">${top?esc(top[0]):'—'}</b><span>🏆 Técnico del mes${top?` · ${top[1]}`:''}</span></div></div>
+   ${trp.length?`<div class="small muted" style="margin-top:10px">Más usados: ${trp.map(([k,v])=>`<b style="color:var(--ink2)">${esc(k)}</b> (${v})`).join(' · ')}</div>`:''}</div></div>`;
+}
 function vInicio(){
   const bs=arr(S.boletas);const ab=bs.filter(isOpen);
   const listos=ab.filter(b=>b.estado==='Listo para entregar');
@@ -905,6 +931,7 @@ function vInicio(){
    ${stat('clock','#ffedd5','#f97316',esperando.length,'Esperando repuestos o aprobación','data-act="filtro" data-f="esperando"')}
    ${stat('inbox','#e0f2fe','#0ea5e9',hoy.length,'Recibidos hoy','data-act="nav" data-page="ordenes"')}
   </div>
+  ${resumenMes()}
   ${counts.length?`<div class="card" style="margin-top:16px;padding:16px 18px"><div class="row" style="margin-bottom:10px"><div class="lbl" style="margin:0">Equipos por estado</div><span class="sp"></span><button class="btn sm" data-act="tablero">${ic('kanban')} Ver tablero</button></div>
    <div style="display:flex;height:10px;border-radius:9px;overflow:hidden;background:var(--line2)">${counts.map(e=>`<span style="width:${e.n/ab.length*100}%;background:${e.c}"></span>`).join('')}</div>
    <div class="row" style="margin-top:12px">${counts.map(e=>`<button class="fchip" data-act="filtro" data-f="${esc(e.k)}">${badge(e.k)}<b>${e.n}</b></button>`).join('')}</div></div>`:''}
@@ -1216,6 +1243,10 @@ function alertas(){
   const low=arr(S.repuestos).filter(r=>stockSt(r).k!=='ok');
   if(low.length){const out=low.filter(r=>num(r.stock)<=0).length;add(out?'r':'a','box',`${low.length} repuesto${low.length!==1?'s':''} en o bajo el mínimo${out?` (${out} agotado${out!==1?'s':''})`:''}`,low.slice(0,4).map(r=>r.nombre).join(', ')+(low.length>4?'…':''),'data-act="nav" data-page="pedidos"')}
   arr(S.pedidos).filter(p=>p.estado==='Pedido').forEach(p=>{const d=daysSince(iso(new Date(p.fecha)));if(d>=num(CFG.diasPedido))add('a','truck',`Pedido a ${p.proveedor||'proveedor'} sin recibir hace ${d} días`,`${p.items.length} artículo${p.items.length!==1?'s':''} · ${pdNum(p)}`,'data-act="nav" data-page="pedidos"')});
+  {const mm=num(CFG.mesesMant);if(mm>0){const last={};arr(S.boletas).forEach(b=>{if(!b.equipoId)return;const c=last[b.equipoId];if(!c||String(b.fechaIngreso)>String(c.fechaIngreso)||(b.fechaIngreso===c.fechaIngreso&&(b.createdAt||0)>(c.createdAt||0)))last[b.equipoId]=b});
+    Object.values(last).forEach(b=>{if(b.estado!=='Entregado'||!b.fechaEntrega||b.mantAvisado)return;const d=daysSince(b.fechaEntrega);if(d<mm*30)return;const c=cli(b.clienteId)||{},e=eq(b.equipoId);const ms=Math.floor(d/30);
+     const wa=waLink(c.telefono,`Hola ${c.nombre||''}, le saluda ${CFG.nombre}. 🔧 Ya pasaron ${ms} meses desde el último servicio de su ${eqShort(e)}. ¿Le gustaría traerlo para un mantenimiento preventivo? Así evita daños mayores. ¡Saludos!`);
+     add('b','repeat',`Toca mantenimiento · ${ms} meses desde el servicio`,`${c.nombre||''} · ${eqShort(e)}`,`data-act="open" data-page="equipo" data-id="${e?e.id:''}"`,`${wa?`<a class="btn sm wa" href="${esc(wa)}" target="_blank" rel="noopener">${ic('msg')} Ofrecer</a>`:''}<button class="btn sm" data-act="mantOk" data-id="${b.id}" title="Ya se le avisó">${ic('check')}</button>`)})}}
   if(respaldoPend()){const u=num(CFG.ultimoRespaldo);add('a','dl','Toca hacer el respaldo semanal 💾',u?'Último respaldo: '+new Date(u).toLocaleDateString('es-CR',{weekday:'long',day:'numeric',month:'long'}):'Todavía no se ha hecho ningún respaldo','data-act="export"',`<button class="btn sm p" data-act="export">${ic('dl')} Respaldar</button>`)}
   const o={r:0,a:1,b:2};return L.sort((a,b)=>o[a.sev]-o[b.sev]);
 }
@@ -1564,7 +1595,7 @@ function vAjustes(){
    <div class="fr">${f('garantia','Garantía por defecto (días)','number','min="0"')}${f('stockMinDef','Stock mínimo por defecto','number','min="0"')}</div>
    <div class="f"><label>Términos del comprobante</label><textarea name="terminos" style="min-height:150px">${esc(CFG.terminos)}</textarea></div>
    <div class="lbl" style="margin-top:6px">Plazos para las alertas (días)</div>
-   <div class="fr">${f('diasRetiro','Listo sin retirar','number','min="1"')}${f('diasSinMov','Orden sin movimiento','number','min="1"')}${f('diasTaller','Mucho tiempo en el taller','number','min="1"')}${f('diasAprob','Esperando aprobación','number','min="1"')}${f('diasPedido','Repuestos / pedido sin llegar','number','min="1"')}</div>
+   <div class="fr">${f('diasRetiro','Listo sin retirar','number','min="1"')}${f('diasSinMov','Orden sin movimiento','number','min="1"')}${f('diasTaller','Mucho tiempo en el taller','number','min="1"')}${f('mesesMant','Recordar mantenimiento (meses, 0 = no)','number','min="0"')}${f('diasAprob','Esperando aprobación','number','min="1"')}${f('diasPedido','Repuestos / pedido sin llegar','number','min="1"')}</div>
    <div class="f"><label>Enlace de la app <span class="opt">(para el QR de las etiquetas)</span></label><input name="appUrl" type="url" value="${esc(CFG.appUrl)}" placeholder="${esc(appUrl())}"></div>
    <button class="btn p" type="submit">${ic('check')} Guardar</button></div></form>
   <div class="grid" style="align-content:start">
@@ -1591,11 +1622,31 @@ function loadLogo(file){
 }
 
 /* ================== Modal / campos ================== */
+let SCAN=null;
+function stopScan(){if(!SCAN)return;SCAN.on=false;clearTimeout(SCAN.t);try{SCAN.st&&SCAN.st.getTracks().forEach(t=>t.stop())}catch(e){}SCAN=null}
+async function scanQR(){
+  openModal('📷 Escanear etiqueta',`<div class="scanbox"><video id="scV" playsinline muted autoplay></video><div class="scfr"></div></div><p class="small muted" id="scMsg" style="text-align:center;margin:12px 0 0">Apunte la cámara al código QR de la etiqueta de la máquina.</p>`,`<input class="inp" id="scTxt" placeholder="…o escriba el número de orden" style="flex:1"><button class="btn p" id="scGo">Buscar</button>`,'sm');
+  const done=txt=>{txt=String(txt||'').trim();if(!txt)return;stopScan();closeModal();const m=/os-(\d+)/i.exec(txt)||/^(?:OS-?)?0*(\d+)$/i.exec(txt);if(m){PEND=+m[1];view={page:'ordenes'};stack=[];tryPend();render();if(view.page!=='orden')toast('No se encontró la orden '+txt);return}UI.q=txt;$('#qGlobal').value=txt;render()};
+  $('#scGo').onclick=()=>done($('#scTxt').value);$('#scTxt').onkeydown=e=>{if(e.key==='Enter')done(e.target.value)};
+  const msg=t=>{const e=$('#scMsg');if(e)e.textContent=t};
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return msg('Este navegador no permite usar la cámara. Escriba el número de orden abajo.');
+  SCAN={on:true};let st;
+  try{st=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false})}catch(e){SCAN=null;return msg('No se pudo abrir la cámara. Revise el permiso de cámara del navegador, o escriba el número de orden abajo.')}
+  if(!SCAN){st.getTracks().forEach(t=>t.stop());return}SCAN.st=st;const v=$('#scV');v.srcObject=st;try{await v.play()}catch(e){}
+  let det=null;if('BarcodeDetector' in window){try{det=new BarcodeDetector({formats:['qr_code']})}catch(e){}}
+  if(!det&&typeof jsQR==='undefined'){for(const u of ['https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js','https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js']){try{await loadScript(u);if(typeof jsQR!=='undefined')break}catch(e){}}}
+  if(!det&&typeof jsQR==='undefined')return msg('No se pudo cargar el lector de QR. Escriba el número de orden abajo.');
+  const cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});
+  const tick=async()=>{if(!SCAN||!SCAN.on)return;try{if(v.readyState>=2){let r=null;
+    if(det){const c=await det.detect(v);r=c[0]&&c[0].rawValue}else{const w=Math.min(640,v.videoWidth),h=Math.round(v.videoHeight*w/v.videoWidth);cv.width=w;cv.height=h;cx.drawImage(v,0,0,w,h);const c=jsQR(cx.getImageData(0,0,w,h).data,w,h);r=c&&c.data}
+    if(r){try{navigator.vibrate&&navigator.vibrate(80)}catch(e){}return done(r)}}}catch(e){}
+    if(SCAN)SCAN.t=setTimeout(tick,220)};tick();
+}
 function openModal(title,body,foot,cls=''){
   const m=$('#modal');m.innerHTML=`<div class="mbox ${cls}"><div class="mh"><h2>${title}</h2><button class="ib" data-act="close" aria-label="Cerrar">${ic('x')}</button></div><div class="mb" id="mb">${body}</div>${foot?`<div class="mf" id="mf">${foot}</div>`:''}</div>`;
   m.classList.remove('hidden');document.body.style.overflow='hidden';
 }
-function closeModal(){const m=$('#modal');m.classList.add('hidden');m.innerHTML='';document.body.style.overflow='';W=null;RP=null}
+function closeModal(){stopScan();const m=$('#modal');m.classList.add('hidden');m.innerHTML='';document.body.style.overflow='';W=null;RP=null}
 function confirmBox(msg,yes,label='Eliminar'){
   openModal('Confirmar',`<p style="margin:0">${msg}</p>`,`<span class="sp"></span><button class="btn" data-act="close">Cancelar</button><button class="btn d" id="cYes">${esc(label)}</button>`,'sm');
   $('#cYes').onclick=async()=>{$('#cYes').disabled=true;await yes()};
@@ -1959,6 +2010,8 @@ const A={
  close:()=>closeModal(),
  recibir:soloR(d=>{closeMore();recibir({cli:d.cli,eq:d.eq})}),
  moreOpen:()=>$('#more').classList.add('open'),moreClose:()=>{},
+ scan:()=>scanQR(),
+ mantOk:async d=>{const b=S.boletas[d.id];if(!b)return;if(await put('boletas',{...b,mantAvisado:Date.now(),mantPor:quien()})){toast('Listo, recordatorio cerrado');render()}},
  theme:()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'),
  mSearch:()=>{$('#tsearch').classList.add('open');$('#qGlobal').focus()},
  clearQ:()=>{UI.q='';$('#qGlobal').value='';$('#tsearch').classList.remove('open');render()},
@@ -2106,7 +2159,7 @@ document.addEventListener('change',e=>{
 });
 document.addEventListener('submit',async e=>{
   e.preventDefault();
-  if(e.target.id==='cfgForm'){const d=formData(e.target);['garantia','stockMinDef','diasRetiro','diasSinMov','diasTaller','diasAprob','diasPedido'].forEach(k=>{if(k in d)d[k]=num(d[k])});if(await saveCfg({...CFG,...d})){toast('Configuración guardada');render()}}
+  if(e.target.id==='cfgForm'){const d=formData(e.target);['garantia','stockMinDef','diasRetiro','diasSinMov','diasTaller','mesesMant','diasAprob','diasPedido'].forEach(k=>{if(k in d)d[k]=num(d[k])});if(await saveCfg({...CFG,...d})){toast('Configuración guardada');render()}}
 });
 $('#qGlobal').addEventListener('blur',()=>{if(!UI.q)$('#tsearch').classList.remove('open')});
 async function importFile(file){
