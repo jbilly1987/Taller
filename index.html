@@ -72,7 +72,7 @@ svg.i{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-
 .ch{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line2)}
 .ch h2{flex:1;display:flex;align-items:center;gap:8px}
 .ch h2 svg{color:var(--pri)}
-.grid{display:grid;gap:16px}
+.grid{display:grid;gap:16px}.grid>*{min-width:0}
 .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);background:#fff;color:var(--ink2);border-radius:10px;padding:8px 14px;font-weight:600;font-size:13.5px;cursor:pointer;white-space:nowrap;text-decoration:none;transition:.12s}
 .btn:hover{background:var(--soft);border-color:#cfd4cc}
@@ -632,6 +632,7 @@ const TIPO_EM=[['motosierra','🪚'],['desbroz','🌿'],['guadaña','🌿'],['co
 const DEF_CFG={nombre:'Servicio Técnico de Equipos Agrícolas, Forestales y de Jardín',cedula:'',telefono:'',correo:'',direccion:'',garantia:30,stockMinDef:2,logo:'',diasRetiro:15,diasSinMov:5,diasTaller:15,mesesMant:6,ultimoRespaldo:0,diasAprob:3,diasPedido:7,appUrl:'',
  terminos:'1. Todo equipo se recibe sujeto a diagnóstico. Se comunicará al cliente antes de realizar la reparación.\n2. Es indispensable presentar este comprobante para retirar el equipo.\n3. Equipos no retirados 30 días naturales después de notificado que están listos podrán generar cargo por bodegaje.\n4. La garantía cubre el trabajo realizado y los repuestos nuevos instalados por el plazo indicado. Los repuestos usados no tienen garantía salvo indicación.\n5. El taller no se responsabiliza por accesorios no detallados en este comprobante.'};
 const DEF_CAT={
+ manoObra:[{c:'MO-01',d:'Diagnóstico'},{c:'MO-02',d:'Mantenimiento general'},{c:'MO-03',d:'Afilado / cambio de cadena'},{c:'MO-04',d:'Limpieza y ajuste de carburador'},{c:'MO-05',d:'Reparación de motor'},{c:'MO-06',d:'Reparación de arrancador'},{c:'MO-07',d:'Sistema de encendido'},{c:'MO-08',d:'Embrague y transmisión'},{c:'MO-09',d:'Soldadura / fabricación'},{c:'MO-10',d:'Revisión eléctrica'},{c:'MO-11',d:'Prueba y ajuste final'}],
  tipos:['Motosierra','Desbrozadora / Motoguadaña','Cortacésped','Tractor de jardín','Bomba de espalda / Fumigadora','Motobomba','Generador','Hidrolavadora','Sopladora','Cortasetos','Motocultor','Podadora de altura','Ahoyador','Motor estacionario'],
  marcas:['Stihl','Husqvarna','Echo','Shindaiwa','Honda','Kawasaki','Makita','Oleo-Mac','Efco','Maruyama','Tanaka','Jacto','Solo','Briggs & Stratton','Yamaha','Truper'],
  modelos:[{m:'Stihl',t:'Motosierra',n:'MS 170'},{m:'Stihl',t:'Motosierra',n:'MS 250'},{m:'Stihl',t:'Motosierra',n:'MS 382'},{m:'Stihl',t:'Motosierra',n:'MS 462'},{m:'Stihl',t:'Desbrozadora / Motoguadaña',n:'FS 55'},{m:'Stihl',t:'Desbrozadora / Motoguadaña',n:'FS 280'},{m:'Stihl',t:'Desbrozadora / Motoguadaña',n:'FS 450'},{m:'Stihl',t:'Bomba de espalda / Fumigadora',n:'SR 420'},{m:'Stihl',t:'Sopladora',n:'BR 600'},{m:'Husqvarna',t:'Motosierra',n:'445'},{m:'Husqvarna',t:'Motosierra',n:'365'},{m:'Husqvarna',t:'Desbrozadora / Motoguadaña',n:'143R-II'},{m:'Honda',t:'Motor estacionario',n:'GX160'},{m:'Honda',t:'Motor estacionario',n:'GX390'}],
@@ -1087,6 +1088,7 @@ function vOrden(id){
      <div class="cp-in" id="trabBox">${esTaller()?trabForm(b):trabRO(b)}</div></div>
     <div class="card"><div class="ch"><h2>${hic('box')} Repuestos utilizados</h2><button class="btn sm" data-act="ppAdd" data-id="${b.id}" title="Pedir un repuesto que no hay">${ic('cart')} Falta</button><button class="btn sm p" data-act="addRep" data-id="${b.id}">${ic('plus')} Agregar</button></div>
      ${lines.length?`<div class="lines">${lines.map((l,i)=>`<div class="ln"><div style="flex:1;min-width:0"><div style="font-weight:600" class="ell">${esc(l.nombre)}</div><div class="small muted"><span class="mono">${esc(l.sku||'Sin código')}</span> · <span class="tag ${l.condicion==='Usado'?'u':'n'}">${esc(condLbl(l.condicion))}</span></div></div><div class="qty"><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="-1">${ic('minus')}</button><span>${num(l.cant)}</span><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="1">${ic('plus')}</button></div><button class="ib" data-act="rmLine" data-id="${b.id}" data-i="${i}" title="Quitar">${ic('trash')}</button></div>`).join('')}</div>`:emptyBox('box','Sin repuestos','Agregue los repuestos nuevos o de segunda que se instalen; se descuentan del inventario.')}</div>
+    ${moCard(b)}
     <div class="card"><div class="ch"><h2>${hic('clock')} Historial</h2><button class="btn sm" data-act="nota" data-id="${b.id}">${ic('plus')} Nota</button></div>
      <ul class="tl">${(b.historial||[]).slice().reverse().map(h=>`<li style="--c:${est(h.estado).c}"><b>${esc(h.estado)}</b> <span class="muted small">· ${fts(h.t)}${h.por?' · '+esc(h.por):''}</span>${h.nota?`<div class="small" style="margin-top:2px">${esc(h.nota)}</div>`:''}</li>`).join('')}</ul></div>
    </div>
@@ -1567,8 +1569,12 @@ const REPORTS={
    const bs=arr(S.boletas).filter(b=>inRange(b.fechaIngreso)).sort((a,b)=>num(a.numero)-num(b.numero));
    return [{head:['Orden','Fecha','Cliente','Teléfono','Tipo','Marca','Modelo','Serie','Falla','Técnico','Estado','Días'],num:[11],rows:bs.map(b=>{const c=cli(b.clienteId)||{},e=eq(b.equipoId)||{};return [nb(b.numero),fdate(b.fechaIngreso),c.nombre||'',c.telefono||'',e.tipo||'',e.marca||'',e.modelo||'',e.serie||'',fallaTxt(b),b.tecnico||'',b.estado,daysBetween(b.fechaIngreso,b.fechaEntrega||today())]})}]}},
  tecnicos:{t:'Trabajo por técnico',i:'users',d:'Órdenes asignadas, entregadas, activas y días promedio hasta la entrega.',build(){
-   const g={};arr(S.boletas).filter(b=>b.estado!=='Cancelado'&&inRange(b.fechaIngreso)).forEach(b=>{const k=b.tecnico||'Sin asignar';const o=g[k]||(g[k]={n:0,e:0,a:0,d:0});o.n++;if(b.estado==='Entregado'){o.e++;o.d+=daysBetween(b.fechaIngreso,b.fechaEntrega||today())}else o.a++});
-   return [{head:['Técnico','Órdenes','Entregadas','En taller','Promedio días'],num:[1,2,3,4],rows:Object.entries(g).sort((a,b)=>b[1].n-a[1].n).map(([k,o])=>[k,o.n,o.e,o.a,o.e?Math.round(o.d/o.e*10)/10:'—'])}]}},
+   const g={};arr(S.boletas).filter(b=>b.estado!=='Cancelado'&&inRange(b.fechaIngreso)).forEach(b=>{(b.manoObra||[]).forEach(l=>{const t=l.tec||b.tecnico||'Sin asignar';const q=g[t]||(g[t]={n:0,e:0,a:0,d:0,h:0});q.h=(q.h||0)+num(l.h)});const k=b.tecnico||'Sin asignar';const o=g[k]||(g[k]={n:0,e:0,a:0,d:0,h:0});o.n++;if(b.estado==='Entregado'){o.e++;o.d+=daysBetween(b.fechaIngreso,b.fechaEntrega||today())}else o.a++});
+   return [{head:['Técnico','Órdenes','Entregadas','En taller','Promedio días','Horas mano de obra'],num:[1,2,3,4,5],rows:Object.entries(g).sort((a,b)=>b[1].n-a[1].n).map(([k,o])=>[k,o.n,o.e,o.a,o.e?Math.round(o.d/o.e*10)/10:'—',Math.round((o.h||0)*100)/100])}]}},
+ manoobra:{t:'Mano de obra',i:'wrench',d:'Trabajos hechos con su código, técnico y horas utilizadas en el período.',build(){
+   const rows=[];arr(S.boletas).filter(b=>b.estado!=='Cancelado'&&inRange(b.fechaIngreso)).forEach(b=>(b.manoObra||[]).forEach(l=>rows.push([fdate(iso(new Date(l.t||b.createdAt))),nb(b.numero),cli(b.clienteId)?.nombre||'',eqShort(eq(b.equipoId)),l.c||'',l.d,l.tec||b.tecnico||'',num(l.h)])));
+   const ag={};rows.forEach(r=>{const k=r[4]+'|'+r[5];const o=ag[k]||(ag[k]=[r[4],r[5],0,0]);o[2]++;o[3]+=r[7]});
+   return [{title:'Resumen por trabajo',head:['Código','Trabajo','Veces','Horas'],num:[2,3],rows:Object.values(ag).sort((a,b)=>b[3]-a[3]).map(r=>[r[0],r[1],r[2],Math.round(r[3]*100)/100])},{title:'Detalle',head:['Fecha','Orden','Cliente','Equipo','Código','Trabajo','Técnico','Horas'],num:[7],rows:rows.sort((a,b)=>b[1].localeCompare(a[1]))}]}},
  usados:{t:'Repuestos utilizados',i:'box',d:'Qué repuestos nuevos y de segunda se instalaron en el período.',build(){
    const ag={};arr(S.boletas).filter(b=>b.estado!=='Cancelado'&&inRange(b.fechaIngreso)).forEach(b=>(b.repuestos||[]).forEach(l=>{const k=(l.sku||'')+'|'+l.nombre;const o=ag[k]||(ag[k]=[l.sku||'',l.nombre,condLbl(l.condicion),0,0]);o[3]+=num(l.cant);o[4]++}));
    return [{head:['Código','Repuesto','Condición','Cantidad','Órdenes'],num:[3,4],rows:Object.values(ag).sort((a,b)=>b[3]-a[3])}]}},
@@ -1588,7 +1594,7 @@ function vReportes(){
 }
 function repPreview(k){
   const R=REPORTS[k];const secs=R.build();
-  openModal(esc(R.t),`<p class="small muted" style="margin-top:0">${esc(CFG.nombre)} · ${rangoTxt()} · Generado ${fts(Date.now())}</p>${secs.map(s=>`<div class="card"><div class="tw"><table class="t"><thead><tr>${s.head.map((h,i)=>`<th class="${(s.num||[]).includes(i)?'n':''}">${esc(h)}</th>`).join('')}</tr></thead><tbody>${s.rows.length?s.rows.map(r=>`<tr>${r.map((v,i)=>`<td class="${(s.num||[]).includes(i)?'n':''}">${esc(v)}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${s.head.length}" class="muted">Sin datos en el período.</td></tr>`}</tbody></table></div></div>`).join('')}`,
+  openModal(esc(R.t),`<p class="small muted" style="margin-top:0">${esc(CFG.nombre)} · ${rangoTxt()} · Generado ${fts(Date.now())}</p>${secs.map(s=>`${s.title?`<h3 style="margin:14px 0 8px">${esc(s.title)}</h3>`:''}<div class="card"><div class="tw"><table class="t"><thead><tr>${s.head.map((h,i)=>`<th class="${(s.num||[]).includes(i)?'n':''}">${esc(h)}</th>`).join('')}</tr></thead><tbody>${s.rows.length?s.rows.map(r=>`<tr>${r.map((v,i)=>`<td class="${(s.num||[]).includes(i)?'n':''}">${esc(v)}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${s.head.length}" class="muted">Sin datos en el período.</td></tr>`}</tbody></table></div></div>`).join('')}`,
    `<span class="small muted">${secs[0].rows.length} fila${secs[0].rows.length!==1?'s':''}</span><span class="sp"></span><button class="btn" data-act="repPdf" data-k="${k}">${ic('dl')} PDF</button><button class="btn p" data-act="repXls" data-k="${k}">${ic('dl')} Excel</button>`,'lg');
 }
 const stamp=()=>today()+'_'+pad(new Date().getHours())+pad(new Date().getMinutes());
@@ -1600,7 +1606,7 @@ async function repXls(k){
     return saveFile(fname(R.t)+'_'+stamp()+'.csv','﻿'+csv);
   }
   const wb=XLSX.utils.book_new();
-  secs.forEach(s=>{const aoa=[[CFG.nombre],[R.t],[rangoTxt()],[],s.head,...s.rows];const ws=XLSX.utils.aoa_to_sheet(aoa);ws['!cols']=s.head.map((h,j)=>({wch:Math.min(45,Math.max(String(h).length,...s.rows.map(r=>String(r[j]??'').length))+2)}));XLSX.utils.book_append_sheet(wb,ws,R.t.slice(0,30))});
+  secs.forEach(s=>{const aoa=[[CFG.nombre],[R.t],[rangoTxt()],[],s.head,...s.rows];const ws=XLSX.utils.aoa_to_sheet(aoa);ws['!cols']=s.head.map((h,j)=>({wch:Math.min(45,Math.max(String(h).length,...s.rows.map(r=>String(r[j]??'').length))+2)}));XLSX.utils.book_append_sheet(wb,ws,(s.title||R.t).slice(0,30))});
   await saveFile(fname(R.t)+'_'+stamp()+'.xlsx',new Blob([XLSX.write(wb,{bookType:'xlsx',type:'array'})]));
 }
 async function repPdf(k){
@@ -1612,6 +1618,7 @@ async function repPdf(k){
   doc.setFontSize(8.5);doc.setTextColor(120,120,120);doc.text(rangoTxt()+' · Generado '+fts(Date.now()),40,72);
   let y=86;
   secs.forEach(s=>{const al={};(s.num||[]).forEach(i=>al[i]={halign:'right'});
+    if(s.title){doc.setFontSize(10);doc.setTextColor(30,30,30);doc.text(s.title,40,y+4);y+=12}
     doc.autoTable({startY:y,head:[s.head],body:s.rows.length?s.rows.map(r=>r.map(v=>String(v??''))):[[{content:'Sin datos en el período',colSpan:s.head.length}]],styles:{fontSize:8,cellPadding:4},headStyles:{fillColor:[21,128,61]},alternateRowStyles:{fillColor:[247,250,247]},columnStyles:al,margin:{left:40,right:40}});
     y=doc.lastAutoTable.finalY+20});
   await saveFile(fname(R.t)+'_'+stamp()+'.pdf',doc.output('blob'));
@@ -1919,6 +1926,47 @@ function pbRecep(b){
   return `<h4>Falla reportada</h4><p>${esc(fallaTxt(b)||'—')}</p>
   <div class="two"><div><h4>Condición en que llega</h4><p>${esc(condTxt(b)||'—')}</p>${b.observaciones?`<p><i>${esc(b.observaciones)}</i></p>`:''}</div><div><h4>Lo que trae</h4><p>${esc(accTxt(b)||'Nada adicional')}</p>${(b.faltantes||[]).length?`<h4>No trae / le falta</h4><p>${esc(b.faltantes.join(', '))}</p>`:''}</div></div>`;
 }
+
+/* ---------- Mano de obra ---------- */
+const moH=b=>(b.manoObra||[]).reduce((a,l)=>a+num(l.h),0);
+const fh=h=>{h=Math.round(num(h)*100)/100;return (h%1?String(h).replace('.',','):h)+' h'};
+const moPuede=b=>isOpen(b)||isAdmin();
+function moCard(b){
+  const L=b.manoObra||[];const can=moPuede(b);
+  return `<div class="card"><div class="ch"><h2><span class="hem">🛠️</span> Mano de obra ${L.length?`<span class="badge" style="background:var(--pri-l);color:var(--pri)">${fh(moH(b))}</span>`:''}</h2>${can?`<button class="btn sm p" data-act="moAdd" data-id="${b.id}">${ic('plus')} Agregar</button>`:''}</div>
+   ${L.length?`<div class="lines">${L.map((l,i)=>`<div class="ln"><div style="flex:1;min-width:0"><div style="font-weight:600" class="ell"><span class="mono" style="color:var(--pri)">${esc(l.c||'—')}</span> · ${esc(l.d)}</div><div class="small muted ell">${l.tec?'🔧 '+esc(l.tec):''}${l.nota?' · '+esc(l.nota):''}${l.por&&l.por!==l.tec?` · anotó ${esc(l.por)}`:''}${l.rec?' · <span style="color:var(--warn)">agregada en recepción</span>':''}</div></div>${can?`<div class="qty"><button data-act="moH" data-id="${b.id}" data-i="${i}" data-d="-0.5">${ic('minus')}</button><span style="min-width:50px">${fh(l.h)}</span><button data-act="moH" data-id="${b.id}" data-i="${i}" data-d="0.5">${ic('plus')}</button></div><button class="ib" data-act="moRm" data-id="${b.id}" data-i="${i}" title="Quitar">${ic('trash')}</button>`:`<b>${fh(l.h)}</b>`}</div>`).join('')}</div>`:emptyBox('🛠️','Sin mano de obra','Anote el trabajo hecho con su código y las horas utilizadas.'+(esTaller()?'':' Si el taller lo olvidó, puede agregarlo aquí.'))}</div>`;
+}
+let MO=null;
+function moNextCode(){const n=Math.max(0,...CAT().manoObra.map(x=>+(/(\d+)$/.exec(x.c||'')||[0,0])[1]));return 'MO-'+String(n+1).padStart(2,'0')}
+function moModal(id){
+  const b=S.boletas[id];if(!b)return;
+  const yoP=yo();const tec=b.tecnico||(yoP&&yoP.puesto!=='recepcion'?yoP.n:'');
+  MO={id,c:'',d:'',h:1,tec,nota:''};moRender();
+}
+function moRender(){
+  const m=MO;const cat=CAT().manoObra;const q=norm(m.f||'');const vis=cat.filter(x=>!q||norm(x.c+' '+x.d).includes(q));
+  openModal('🛠️ Agregar mano de obra',`<div class="sect"><span class="fl">Trabajo <span class="opt">(toque uno o escriba uno nuevo)</span></span>
+   ${cat.length>8?`<input class="inp cpfil" id="moF" placeholder="Filtrar…" value="${esc(m.f||'')}">`:''}
+   <div class="cp">${vis.map(x=>`<button type="button" class="cpc ${m.c===x.c?'on':''}" data-act="moPick" data-c="${esc(x.c)}" data-d="${esc(x.d)}"><span class="mono" style="font-size:12px;opacity:.8">${esc(x.c)}</span> ${esc(x.d)}</button>`).join('')}</div></div>
+   <div class="fr"><div class="f"><label>Código</label><input id="moC" value="${esc(m.c)}" placeholder="${moNextCode()}" autocomplete="off"></div><div class="f" style="grid-column:span 2"><label>Descripción</label><input id="moD" value="${esc(m.d)}" placeholder="Ej.: Reparación de embrague" autocomplete="off"></div></div>
+   <div class="sect"><span class="fl">Horas utilizadas</span><div class="row"><div class="qty"><button type="button" data-act="moHh" data-d="-0.25">${ic('minus')}</button><input id="moHv" type="number" step="0.25" min="0" value="${m.h}" style="width:70px;border:0;text-align:center;font-weight:800;background:transparent;outline:none"><button type="button" data-act="moHh" data-d="0.25">${ic('plus')}</button></div>
+    <div class="cp">${[0.5,1,1.5,2,3,4,8].map(h=>`<button type="button" class="cpc ${num(m.h)===h?'on':''}" data-act="moHs" data-v="${h}">${fh(h)}</button>`).join('')}</div></div></div>
+   <div class="sect"><span class="fl">Técnico que lo hizo</span><div class="cp">${tecChips().map(t=>`<button type="button" class="cpc ${m.tec===t?'on':''}" data-act="moTec" data-v="${esc(t)}">🔧 ${esc(t)}</button>`).join('')||'<span class="small muted">Agregue técnicos en Configuración → Personal y puestos.</span>'}</div></div>
+   <div class="f"><label>Nota <span class="opt">(opcional)</span></label><input id="moN" value="${esc(m.nota)}" autocomplete="off"></div>`,
+   `<span class="sp"></span><button class="btn" data-act="close">Cancelar</button><button class="btn p" data-act="moSave">${ic('check')} Agregar</button>`);
+  const f=$('#moF');if(f){f.oninput=e=>{moSync();MO.f=e.target.value;const p=e.target.selectionStart;moRender();const g=$('#moF');g.focus();try{g.setSelectionRange(p,p)}catch(x){}}}
+}
+function moSync(){if(!MO)return;const v=id=>{const e=$(id);return e?e.value:null};const c=v('#moC'),d=v('#moD'),h=v('#moHv'),n=v('#moN');if(c!=null)MO.c=c.trim();if(d!=null)MO.d=d.trim();if(h!=null)MO.h=Math.max(0,num(h));if(n!=null)MO.nota=n.trim()}
+async function moSave(){
+  moSync();const m=MO;const b=S.boletas[m.id];if(!b)return;
+  if(!m.d)return toast('Escriba o elija el trabajo');if(!(num(m.h)>0))return toast('Indique las horas utilizadas');
+  const c=m.c||moNextCode();const cat=CAT();
+  if(!cat.manoObra.some(x=>norm(x.c)===norm(c)||norm(x.d)===norm(m.d))){cat.manoObra=[...cat.manoObra,{c,d:m.d}];await saveCat(cat)}
+  const line={id:uid(),c,d:m.d,h:Math.round(num(m.h)*100)/100,tec:m.tec||'',nota:m.nota||'',por:quien(),t:Date.now()};if(!esTaller()||puestoActual()==='recepcion')line.rec=true;
+  if(await put('boletas',{...b,manoObra:[...(b.manoObra||[]),line]})){closeModal();MO=null;render();toast(`🛠️ ${c} · ${fh(line.h)} agregado`)}
+}
+function pbMO(b,blank){const L=b.manoObra||[];if(!L.length&&!blank)return '';
+  return `<h4>Mano de obra</h4><table><thead><tr><th>Código</th><th>Trabajo</th><th>Técnico</th><th style="text-align:right">Horas</th></tr></thead><tbody>${L.length?L.map(l=>`<tr><td>${esc(l.c||'')}</td><td>${esc(l.d)}${l.nota?` <i>(${esc(l.nota)})</i>`:''}</td><td>${esc(l.tec||'')}</td><td style="text-align:right">${fh(l.h)}</td></tr>`).join('')+`<tr><td colspan="3" style="text-align:right"><b>Total</b></td><td style="text-align:right"><b>${fh(moH(b))}</b></td></tr>`:'<tr><td>&nbsp;</td><td></td><td></td><td></td></tr>'.repeat(3)}</tbody></table>`}
 function pbRepuestos(b){return (b.repuestos||[]).length?`<h4>Repuestos instalados</h4><table><thead><tr><th>Código</th><th>Repuesto</th><th>Condición</th><th style="text-align:right">Cant.</th></tr></thead><tbody>${b.repuestos.map(l=>`<tr><td>${esc(l.sku||'')}</td><td>${esc(l.nombre)}</td><td>${esc(condLbl(l.condicion))}</td><td style="text-align:right">${num(l.cant)}</td></tr>`).join('')}</tbody></table>`:''}
 function recepBody(b){
   const r0=(b.historial||[])[0]||{};
@@ -1937,6 +1985,7 @@ function tallerBody(b){
   <h4>Diagnóstico</h4>${b.diagnostico?`<p>${esc(b.diagnostico)}</p>`:'<div class="wl"></div><div class="wl"></div>'}
   <h4>Trabajo realizado</h4>${trabTxt(b)?`<p>${esc(trabTxt(b))}</p>`:'<div class="wl"></div><div class="wl"></div><div class="wl"></div>'}
   <h4>Repuestos usados</h4>${(b.repuestos||[]).length?pbRepuestos(b).replace('<h4>Repuestos instalados</h4>',''):'<table><thead><tr><th>Código</th><th>Repuesto</th><th>Nuevo / Segunda</th><th>Cant.</th></tr></thead><tbody>'+'<tr><td>&nbsp;</td><td></td><td></td><td></td></tr>'.repeat(4)+'</tbody></table>'}
+  ${pbMO(b,true)}
   ${b.notas?`<h4>Notas internas</h4><p>${esc(b.notas)}</p>`:''}
   <div class="sig"><div>Técnico</div><div>Revisado por</div></div>`;
 }
@@ -1951,6 +2000,7 @@ function entregaBody(b){
   ${trabTxt(b)?`<h4>Trabajo realizado</h4><p>${esc(trabTxt(b))}</p>`:''}
   ${cs.n?`<h4>Revisión del equipo</h4><p>${Object.keys(c).filter(k=>c[k]!=='na').map(k=>c[k]==='mal'?`<b style="color:#b91c1c">✗ ${esc(k)}</b>`:`✓ ${esc(k)}`).join(' &nbsp;·&nbsp; ')}</p>`:''}
   ${pbRepuestos(b)}
+  ${pbMO(b)}
   <div class="two"><div><h4>Accesorios</h4><p>Trajo: ${esc(accTxt(b)||'nada adicional')}</p>${b.recepRecibio&&(b.recepRecibio.faltan||[]).length?`<p style="color:#b91c1c">Faltan al devolver: ${esc(b.recepRecibio.faltan.join(', '))}</p>`:b.recepRecibio?'<p>Se devuelve todo lo recibido.</p>':''}</div>
   <div><h4>Garantía</h4><p>${num(b.garantiaDias)?`${num(b.garantiaDias)} días${gh?` · hasta el <b>${fdate(gh)}</b>`:''}`:'Sin garantía'}</p>${b.tecnico?`<p>Técnico: ${esc(b.tecnico)}</p>`:''}</div></div>
   <h4>Recorrido del equipo</h4><table><thead><tr><th>Paso</th><th>Fecha</th><th>Responsable</th></tr></thead><tbody>
@@ -2073,6 +2123,12 @@ const A={
  nota:d=>notaForm(d.id),
  saveTrab:d=>saveTrab(d.id),
  addRep:soloT(d=>addRepModal(d.id)),
+ moAdd:d=>{const b=S.boletas[d.id];if(b&&!moPuede(b))return toast('La orden está cerrada. Solo el administrador puede cambiarla.');moModal(d.id)},
+ moPick:d=>{moSync();MO.c=d.c;MO.d=d.d;moRender()},moTec:d=>{moSync();MO.tec=MO.tec===d.v?'':d.v;moRender()},
+ moHs:d=>{moSync();MO.h=num(d.v);moRender()},moHh:d=>{moSync();MO.h=Math.max(0,Math.round((num(MO.h)+num(d.d))*100)/100);const e=$('#moHv');if(e)e.value=MO.h},
+ moSave:()=>moSave(),
+ moH:async d=>{const b=S.boletas[d.id];if(!b||!moPuede(b))return;const L=(b.manoObra||[]).map(x=>({...x}));const l=L[+d.i];if(!l)return;l.h=Math.max(0.25,Math.round((num(l.h)+num(d.d))*100)/100);if(await put('boletas',{...b,manoObra:L}))render()},
+ moRm:d=>{const b=S.boletas[d.id];if(!b||!moPuede(b))return;const l=(b.manoObra||[])[+d.i];if(!l)return;confirmBox(`¿Quitar <b>${esc(l.c)} · ${esc(l.d)}</b> (${fh(l.h)})?`,async()=>{const L=(b.manoObra||[]).filter((_,i)=>i!==+d.i);if(await put('boletas',{...b,manoObra:L})){closeModal();render();toast('Quitado')}},'Quitar')},
  rpSel:d=>{RP.sel=RP.sel===d.id?null:d.id;RP.cant=1;rpRender()},
  rpCant:d=>{RP.cant=Math.max(1,RP.cant+num(d.d));rpRender()},
  rpAdd:async()=>{const r=rep(RP.sel);if(!r)return;const bid=RP.bid,c=RP.cant;await addLine(bid,r,c);closeModal();render();toast(c+'× '+r.nombre+' agregado')},
