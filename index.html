@@ -820,9 +820,10 @@ function subscribe(db){
   const done=new Set();const total=COLS.length+2;
   const ok=(k,snap)=>{if(!snap.metadata.fromCache){done.add(k);if(done.size>=total&&!connected){connected=true;clearTimeout(timer);setStatus('')}}};
   const onErr=e=>{clearTimeout(timer);setStatus(e.code==='revoked'?'Se retiró el acceso a los datos de esta página.':e.code==='permission-denied'?'Sin permiso para leer los datos. Revise las reglas de Firestore o vuelva a iniciar sesión.':'Error al leer los datos ('+e.code+').','err')};
-  UNSUB=[...COLS.map(c=>db.collection(c).onSnapshot(s=>{const m={};s.docs.forEach(d=>{m[d.id]={...d.data(),id:d.id}});S[c]=m;ok(c,s);if(c==='boletas'&&(SEEN||!s.metadata.fromCache))watchBoletas(m);later()},onErr)),
-   db.doc('config/taller').onSnapshot(d=>{CFG={...DEF_CFG,...(d.exists?d.data():{})};ok('cfg',d);later()},onErr),
-   db.doc('config/catalogo').onSnapshot(d=>{CATD=d.exists?d.data():null;ok('cat',d);later()},onErr)];
+  const on=(ref,cb)=>FB_MODE?ref.onSnapshot({includeMetadataChanges:true},cb,onErr):ref.onSnapshot(cb,onErr);
+  UNSUB=[...COLS.map(c=>on(db.collection(c),s=>{const m={};s.docs.forEach(d=>{m[d.id]={...d.data(),id:d.id}});S[c]=m;ok(c,s);if(c==='boletas'&&(SEEN||!s.metadata.fromCache))watchBoletas(m);later()})),
+   on(db.doc('config/taller'),d=>{CFG={...DEF_CFG,...(d.exists?d.data():{})};ok('cfg',d);later()}),
+   on(db.doc('config/catalogo'),d=>{CATD=d.exists?d.data():null;ok('cat',d);later()})];
 }
 async function initStore(){
   if(FB_MODE)return initFirebase();
