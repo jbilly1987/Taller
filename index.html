@@ -1403,7 +1403,7 @@ function pendPorRep(){const m={};arr(S.pedidos).filter(p=>p.estado==='Pedido').f
 function porPedir(){
   const pend=pendPorRep();const L=[];
   arr(S.porpedir).forEach(m=>{const r=m.repuestoId&&rep(m.repuestoId);L.push({key:'m:'+m.id,mid:m.id,cat:r?(r.categoria||''):'',repuestoId:r?r.id:'',sku:r?r.sku:(m.sku||''),nombre:r?r.nombre:m.nombre,cond:r?r.condicion:(m.condicion||'Nuevo'),compatible:r?r.compatible:(m.compatible||''),stock:r?num(r.stock):null,min:r?num(r.stockMin):null,proveedor:m.proveedor||(r&&r.proveedor)||'',sug:Math.max(1,num(m.cant)),boletaId:m.boletaId||'',numero:m.numero||'',motivo:m.boletaId?'Falta en '+nb(m.numero):'Agregado a la lista',pend:r?pend[r.id]||0:0})});
-  arr(S.repuestos).filter(r=>stockSt(r).k!=='ok'&&!L.some(l=>l.repuestoId===r.id)).forEach(r=>L.push({key:'r:'+r.id,cat:r.categoria||'',repuestoId:r.id,sku:r.sku,nombre:r.nombre,cond:r.condicion||'Nuevo',compatible:r.compatible||'',stock:num(r.stock),min:num(r.stockMin),proveedor:r.proveedor||'',sug:Math.max(1,num(r.stockMin)*2-num(r.stock)),motivo:num(r.stock)<=0?'Agotado':'Llegó al mínimo',pend:pend[r.id]||0}));
+  arr(S.repuestos).filter(r=>stockSt(r).k!=='ok'&&!(r.omitPed!=null&&num(r.omitPed)===num(r.stock))&&!L.some(l=>l.repuestoId===r.id)).forEach(r=>L.push({key:'r:'+r.id,cat:r.categoria||'',repuestoId:r.id,sku:r.sku,nombre:r.nombre,cond:r.condicion||'Nuevo',compatible:r.compatible||'',stock:num(r.stock),min:num(r.stockMin),proveedor:r.proveedor||'',sug:Math.max(1,num(r.stockMin)*2-num(r.stock)),motivo:num(r.stock)<=0?'Agotado':'Llegó al mínimo',pend:pend[r.id]||0}));
   return L.sort((a,b)=>(a.pend?1:0)-(b.pend?1:0)||String(a.nombre).localeCompare(b.nombre));
 }
 const pdQty=l=>UI.pQty[l.key]??l.sug;
@@ -1436,7 +1436,7 @@ function vPedidos(){
     <td class="n">${l.stock==null?'—':`<b style="color:${l.stock<=0?'var(--red)':'var(--warn)'}">${l.stock}</b> / ${l.min}`}</td>
     <td><div class="qty"><button data-act="pQty" data-k="${l.key}" data-d="-1">${ic('minus')}</button><span>${pdQty(l)}</span><button data-act="pQty" data-k="${l.key}" data-d="1">${ic('plus')}</button></div></td>
     <td><select class="sel" style="padding:6px 8px;max-width:160px" data-pprov="${l.key}"><option value="">—</option>${ps.map(p=>`<option ${norm(p.n)===norm(l.proveedor)?'selected':''}>${esc(p.n)}</option>`).join('')}</select></td>
-    <td>${l.mid?`<button class="ib" data-act="ppDel" data-id="${l.mid}" title="Quitar de la lista">${ic('trash')}</button>`:''}</td></tr>`).join('')}</tbody></table></div>`:emptyBox('cart',P?'Nada pendiente para este proveedor':'No hace falta pedir nada','Cuando un repuesto llegue a su mínimo o falte en una orden, aparecerá aquí.')}
+    <td><button class="ib" data-act="ppDel" data-k="${l.key}" title="Quitar de la lista" style="color:var(--red)">${ic('trash')}</button></td></tr>`).join('')}</tbody></table></div>`:emptyBox('cart',P?'Nada pendiente para este proveedor':'No hace falta pedir nada','Cuando un repuesto llegue a su mínimo o falte en una orden, aparecerá aquí.')}
    ${P&&P!=='__sin'&&shown.length?`<div class="mf" style="border-top:1px solid var(--line2)"><span class="small muted">${sel.length} de ${shown.length} marcados</span><span class="sp"></span>
      <button class="btn" data-act="pPrint">${ic('print')} Imprimir</button><button class="btn" data-act="pCopy">Copiar lista</button>
      ${pv&&pv.tel?(wa?`<a class="btn wa" href="${esc(wa)}" target="_blank" rel="noopener" data-act="pWa">${ic('msg')} Enviar por WhatsApp</a>`:`<button class="btn wa" disabled>${ic('msg')} Enviar por WhatsApp</button>`):`<button class="btn" data-act="provForm" data-n="${esc(P)}">${ic('phone')} Agregar teléfono de ${esc(P)}</button>`}
@@ -2348,7 +2348,10 @@ const A={
  pProv:d=>{UI.pProv=d.v;render()},
  pQty:d=>{const l=porPedir().find(x=>x.key===d.k);if(!l)return;UI.pQty[d.k]=Math.max(1,pdQty(l)+num(d.d));render()},
  ppAdd:d=>{if(d.id&&!esTaller())return toast('Esto lo hace el taller.');ppAddForm(d.id)},
- ppDel:async d=>{await del('porpedir',d.id);render()},
+ ppDel:d=>{const l=porPedir().find(x=>x.key===d.k);if(!l)return;
+   confirmBox(`¿Quitar <b>${esc(l.nombre)}</b> de la lista por pedir?${l.mid?'':'<br><span class="small muted">Está aquí porque '+(l.stock<=0?'está agotado':'llegó al mínimo')+'. Volverá a aparecer solo si cambia su stock.</span>'}`,async()=>{
+    let ok;if(l.mid)ok=await del('porpedir',l.mid);else{const r=rep(l.repuestoId);ok=r&&await put('repuestos',{...r,omitPed:num(r.stock)})}
+    if(ok!==false){delete UI.pQty[l.key];delete UI.pOn[l.key];closeModal();render();toast('🗑️ Quitado de la lista')}},'Quitar')},
  pCopy:async()=>{const pv=provBy(UI.pProv);try{await navigator.clipboard.writeText(pdMsg(pdSelected(),pv?pv.n:UI.pProv));toast('Lista copiada')}catch(e){toast('No se pudo copiar')}},
  pWa:()=>{setTimeout(()=>confirmBox('¿Ya le envió el mensaje al proveedor? Márquelo como pedido para recibirlo después y no pedirlo dos veces.',async()=>{closeModal();await pMark()},'Marcar como pedido'),900)},
  pMark:()=>pMark(),
