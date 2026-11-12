@@ -597,7 +597,7 @@ const PIPE=['Recibido','En diagnóstico','En reparación','Control de calidad','
 const CERR=['Entregado','Cancelado'];
 const PROVINCIAS=['San José','Alajuela','Cartago','Heredia','Guanacaste','Puntarenas','Limón'];
 const TIPO_EM=[['motosierra','🪚'],['desbroz','🌿'],['guadaña','🌿'],['cortac','🌱'],['tractor','🚜'],['fumig','💦'],['espalda','💦'],['motobomba','💧'],['bomba','💧'],['generador','⚡'],['hidrolav','🚿'],['soplad','💨'],['cortaset','✂️'],['motocult','🚜'],['podadora','🌳'],['ahoyador','🕳️'],['motor','⚙️']];
-const DEF_CFG={nombre:'Servicio Técnico de Equipos Agrícolas, Forestales y de Jardín',cedula:'',telefono:'',correo:'',direccion:'',garantia:30,stockMinDef:2,logo:'',diasRetiro:15,diasSinMov:5,diasAprob:3,diasPedido:7,appUrl:'',
+const DEF_CFG={nombre:'Servicio Técnico de Equipos Agrícolas, Forestales y de Jardín',cedula:'',telefono:'',correo:'',direccion:'',garantia:30,stockMinDef:2,logo:'',diasRetiro:15,diasSinMov:5,diasTaller:15,ultimoRespaldo:0,diasAprob:3,diasPedido:7,appUrl:'',
  terminos:'1. Todo equipo se recibe sujeto a diagnóstico. Se comunicará al cliente antes de realizar la reparación.\n2. Es indispensable presentar este comprobante para retirar el equipo.\n3. Equipos no retirados 30 días naturales después de notificado que están listos podrán generar cargo por bodegaje.\n4. La garantía cubre el trabajo realizado y los repuestos nuevos instalados por el plazo indicado. Los repuestos usados no tienen garantía salvo indicación.\n5. El taller no se responsabiliza por accesorios no detallados en este comprobante.'};
 const DEF_CAT={
  tipos:['Motosierra','Desbrozadora / Motoguadaña','Cortacésped','Tractor de jardín','Bomba de espalda / Fumigadora','Motobomba','Generador','Hidrolavadora','Sopladora','Cortasetos','Motocultor','Podadora de altura','Ahoyador','Motor estacionario'],
@@ -1189,6 +1189,8 @@ function prevBanner(pi,compact){
 }
 
 /* ================== Alertas ================== */
+function viernesMedioDia(){const d=new Date();const k=(d.getDay()-5+7)%7;const f=new Date(d.getFullYear(),d.getMonth(),d.getDate()-k,12,0,0);if(f>d)f.setDate(f.getDate()-7);return f.getTime()}
+const respaldoPend=()=>num(CFG.ultimoRespaldo)<viernesMedioDia();
 function alertas(){
   const L=[];const t=today();
   const add=(sev,icon,title,detail,act,extra='')=>L.push({sev,icon,title,detail,act,extra});
@@ -1203,6 +1205,7 @@ function alertas(){
     if(b.estado==='Esperando aprobación'&&lc>=num(CFG.diasAprob))add('a','phone',`Esperando aprobación del cliente hace ${lc} días`,who,op,waB);
     if(b.estado==='Esperando repuestos'&&lc>=num(CFG.diasPedido))add('a','cart',`Esperando repuestos hace ${lc} días`,who,op);
     if(!['Listo para entregar','Esperando aprobación','Esperando repuestos'].includes(b.estado)&&lc>=num(CFG.diasSinMov))add('a','activity',`Sin movimiento hace ${lc} días`,who+' · '+b.estado,op);
+    {const dt=daysSince(b.fechaIngreso),lim=num(CFG.diasTaller)||15;if(b.estado!=='Listo para entregar'&&dt>=lim)add(dt>=lim*2?'r':'a','clock',`Lleva ${dt} días en el taller`,who+' · '+b.estado,op,waB)}
     const pi=prevInfo(b);
     if(pi&&pi.enGar)add('r','shield','Volvió en garantía',who+' · antes: '+fallaTxt(pi.p),op);
     else if(pi&&pi.same.length)add('b','repeat','Misma falla que la visita anterior',who+' · '+pi.same.join(', '),op);
@@ -1213,6 +1216,7 @@ function alertas(){
   const low=arr(S.repuestos).filter(r=>stockSt(r).k!=='ok');
   if(low.length){const out=low.filter(r=>num(r.stock)<=0).length;add(out?'r':'a','box',`${low.length} repuesto${low.length!==1?'s':''} en o bajo el mínimo${out?` (${out} agotado${out!==1?'s':''})`:''}`,low.slice(0,4).map(r=>r.nombre).join(', ')+(low.length>4?'…':''),'data-act="nav" data-page="pedidos"')}
   arr(S.pedidos).filter(p=>p.estado==='Pedido').forEach(p=>{const d=daysSince(iso(new Date(p.fecha)));if(d>=num(CFG.diasPedido))add('a','truck',`Pedido a ${p.proveedor||'proveedor'} sin recibir hace ${d} días`,`${p.items.length} artículo${p.items.length!==1?'s':''} · ${pdNum(p)}`,'data-act="nav" data-page="pedidos"')});
+  if(respaldoPend()){const u=num(CFG.ultimoRespaldo);add('a','dl','Toca hacer el respaldo semanal 💾',u?'Último respaldo: '+new Date(u).toLocaleDateString('es-CR',{weekday:'long',day:'numeric',month:'long'}):'Todavía no se ha hecho ningún respaldo','data-act="export"',`<button class="btn sm p" data-act="export">${ic('dl')} Respaldar</button>`)}
   const o={r:0,a:1,b:2};return L.sort((a,b)=>o[a.sev]-o[b.sev]);
 }
 const SEV={r:['var(--red)','var(--red-l)'],a:['var(--warn)','var(--acc-l)'],b:['var(--blue)','var(--blue-l)']};
@@ -1560,7 +1564,7 @@ function vAjustes(){
    <div class="fr">${f('garantia','Garantía por defecto (días)','number','min="0"')}${f('stockMinDef','Stock mínimo por defecto','number','min="0"')}</div>
    <div class="f"><label>Términos del comprobante</label><textarea name="terminos" style="min-height:150px">${esc(CFG.terminos)}</textarea></div>
    <div class="lbl" style="margin-top:6px">Plazos para las alertas (días)</div>
-   <div class="fr">${f('diasRetiro','Listo sin retirar','number','min="1"')}${f('diasSinMov','Orden sin movimiento','number','min="1"')}${f('diasAprob','Esperando aprobación','number','min="1"')}${f('diasPedido','Repuestos / pedido sin llegar','number','min="1"')}</div>
+   <div class="fr">${f('diasRetiro','Listo sin retirar','number','min="1"')}${f('diasSinMov','Orden sin movimiento','number','min="1"')}${f('diasTaller','Mucho tiempo en el taller','number','min="1"')}${f('diasAprob','Esperando aprobación','number','min="1"')}${f('diasPedido','Repuestos / pedido sin llegar','number','min="1"')}</div>
    <div class="f"><label>Enlace de la app <span class="opt">(para el QR de las etiquetas)</span></label><input name="appUrl" type="url" value="${esc(CFG.appUrl)}" placeholder="${esc(appUrl())}"></div>
    <button class="btn p" type="submit">${ic('check')} Guardar</button></div></form>
   <div class="grid" style="align-content:start">
@@ -1933,7 +1937,7 @@ function beep(){try{const A=window._ac||(window._ac=new (window.AudioContext||wi
 function ping(title,desc,id){
   setTimeout(()=>{const d=typeof desc==='function'?desc():desc;let box=$('#pings');if(!box){box=document.createElement('div');box.id='pings';document.body.appendChild(box)}
     const el=document.createElement('div');el.className='ping';el.innerHTML=`<div class="pi">${ic('bell')}</div><div style="flex:1;min-width:0"><b>${esc(title)}</b><div class="small ell">${esc(d)}</div></div><button class="btn sm p">Ver</button><button class="ib" aria-label="Cerrar">${ic('x')}</button>`;
-    el.querySelector('.btn').onclick=()=>{el.remove();go({page:'orden',id})};el.querySelector('.ib').onclick=()=>el.remove();
+    el.querySelector('.btn').onclick=()=>{el.remove();typeof id==='function'?id():go({page:'orden',id})};el.querySelector('.ib').onclick=()=>el.remove();
     box.prepend(el);setTimeout(()=>el.remove(),20000);beep();
     try{if(document.hidden&&'Notification' in window&&Notification.permission==='granted'){const n=new Notification(title,{body:d,icon:'icons/icon-192.png'});n.onclick=()=>{window.focus();go({page:'orden',id})}}}catch(e){}
   },400);
@@ -2058,7 +2062,7 @@ const A={
  setPin:adminOnly(()=>pinForm()),
  quitarPin:adminOnly(()=>confirmBox('¿Quitar el PIN? Todos tendrán acceso completo.',async()=>{const c={...CFG};delete c.pinHash;if(await saveCfg(c)){setAdm('');closeModal();render();toast('PIN eliminado')}},'Quitar PIN')),
  delLogo:adminOnly(async()=>{if(await saveCfg({...CFG,logo:''}))render()}),
- export:adminOnly(()=>{const data=JSON.stringify({version:2,exportado:new Date().toISOString(),config:CFG,catalogo:CATD,...S},null,1);if(DL)saveFile('respaldo-taller-'+today()+'.json',data);else navigator.clipboard.writeText(data).then(()=>toast('Respaldo copiado'),()=>toast('No se pudo copiar'))})
+ export:adminOnly(async()=>{const data=JSON.stringify({version:2,exportado:new Date().toISOString(),config:CFG,catalogo:CATD,...S},null,1);const ok=await saveFile('respaldo-taller-'+today()+'.json',data);if(ok!==false){await saveCfg({...CFG,ultimoRespaldo:Date.now(),respaldoPor:quien()});toast('Respaldo descargado ✅ Guárdelo en un lugar seguro');render()}})
 };
 
 /* ================== Eventos ================== */
@@ -2102,7 +2106,7 @@ document.addEventListener('change',e=>{
 });
 document.addEventListener('submit',async e=>{
   e.preventDefault();
-  if(e.target.id==='cfgForm'){const d=formData(e.target);['garantia','stockMinDef','diasRetiro','diasSinMov','diasAprob','diasPedido'].forEach(k=>{if(k in d)d[k]=num(d[k])});if(await saveCfg({...CFG,...d})){toast('Configuración guardada');render()}}
+  if(e.target.id==='cfgForm'){const d=formData(e.target);['garantia','stockMinDef','diasRetiro','diasSinMov','diasTaller','diasAprob','diasPedido'].forEach(k=>{if(k in d)d[k]=num(d[k])});if(await saveCfg({...CFG,...d})){toast('Configuración guardada');render()}}
 });
 $('#qGlobal').addEventListener('blur',()=>{if(!UI.q)$('#tsearch').classList.remove('open')});
 async function importFile(file){
@@ -2119,6 +2123,7 @@ window.addEventListener('hashchange',fromHash);
 window.addEventListener('resize',()=>{clearTimeout(window._rz);window._rz=setTimeout(shell,150)});
 fromHash();
 {const ss=$('#splashSaw');if(ss)ss.innerHTML=sawSVG();try{const c=JSON.parse(localStorage.getItem(LSKEY)||'null');if(c&&c.CFG&&c.CFG.nombre)$('#splashName').textContent=c.CFG.nombre}catch(e){}setTimeout(hideSplash,LOCAL?600:7000)}
+let _bkPing=0;setInterval(()=>{if(!(connected||LOCAL)||!respaldoPend()||!isAdmin())return;const f=viernesMedioDia();if(_bkPing===f)return;_bkPing=f;ping('Es viernes: toca el respaldo semanal 💾','Descargue una copia de todos los datos del taller.',()=>A.export({}))},60000);
 initStore();
 </script>
 </body>
