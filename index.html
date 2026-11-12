@@ -1818,9 +1818,9 @@ function vAjustes(){
     ${pinOn()?`<p style="margin-top:0">PIN activo. Cada persona trabaja según su puesto. Para editar recepciones ya guardadas, eliminar, cambiar puestos o configurar se necesita el PIN. Con el PIN abierto el administrador puede hacer todo.</p><div class="row"><button class="btn" data-act="setPin">Cambiar PIN</button><button class="btn d" data-act="quitarPin">Quitar PIN</button></div>`
     :`<p style="margin-top:0">Sin PIN, cualquiera puede cambiar la configuración y los puestos. Cree un PIN para que solo usted lo haga.</p><button class="btn p" data-act="setPin">Crear PIN</button>`}
     <p class="small muted">El PIN es un control práctico para el taller, no una contraseña de banco.</p></div></div>
-   <div class="card"><div class="ch"><h2><span class="hem">🔔</span> Avisos en este aparato</h2></div><div class="cp-in"><p style="margin-top:0">Estado: <b>${!('Notification' in window)?'este navegador no los permite':Notification.permission==='granted'?'🟢 activados':Notification.permission==='denied'?'🔴 bloqueados':'⚪ sin activar'}</b></p>
+   <div class="card"><div class="ch"><h2><span class="hem">🔔</span> Avisos en este aparato</h2></div><div class="cp-in"><p style="margin-top:0">Estado: <b>${!('Notification' in window)?(esIOS()&&!esInstalada()?'⚪ hay que instalar la app':'este navegador no los permite'):Notification.permission==='granted'?'🟢 activados':Notification.permission==='denied'?'🔴 bloqueados':'⚪ sin activar'}</b></p>
     <p class="small muted">Avisan con sonido y vibración cuando entra una máquina al taller, cuando le asignan una máquina a un mecánico, cuando una máquina queda lista y cuando la recibe recepción. Funcionan con la app abierta o minimizada.</p>
-    ${'Notification' in window&&Notification.permission!=='granted'?`<button class="btn p" data-act="avisos">🔔 Activar avisos</button>`:''}</div></div>
+    ${!('Notification' in window)?(esIOS()&&!esInstalada()?`<p class="small" style="color:var(--warn)">📱 En iPhone, primero instale la app: Safari → Compartir ⬆️ → <b>Agregar a pantalla de inicio</b>, y ábrala desde ese ícono.</p>`:''):Notification.permission==='granted'?`<button class="btn" data-act="avisoTest">🔔 Probar aviso</button>`:Notification.permission==='denied'?`<button class="btn" data-act="avisoAyuda">¿Cómo desbloquearlos?</button>`:`<button class="btn p" data-act="avisos">🔔 Activar avisos</button>`}</div></div>
    <div class="card"><div class="ch"><h2>${hic('dl')} Respaldo</h2></div><div class="cp-in">
     <p class="small muted" style="margin-top:0">${LOCAL?'<b>Modo local:</b> los datos están solo en este navegador. Exporte respaldos seguido.':FB_MODE?'Los datos están en Firebase. Igual conviene exportar un respaldo cada semana.':'Los datos se guardan en línea y se ven igual en todos sus dispositivos.'}</p>
     <div class="row"><button class="btn" data-act="export">${ic('dl')} Exportar respaldo</button><label class="btn">Importar respaldo<input type="file" id="impFile" accept=".json,application/json" hidden></label></div>
@@ -2291,7 +2291,26 @@ async function pedirAvisos(silent){
   if(!('Notification' in window)){if(!silent)toast('Este navegador no permite avisos');return}
   if(Notification.permission==='granted'){if(!silent)toast('🔔 Los avisos ya están activados');return}
   if(Notification.permission==='denied'){if(!silent)toast('Los avisos están bloqueados. Actívelos en la configuración del navegador (candado junto a la dirección → Notificaciones).');return}
-  try{const r=await Notification.requestPermission();if(r==='granted')toast('🔔 Avisos activados en este aparato')}catch(e){}
+  let r='default';
+  try{r=await new Promise(res=>{const p=Notification.requestPermission(res);if(p&&p.then)p.then(res,()=>res(Notification.permission))})}catch(e){r=Notification.permission}
+  if(view.page==='ajustes')render();
+  if(silent)return;
+  if(r==='granted'){toast('🔔 Avisos activados en este aparato');setTimeout(()=>probarAviso(),600)}
+  else if(r==='denied')toast('Se bloquearon los avisos. Para activarlos: toque el candado o los 3 puntos del navegador → Configuración del sitio → Notificaciones → Permitir.');
+  else avisosAyuda();
+}
+const esIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const esInstalada=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+function avisosAyuda(){
+  openModal('🔔 Activar avisos',`<p style="margin-top:0">El navegador no mostró la pregunta para permitir los avisos. Hágalo así:</p>
+   ${esIOS()?`<ol style="padding-left:20px;line-height:1.7"><li>${esInstalada()?'Abra <b>Ajustes</b> del iPhone → <b>Notificaciones</b>.':'En <b>Safari</b>, toque <b>Compartir</b> ⬆️ → <b>Agregar a pantalla de inicio</b>. En iPhone los avisos <b>solo funcionan con la app instalada</b>.'}</li>${esInstalada()?'<li>Busque la app del taller y active <b>Permitir notificaciones</b>.</li>':'<li>Abra la app desde el ícono nuevo de la pantalla de inicio.</li><li>Vuelva aquí y toque <b>Activar avisos</b>.</li>'}</ol>`
+   :`<ol style="padding-left:20px;line-height:1.7"><li>Toque el <b>candado 🔒</b> (o el ícono de ajustes) junto a la dirección, arriba. Si la tiene instalada como app, mantenga presionado su ícono → <b>Información de la app</b>.</li><li>Entre a <b>Notificaciones</b> o <b>Permisos</b>.</li><li>Elija <b>Permitir</b>.</li><li>Cierre y abra la app.</li></ol>`}`,
+   `<span class="sp"></span><button class="btn p" data-act="close">Entendido</button>`,'sm');
+}
+async function probarAviso(){
+  const t='🔔 Así se ven los avisos',b='Le avisaremos de las máquinas nuevas y asignadas.';
+  try{if(navigator.serviceWorker&&navigator.serviceWorker.controller){const r=await navigator.serviceWorker.ready;await r.showNotification(t,{body:b,icon:'icons/icon-192.png',vibrate:[120,80,120],tag:'prueba'});return}}catch(e){}
+  try{new Notification(t,{body:b,icon:'icons/icon-192.png'})}catch(e){ping(t,b,()=>{})}
 }
 if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.open)go({page:'orden',id:e.data.open})});
 function ping(title,desc,id){
@@ -2422,6 +2441,8 @@ const A={
  uAdd:async()=>{const v=($('#whoNew')?.value||'').trim();if(!v)return toast('Escriba el nombre');const pu=$('#whoPu')?.value||'taller';const L=personal();if(!L.some(p=>norm(p.n)===norm(v)))L.push({n:v,puesto:pu,email:''});await savePersonal(L);uEnter(v,pu,false)},
  setPuesto:d=>{setPuesto(d.v);whoPick();render()},
  avisos:()=>pedirAvisos(false),
+ avisoTest:()=>probarAviso(),
+ avisoAyuda:()=>avisosAyuda(),
  notifPerm:async()=>{try{const r=await Notification.requestPermission();toast(r==='granted'?'Avisos activados':'El navegador no dio permiso')}catch(e){toast('Este navegador no permite avisos aquí')}whoPick()},
  pDoc:d=>printMenu(d.id,d.t),
  tRecibir:soloT(d=>tRecibir(d.id)),
