@@ -549,6 +549,19 @@ html[data-theme=light] .tag.u{background:#ffedd5;color:#c2410c}
 html[data-theme=light] .num{color:#0d9488}
 html[data-theme=light] .kc{background:rgba(255,255,255,.45)}
 html[data-theme=light] .mes>div{background:rgba(255,255,255,.6);border-color:#fff}
+
+.sync{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;border:1px solid var(--line);background:var(--field);transition:background .3s,color .3s,border-color .3s}
+.sync i{width:9px;height:9px;border-radius:50%;background:currentColor;flex-shrink:0;box-shadow:0 0 0 0 currentColor}
+.sync.s-ok{color:#16a34a;border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.10)}
+.sync.s-ok i{animation:syncPulse 2.6s ease-out infinite}
+.sync.s-sync,.sync.s-conn{color:#d97706;border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.10)}
+.sync.s-sync i,.sync.s-conn i{animation:syncBlink .8s ease-in-out infinite}
+.sync.s-off{color:#dc2626;border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.10)}
+.sync.s-local{color:var(--muted)}
+html[data-theme=dark] .sync.s-ok{color:#4ade80}html[data-theme=dark] .sync.s-sync,html[data-theme=dark] .sync.s-conn{color:#fbbf24}html[data-theme=dark] .sync.s-off{color:#f87171}
+@keyframes syncPulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,currentColor 60%,transparent)}70%,100%{box-shadow:0 0 0 7px transparent}}
+@keyframes syncBlink{50%{opacity:.3}}
+@media (max-width:860px){.sync{padding:8px;gap:0}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
 @media (max-width:860px){
   .bnav{left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));padding:6px 6px;border-radius:24px;background:color-mix(in srgb,var(--bg) 60%,transparent);backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);border:1px solid var(--glass-b);box-shadow:var(--sh2)}
@@ -587,7 +600,7 @@ html[data-theme=light] .mes>div{background:rgba(255,255,255,.6);border-color:#ff
       <div class="tsearch" id="tsearch"><span id="srchIc"></span><input id="qGlobal" data-ui="q" placeholder="Buscar cliente, teléfono, serie, orden, repuesto…" autocomplete="off"></div>
       <span class="sp hide-m"></span>
       <button class="ib" id="mSearchBtn" data-act="mSearch" style="display:none"></button><button class="ib thb" data-act="scan" title="Escanear etiqueta QR">📷</button>
-      <button class="ib thb" id="thBtn" data-act="theme" title="Cambiar tema claro/oscuro"></button><div id="whoBox"></div><div id="roleBox"></div>
+      <button class="ib thb" id="thBtn" data-act="theme" title="Cambiar tema claro/oscuro"></button><div id="whoBox"></div><div id="roleBox"></div><button class="sync" id="syncBox" data-act="syncInfo"></button>
     </div>
     <div class="content"><div id="status" class="status"></div><div id="view"></div></div>
   </div>
@@ -942,7 +955,7 @@ function hideLogin(){const o=$('#login');if(o)o.remove()}
 function subscribe(db){
   const timer=setTimeout(()=>{if(!connected)setStatus('Todavía no se puede conectar con la base de datos. Lo que ve puede estar desactualizado.','warn')},10000);
   const done=new Set();const total=COLS.length+2;
-  const ok=(k,snap)=>{if(!snap.metadata.fromCache){done.add(k);if(done.size>=total&&!connected){connected=true;clearTimeout(timer);setStatus('')}}};
+  const ok=(k,snap)=>{const md=snap.metadata||{};SYNC[k]={c:!!md.fromCache,p:!!md.hasPendingWrites};syncUI();if(!snap.metadata.fromCache){done.add(k);if(done.size>=total&&!connected){connected=true;clearTimeout(timer);setStatus('')}}};
   const onErr=e=>{clearTimeout(timer);setStatus(e.code==='revoked'?'Se retiró el acceso a los datos de esta página.':e.code==='permission-denied'?'Sin permiso para leer los datos. Revise las reglas de Firestore o vuelva a iniciar sesión.':'Error al leer los datos ('+e.code+').','err')};
   const on=(ref,cb)=>FB_MODE?ref.onSnapshot({includeMetadataChanges:true},cb,onErr):ref.onSnapshot(cb,onErr);
   UNSUB=[...COLS.map(c=>on(db.collection(c),s=>{const m={};s.docs.forEach(d=>{m[d.id]={...d.data(),id:d.id}});S[c]=m;ok(c,s);if(c==='boletas'&&(SEEN||!s.metadata.fromCache))watchBoletas(m);later()})),
@@ -979,7 +992,7 @@ function shell(){
   const bn=[['inicio','home','Inicio'],['ordenes','clip','Órdenes'],['+','plus',''],['repuestos','box','Repuestos'],['mas','more','Más']];const nAl=cnt.alertas;
   $('#bnav').innerHTML=bn.map(([k,i,l])=>k==='+'?`<button class="fabb" data-act="recibir" aria-label="Recibir máquina"><span>${ic('plus')}</span></button>`:`<button style="position:relative" data-act="${k==='mas'?'moreOpen':'nav'}" data-page="${k}" class="${(k===p||(k==='mas'&&['alertas','clientes','equipos','pedidos','catalogo','reportes','ajustes'].includes(p)))&&!q?'on':''}"><span class="bem">${EMO[i]||'☰'}</span>${l}${k==='mas'&&nAl?`<span style="position:absolute;top:0;right:22%;background:#dc2626;color:#fff;border-radius:9px;font-size:10px;padding:0 5px">${nAl}</span>`:''}</button>`).join('');
   $('#moreSheet').innerHTML=`<div class="msig"><div class="logo">${logoHTML()}</div><div style="min-width:0"><div style="font-weight:700;font-size:14px" class="ell">${esc(CFG.nombre||'Mi taller')}</div><div class="small muted">Servicio técnico</div><div class="bsig">✍️ ForBillyComputer</div></div></div>`+NAV.filter(([k])=>!['inicio','ordenes','repuestos'].includes(k)).map(([k,i,l])=>`<button data-act="nav" data-page="${k}">${nem(i)}${l}${cnt[k]?` <span class="nb" style="background:var(--soft);color:var(--ink)">${cnt[k]}</span>`:''}</button>`).join('');
-  document.title=(CFG.nombre||'Taller')+' — Servicio técnico';
+  document.title=(CFG.nombre||'Taller')+' — Servicio técnico';syncUI();
 }
 function render(){
   const v=$('#view');const ae=document.activeElement;const fid=ae&&v.contains(ae)&&ae.id;let ss=null,se=null;
@@ -2003,6 +2016,28 @@ function pbRecep(b){
   <div class="two"><div><h4>Condición en que llega</h4><p>${esc(condTxt(b)||'—')}</p>${b.observaciones?`<p><i>${esc(b.observaciones)}</i></p>`:''}</div><div><h4>Lo que trae</h4><p>${esc(accTxt(b)||'Nada adicional')}</p>${(b.faltantes||[]).length?`<h4>No trae / le falta</h4><p>${esc(b.faltantes.join(', '))}</p>`:''}</div></div>`;
 }
 
+
+/* ---------- indicador de sincronización ---------- */
+const SYNC={};let SYNC_T=0,SYNC_ST='';
+function syncState(){
+  if(LOCAL)return 'local';
+  if(!navigator.onLine)return 'off';
+  const v=Object.values(SYNC);
+  if(v.some(x=>x.p))return 'sync';
+  if(!connected||v.some(x=>x.c))return v.length?'conn':'conn';
+  return 'ok';
+}
+const SYNC_L={ok:['Sincronizado','🟢'],sync:['Sincronizando…','🟡'],conn:['Conectando…','🟡'],off:['Sin conexión','🔴'],local:['Solo este aparato','⚪']};
+function syncUI(){
+  const st=syncState();if(st==='ok'&&SYNC_ST!=='ok')SYNC_T=Date.now();
+  if(st==='off'&&SYNC_ST&&SYNC_ST!=='off')toast('🔴 Sin internet: lo que haga se guarda en este aparato y se sincroniza al volver la conexión');
+  if(st==='ok'&&SYNC_ST==='off')toast('🟢 Conexión recuperada: todo sincronizado');
+  SYNC_ST=st;const b=$('#syncBox');if(!b)return;
+  b.className='sync s-'+st;b.title=SYNC_L[st][0];
+  b.innerHTML=`<i></i><span class="hide-m">${SYNC_L[st][0]}</span>`;
+}
+window.addEventListener('online',()=>syncUI());window.addEventListener('offline',()=>syncUI());
+setInterval(syncUI,15000);
 /* ---------- Mano de obra ---------- */
 const MO_EM=[['diagn','🔍'],['manten','🧰'],['cadena','⛓️'],['afil','🪚'],['espada','🪚'],['carbur','⛽'],['combust','⛽'],['motor','⚙️'],['arranc','🔄'],['encend','⚡'],['bujía','⚡'],['embrag','🔩'],['transm','🔩'],['sold','🔥'],['fabric','🔥'],['eléctr','🔌'],['electr','🔌'],['prueba','✅'],['ajuste final','✅'],['limpi','🧽'],['pint','🎨'],['cambio','🔧']];
 const moEm=d=>{const n=norm(d);const f=MO_EM.find(([k])=>n.includes(norm(k)));return f?f[1]:'🛠️'};
@@ -2264,6 +2299,8 @@ const A={
  pWa:()=>{setTimeout(()=>confirmBox('¿Ya le envió el mensaje al proveedor? Márquelo como pedido para recibirlo después y no pedirlo dos veces.',async()=>{closeModal();await pMark()},'Marcar como pedido'),900)},
  pMark:()=>pMark(),
  wapSend:()=>wapSend(),
+ syncInfo:()=>{const st=syncState();const t=SYNC_T?new Date(SYNC_T).toLocaleTimeString('es-CR',{hour:'numeric',minute:'2-digit'}):'';
+  toast({ok:`🟢 Todo sincronizado con la nube${t?' · desde las '+t:''}. Los cambios llegan a los demás aparatos al instante.`,sync:'🟡 Enviando cambios a la nube…',conn:'🟡 Conectando con la nube…',off:'🔴 Sin internet. Lo que haga se guarda aquí y se sincroniza solo cuando vuelva la conexión.',local:'⚪ Modo local: esta versión no sincroniza. Use jbilly1987.github.io/Taller'}[st])},
  wapCopy:async()=>{try{await navigator.clipboard.writeText($('#wapTxt').value);toast('Mensaje copiado')}catch(e){toast('No se pudo copiar')}},
  wapPrint:()=>{const t=$('#wapTxt')?.value||'';printSimple('Mensaje',`<p>Para: <b>${esc($('#wapTel')?.value||'')}</b> · ${fts(Date.now())}</p><div style="white-space:pre-wrap;border:1px solid #ddd;border-radius:8px;padding:12px;font-size:13px">${esc(t).replace(/\*([^*\n]+)\*/g,'<b>$1</b>')}</div>`)},
  pdRecibir:d=>pdRecibir(d.id),
