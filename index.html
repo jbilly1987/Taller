@@ -1417,6 +1417,22 @@ function pdMsg(lines,prov){
   const tot=L.reduce((a,l)=>a+num(l.cant??pdQty(l)),0);
   return `Hola${prov?' '+prov:''}, le saluda ${CFG.nombre}. 🛒 Quisiera hacer el siguiente pedido:\n\n${body}\n\nTotal: ${L.length} repuesto${L.length!==1?'s':''} (${tot} unidad${tot!==1?'es':''}).\n¿Me confirma disponibilidad? Gracias.`;
 }
+
+function pdEnvioPanel(L){
+  const pend=L.filter(l=>!l.pend);if(!pend.length)return '';
+  const g={};pend.forEach(l=>{const k=l.proveedor||'';(g[k]=g[k]||[]).push(l)});
+  const ks=Object.keys(g).filter(Boolean).sort((a,b)=>norm(a).localeCompare(norm(b)));const sin=g[''];
+  return `<div class="card" style="margin-bottom:16px"><div class="ch"><h2><span class="hem">📤</span> Enviar pedido al proveedor</h2></div><div class="cp-in">
+   ${ks.length?`<div class="row" style="gap:10px;flex-wrap:wrap">${ks.map(k=>{const pv=provBy(k);return `<button class="btn ${pv&&pv.tel?'wa':''}" data-act="pdEnviar" data-n="${esc(k)}">${pv&&pv.tel?ic('msg'):'📞'} ${pv&&pv.tel?'Enviar a':'Falta teléfono de'} ${esc(k)} <span class="badge" style="background:rgba(255,255,255,.25);color:inherit">${g[k].length}</span></button>`}).join('')}</div>`:''}
+   ${sin?`<p class="small muted" style="margin:${ks.length?'12px':'0'} 0 0">⚠️ ${sin.length} repuesto${sin.length!==1?'s':''} sin proveedor: elíjalo en la columna <b>Proveedor</b> de la lista de abajo para poder enviarlo.</p>`:''}
+   <p class="small muted" style="margin:10px 0 0">Se abre la vista previa con la lista ordenada; puede editarla antes de enviarla por WhatsApp.</p></div></div>`;
+}
+function pdEnviar(n){
+  const pv=provBy(n);const i=provIdx(n);
+  if(!pv||!pv.tel){toast('Agregue el teléfono de '+n+' para enviarle el pedido');if(i>=0)provEditForm(i);else{addProveedor(n,'').then(()=>{const j=provIdx(n);if(j>=0)provEditForm(j)})}return}
+  UI.pProv=n;const sel=pdSelected();if(!sel.length){render();return toast('No hay repuestos marcados para '+n)}
+  render();waPreview(waLink(pv.tel,pdMsg(sel,pv.n)),()=>A.pWa({}));
+}
 function vPedidos(){
   const L=porPedir();const P=UI.pProv;const ps=provs();
   const cntP=n=>L.filter(l=>norm(l.proveedor)===norm(n)).length;const sin=L.filter(l=>!l.proveedor).length;
@@ -1428,6 +1444,7 @@ function vPedidos(){
   return `<div class="ph"><div><h1>Pedidos a proveedores</h1><div class="sub">Lo que hace falta comprar: repuestos en el mínimo, agotados y faltantes de las órdenes</div></div><div class="row"><button class="btn" data-act="nav" data-page="proveedores">🏭 Proveedores</button><button class="btn p" data-act="ppAdd">${ic('plus')} Agregar a la lista</button></div></div>
   ${esperando.length?`<div class="card cp-in" style="margin-bottom:16px;border-left:4px solid #c2410c"><b>${esperando.length} orden${esperando.length!==1?'es':''} esperando repuestos:</b> ${esperando.map(b=>`<a href="#" data-act="open" data-page="orden" data-id="${b.id}" class="num">${nb(b.numero)}</a>`).join(', ')}</div>`:''}
   <div class="fchips"><button class="fchip ${!P?'on':''}" data-act="pProv" data-v="">Toda la lista <span class="c">${L.length}</span></button>${ps.map(p=>`<button class="fchip ${norm(P)===norm(p.n)?'on':''}" data-act="pProv" data-v="${esc(p.n)}">${esc(p.n)} <span class="c">${cntP(p.n)}</span></button>`).join('')}${sin?`<button class="fchip ${P==='__sin'?'on':''}" data-act="pProv" data-v="__sin">Sin proveedor <span class="c">${sin}</span></button>`:''}</div>
+  ${!P?pdEnvioPanel(L):''}
   <div class="card"><div class="ch"><h2>${hic('cart')} ${P?P==='__sin'?'Sin proveedor asignado':'Para '+esc(P):'Lista por pedir'}</h2>${!ps.length?`<button class="btn sm p" data-act="provEdit">${ic('plus')} Agregar proveedor</button>`:''}</div>
    ${shown.length?`<div class="tw"><table class="t"><thead><tr>${P&&P!=='__sin'?'<th style="width:36px"></th>':''}<th>Repuesto</th><th class="hide-m">Motivo</th><th class="n">Hay / mín.</th><th>Pedir</th><th>Proveedor</th>${''}<th></th></tr></thead><tbody>
    ${shown.map(l=>`<tr><td ${P&&P!=='__sin'?'':'style="display:none"'}><input type="checkbox" data-pon="${l.key}" ${pdOn(l)?'checked':''} style="width:18px;height:18px"></td>
@@ -1439,7 +1456,7 @@ function vPedidos(){
     <td><button class="ib" data-act="ppDel" data-k="${l.key}" title="Quitar de la lista" style="color:var(--red)">${ic('trash')}</button></td></tr>`).join('')}</tbody></table></div>`:emptyBox('cart',P?'Nada pendiente para este proveedor':'No hace falta pedir nada','Cuando un repuesto llegue a su mínimo o falte en una orden, aparecerá aquí.')}
    ${P&&P!=='__sin'&&shown.length?`<div class="mf" style="border-top:1px solid var(--line2)"><span class="small muted">${sel.length} de ${shown.length} marcados</span><span class="sp"></span>
      <button class="btn" data-act="pPrint">${ic('print')} Imprimir</button><button class="btn" data-act="pCopy">Copiar lista</button>
-     ${pv&&pv.tel?(wa?`<a class="btn wa" href="${esc(wa)}" target="_blank" rel="noopener" data-act="pWa">${ic('msg')} Enviar por WhatsApp</a>`:`<button class="btn wa" disabled>${ic('msg')} Enviar por WhatsApp</button>`):`<button class="btn" data-act="provForm" data-n="${esc(P)}">${ic('phone')} Agregar teléfono de ${esc(P)}</button>`}
+     ${pv&&pv.tel?(wa?`<a class="btn wa" href="${esc(wa)}" target="_blank" rel="noopener" data-act="pWa">${ic('msg')} Enviar por WhatsApp</a>`:`<button class="btn wa" disabled>${ic('msg')} Enviar por WhatsApp</button>`):`<button class="btn" data-act="pdEnviar" data-n="${esc(P)}">📞 Agregar teléfono de ${esc(P)}</button>`}
      <button class="btn p" data-act="pMark" ${sel.length?'':'disabled'}>${ic('check')} Marcar como pedido</button></div>`:''}
    ${!P&&L.length?`<div class="mf" style="border-top:1px solid var(--line2)"><span class="small muted">Elija un proveedor arriba para enviarle su lista por WhatsApp.</span><span class="sp"></span><button class="btn" data-act="pPrintAll">${ic('print')} Imprimir lo que hace falta</button></div>`:''}
   </div>
@@ -1500,7 +1517,7 @@ function vProveedores(){
    return `<div class="card mcard" style="padding:16px;cursor:pointer" data-act="open" data-page="proveedor" data-id="${p.i}">
     <div class="row" style="gap:12px;align-items:center"><div class="ticon" style="width:46px;height:46px;font-size:23px">🏭</div><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:15.5px" class="ell">${esc(p.n)}</div><div class="small muted ell">${p.tel?'📞 '+esc(p.tel):'Sin teléfono'}${p.contacto?' · 👤 '+esc(p.contacto):''}</div></div></div>
     <div class="row" style="gap:6px;margin-top:12px;flex-wrap:wrap"><span class="badge" style="background:var(--soft);color:var(--ink2)">📦 ${nr} repuesto${nr!==1?'s':''}</span>${np?`<span class="badge" style="background:var(--acc-l);color:var(--warn)">🛒 ${np} por pedir</span>`:''}</div>
-    <div class="row" style="gap:6px;margin-top:12px">${wa?`<a class="btn sm wa" href="${esc(wa)}" target="_blank" rel="noopener">${ic('msg')} WhatsApp</a>`:''}${p.tel?`<a class="btn sm" href="${provTelLink(p.tel)}">📞 Llamar</a>`:''}<span class="sp"></span><button class="btn sm" data-act="provEdit" data-i="${p.i}">${ic('edit')} Editar</button></div></div>`}).join('')}</div>`
+    <div class="row" style="gap:6px;margin-top:12px">${np?`<button class="btn sm p" data-act="pdEnviar" data-n="${esc(p.n)}">📤 Enviar pedido</button>`:wa?`<a class="btn sm wa" href="${esc(wa)}" target="_blank" rel="noopener">${ic('msg')} WhatsApp</a>`:''}${p.tel?`<a class="btn sm" href="${provTelLink(p.tel)}">📞 Llamar</a>`:''}<span class="sp"></span><button class="btn sm" data-act="provEdit" data-i="${p.i}">${ic('edit')} Editar</button></div></div>`}).join('')}</div>`
   :`<div class="card">${emptyBox('🏭',q?'No se encontró':'Todavía no hay proveedores',q?'Pruebe con otro nombre.':'Agregue a quienes les compra los repuestos. Con el teléfono puede enviarles los pedidos por WhatsApp.')}<div style="text-align:center;padding:0 0 22px">${q?'':`<button class="btn p" data-act="provEdit">${ic('plus')} Agregar el primero</button>`}</div></div>`}`;
 }
 function vProveedor(i){
@@ -1513,7 +1530,7 @@ function vProveedor(i){
    <div class="row">${wa?`<a class="btn wa" href="${esc(wa)}" target="_blank" rel="noopener">${ic('msg')} WhatsApp</a>`:''}${p.tel?`<a class="btn" href="${provTelLink(p.tel)}">📞 Llamar</a>`:''}<button class="btn" data-act="provEdit" data-i="${i}">${ic('edit')} Editar</button></div></div>
   <div class="grid g2">
    <div class="card"><div class="ch"><h2><span class="hem">📇</span> Datos</h2></div><div class="cp-in">${inf('📞','Teléfono',p.tel)+inf('👤','Contacto',p.contacto)+inf('✉️','Correo',p.correo)+inf('📍','Dirección',p.dir)+inf('📝','Notas',p.notas)||'<p class="muted small">Sin datos. Toque Editar para agregarlos.</p>'}</div></div>
-   <div class="card"><div class="ch"><h2><span class="hem">🛒</span> Por pedirle ${L.length?`<span class="badge" style="background:var(--acc-l);color:var(--warn)">${L.length}</span>`:''}</h2>${L.length?`<button class="btn sm p" data-act="provGoPed" data-n="${esc(p.n)}">Hacer pedido</button>`:''}</div>
+   <div class="card"><div class="ch"><h2><span class="hem">🛒</span> Por pedirle ${L.length?`<span class="badge" style="background:var(--acc-l);color:var(--warn)">${L.length}</span>`:''}</h2>${L.length?`<button class="btn sm p" data-act="pdEnviar" data-n="${esc(p.n)}">📤 Enviar pedido</button>`:''}</div>
     ${L.length?`<div class="lines">${pdSort(L).map(l=>`<div class="ln"><div style="flex:1;min-width:0"><b>${esc(l.nombre)}</b><div class="small muted">${l.sku?esc(l.sku)+' · ':''}${esc(l.motivo)}</div></div><b>× ${pdQty(l)}</b></div>`).join('')}</div>`:emptyBox('✅','Nada pendiente','No hay repuestos de este proveedor por pedir.')}</div>
   </div>
   <div class="card" style="margin-top:16px"><div class="ch"><h2><span class="hem">📦</span> Repuestos de este proveedor</h2></div>
@@ -2368,6 +2385,7 @@ const A={
  provSave:d=>provSave(d.i),
  provRm:adminOnly(d=>{const p=provs()[+d.i];if(!p)return;const nr=provReps(p.n).length;confirmBox(`¿Borrar el proveedor <b>${esc(p.n)}</b>?${nr?` Sus ${nr} repuesto${nr!==1?'s':''} quedarán sin proveedor.`:''}`,async()=>{const c=CAT();c.proveedores=(c.proveedores||[]).filter((_,i)=>i!==+d.i);if(!await saveCat(c))return;for(const r of provReps(p.n))await put('repuestos',{...r,proveedor:''});closeModal();go({page:'proveedores'});toast('Proveedor borrado')},'Borrar')}),
  provOpen:d=>{const i=provIdx(d.n);if(i<0)return toast('Ese proveedor no está registrado. Agréguelo en Proveedores.');go({page:'proveedor',id:String(i)})},
+ pdEnviar:d=>pdEnviar(d.n),
  provGoPed:d=>{UI.pProv=d.n;go({page:'pedidos'})},
  provAdd:async()=>{const n=$('#npN').value.trim(),t=$('#npT').value.trim();if(!n)return toast('Escriba el nombre');if(await addProveedor(n,t)){toast('Proveedor agregado');PF&&PF();render()}},
  provDel:adminOnly(async d=>{const c=CAT();c.proveedores=(c.proveedores||[]).filter((_,i)=>i!==+d.i);if(await saveCat(c)){PF&&PF();render()}}),
