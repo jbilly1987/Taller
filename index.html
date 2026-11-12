@@ -831,13 +831,15 @@ function userScreen(){
    <div class="ugrid">${L.length?L.map(p=>card(p.n,p.puesto)).join(''):['recepcion','taller','ambos'].map(k=>card(PLBL[k],k,true)).join('')}</div>
    ${L.length?'':`<p class="small muted" style="margin:14px 0 0">💡 Para que aparezcan los nombres, agréguelos en <b>Configuración → Personal y puestos</b>.</p>`}
    ${L.length&&canAdd?`<details class="uadd"><summary>➕ Agregar otra persona</summary><div class="row" style="margin-top:10px"><input class="inp" id="whoNew" placeholder="Nombre" style="flex:1;min-width:130px"><select class="sel" id="whoPu">${Object.entries(PLBL).map(([k,l])=>`<option value="${k}">${PEMO[k]} ${l}</option>`).join('')}</select><button class="btn p" data-act="uAdd">${ic('plus')} Agregar y entrar</button></div></details>`:''}
-   ${pinOn()?'<p class="small muted" style="margin:14px 0 0">🔐 El Administrador general pide el PIN.</p>':''}</div>`;
+   ${pinOn()?'<p class="small muted" style="margin:14px 0 0">🔐 El Administrador general pide el PIN.</p>':''}
+   ${'Notification' in window&&Notification.permission!=='granted'?'<p class="small muted" style="margin:10px 0 0">🔔 Al entrar, permita los <b>avisos</b> para enterarse de las máquinas nuevas.</p>':''}</div>`;
 }
 async function uEnter(n,pu,gen){
   if(pu==='ambos'&&pinOn()&&!isAdmin()){return unlockForm(()=>uEnter(n,pu,gen))}
   if(pu!=='ambos'&&pinOn())setAdm('');
   setWho(gen?PLBL[pu]:n);if(gen)setPuesto(pu);
   SES=n||pu;try{sessionStorage.setItem('tallerSes',SES)}catch(e){}
+  pedirAvisos(true);
   const o=$('#userScr');if(o){o.classList.add('out');setTimeout(()=>o.remove(),400)}
   render();toast(`${PEMO[pu]} Bienvenido${n&&!gen?', '+n:''} · ${PLBL[pu]}`);
 }
@@ -907,7 +909,7 @@ function handleErr(e){
   console.error(e);
 }
 async function put(col,obj){
-  const o=clone(obj);o.updatedAt=Date.now();if(!o.createdAt)o.createdAt=o.updatedAt;
+  const o=clone(obj);o.updatedAt=Date.now();o._dev=DEV;if(!o.createdAt)o.createdAt=o.updatedAt;
   S[col]={...S[col],[o.id]:o};
   if(LOCAL||!DB){saveLocal();return true}
   const w=()=>DB.collection(col).doc(o.id).set(o);
@@ -1816,6 +1818,9 @@ function vAjustes(){
     ${pinOn()?`<p style="margin-top:0">PIN activo. Cada persona trabaja según su puesto. Para editar recepciones ya guardadas, eliminar, cambiar puestos o configurar se necesita el PIN. Con el PIN abierto el administrador puede hacer todo.</p><div class="row"><button class="btn" data-act="setPin">Cambiar PIN</button><button class="btn d" data-act="quitarPin">Quitar PIN</button></div>`
     :`<p style="margin-top:0">Sin PIN, cualquiera puede cambiar la configuración y los puestos. Cree un PIN para que solo usted lo haga.</p><button class="btn p" data-act="setPin">Crear PIN</button>`}
     <p class="small muted">El PIN es un control práctico para el taller, no una contraseña de banco.</p></div></div>
+   <div class="card"><div class="ch"><h2><span class="hem">🔔</span> Avisos en este aparato</h2></div><div class="cp-in"><p style="margin-top:0">Estado: <b>${!('Notification' in window)?'este navegador no los permite':Notification.permission==='granted'?'🟢 activados':Notification.permission==='denied'?'🔴 bloqueados':'⚪ sin activar'}</b></p>
+    <p class="small muted">Avisan con sonido y vibración cuando entra una máquina al taller, cuando le asignan una máquina a un mecánico, cuando una máquina queda lista y cuando la recibe recepción. Funcionan con la app abierta o minimizada.</p>
+    ${'Notification' in window&&Notification.permission!=='granted'?`<button class="btn p" data-act="avisos">🔔 Activar avisos</button>`:''}</div></div>
    <div class="card"><div class="ch"><h2>${hic('dl')} Respaldo</h2></div><div class="cp-in">
     <p class="small muted" style="margin-top:0">${LOCAL?'<b>Modo local:</b> los datos están solo en este navegador. Exporte respaldos seguido.':FB_MODE?'Los datos están en Firebase. Igual conviene exportar un respaldo cada semana.':'Los datos se guardan en línea y se ven igual en todos sus dispositivos.'}</p>
     <div class="row"><button class="btn" data-act="export">${ic('dl')} Exportar respaldo</button><label class="btn">Importar respaldo<input type="file" id="impFile" accept=".json,application/json" hidden></label></div>
@@ -2257,24 +2262,45 @@ function rRecibir(id){
 }
 let SEEN=null;
 function watchBoletas(m){
-  const sn=b=>({e:b.estado,tr:!!b.tallerRecibio,rr:!!b.recepRecibio});
+  const sn=b=>({e:b.estado,tr:!!b.tallerRecibio,rr:!!b.recepRecibio,t:b.tecnico||''});
+  const yoN=()=>{const p=yo();return p&&p.puesto!=='recepcion'?p.n:''};
   if(!SEEN){SEEN={};Object.values(m).forEach(b=>SEEN[b.id]=sn(b));return}
   Object.values(m).forEach(b=>{const old=SEEN[b.id],now=sn(b);SEEN[b.id]=now;
+    const desc0=()=>`${nb(b.numero)} · ${eqShort(eq(b.equipoId))} · ${cli(b.clienteId)?.nombre||''}`;
+    const me=yoN();
+    if(me&&b._dev!==DEV&&now.t&&norm(now.t)===norm(me)&&(!old||norm(old.t)!==norm(now.t))&&isOpen(b)){ping(`🔧 ${me}, le asignaron una máquina`,desc0,b.id);return}
     const h=b.historial||[];const last=h[h.length-1]||{};if(!last.dev||last.dev===DEV)return;
     const who=last.por?' · '+last.por:'';const desc=()=>`${nb(b.numero)} · ${eqShort(eq(b.equipoId))} · ${cli(b.clienteId)?.nombre||''}`;
-    if(!old){if(esTaller())ping('Nueva máquina para el taller'+who,desc,b.id);return}
-    if(old.e!==now.e&&now.e==='Listo para entregar'&&esRecep())ping('Máquina lista en el taller'+who,desc,b.id);
+    if(!old){if(esTaller())ping('📥 Nueva máquina para el taller'+who+(b.tecnico?' · para '+b.tecnico:''),desc,b.id);return}
+    if(old.e!==now.e&&now.e==='Listo para entregar'&&esRecep())ping('✅ Máquina lista en el taller'+who,desc,b.id);
     else if(!old.rr&&now.rr&&esTaller())ping('Recepción recibió la máquina reparada'+who,desc,b.id);
     else if(!old.tr&&now.tr&&esRecep())ping('El taller recibió la máquina'+who,desc,b.id);
   });
 }
 function beep(){try{const A=window._ac||(window._ac=new (window.AudioContext||window.webkitAudioContext)());[0,.18].forEach(dt=>{const o=A.createOscillator(),g=A.createGain();o.frequency.value=880;o.connect(g);g.connect(A.destination);g.gain.setValueAtTime(.0001,A.currentTime+dt);g.gain.exponentialRampToValueAtTime(.25,A.currentTime+dt+.02);g.gain.exponentialRampToValueAtTime(.0001,A.currentTime+dt+.15);o.start(A.currentTime+dt);o.stop(A.currentTime+dt+.16)})}catch(e){}}
+
+/* ---------- avisos del sistema ---------- */
+const notifOk=()=>'Notification' in window&&Notification.permission==='granted';
+async function sysNotif(title,body,id){
+  if(!notifOk()||!document.hidden)return;
+  const opt={body,icon:'icons/icon-192.png',badge:'icons/icon-192.png',tag:'taller-'+(id||Date.now()),renotify:true,vibrate:[120,80,120],data:{id}};
+  try{if(navigator.serviceWorker&&navigator.serviceWorker.controller){const r=await navigator.serviceWorker.ready;return r.showNotification(title,opt)}}catch(e){}
+  try{const n=new Notification(title,opt);n.onclick=()=>{window.focus();if(id)go({page:'orden',id})}}catch(e){}
+}
+async function pedirAvisos(silent){
+  if(!('Notification' in window)){if(!silent)toast('Este navegador no permite avisos');return}
+  if(Notification.permission==='granted'){if(!silent)toast('🔔 Los avisos ya están activados');return}
+  if(Notification.permission==='denied'){if(!silent)toast('Los avisos están bloqueados. Actívelos en la configuración del navegador (candado junto a la dirección → Notificaciones).');return}
+  try{const r=await Notification.requestPermission();if(r==='granted')toast('🔔 Avisos activados en este aparato')}catch(e){}
+}
+if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.open)go({page:'orden',id:e.data.open})});
 function ping(title,desc,id){
   setTimeout(()=>{const d=typeof desc==='function'?desc():desc;let box=$('#pings');if(!box){box=document.createElement('div');box.id='pings';document.body.appendChild(box)}
     const el=document.createElement('div');el.className='ping';el.innerHTML=`<div class="pi">${ic('bell')}</div><div style="flex:1;min-width:0"><b>${esc(title)}</b><div class="small ell">${esc(d)}</div></div><button class="btn sm p">Ver</button><button class="ib" aria-label="Cerrar">${ic('x')}</button>`;
     el.querySelector('.btn').onclick=()=>{el.remove();typeof id==='function'?id():go({page:'orden',id})};el.querySelector('.ib').onclick=()=>el.remove();
     box.prepend(el);setTimeout(()=>el.remove(),20000);beep();
-    try{if(document.hidden&&'Notification' in window&&Notification.permission==='granted'){const n=new Notification(title,{body:d,icon:'icons/icon-192.png'});n.onclick=()=>{window.focus();go({page:'orden',id})}}}catch(e){}
+    try{navigator.vibrate&&navigator.vibrate([120,80,120])}catch(e){}
+    sysNotif(title,d,typeof id==='string'?id:'');
   },400);
 }
 
@@ -2395,6 +2421,7 @@ const A={
  uPick:d=>uEnter(d.v,d.p,!!d.g),
  uAdd:async()=>{const v=($('#whoNew')?.value||'').trim();if(!v)return toast('Escriba el nombre');const pu=$('#whoPu')?.value||'taller';const L=personal();if(!L.some(p=>norm(p.n)===norm(v)))L.push({n:v,puesto:pu,email:''});await savePersonal(L);uEnter(v,pu,false)},
  setPuesto:d=>{setPuesto(d.v);whoPick();render()},
+ avisos:()=>pedirAvisos(false),
  notifPerm:async()=>{try{const r=await Notification.requestPermission();toast(r==='granted'?'Avisos activados':'El navegador no dio permiso')}catch(e){toast('Este navegador no permite avisos aquí')}whoPick()},
  pDoc:d=>printMenu(d.id,d.t),
  tRecibir:soloT(d=>tRecibir(d.id)),
