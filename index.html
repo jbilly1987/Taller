@@ -700,6 +700,24 @@ const accTxt=b=>[...(b.accesorios||[]),b.accesoriosOtros].filter(Boolean).join('
 const trabTxt=b=>[...(b.trabajos||[]),b.trabajo].filter(Boolean).join(' · ');
 const isOpen=b=>!CERR.includes(b.estado);
 const lastChange=b=>{const h=b.historial||[];const l=h[h.length-1];return l?iso(new Date(l.t)):b.fechaIngreso};
+
+/* ---------- Vista previa de mensajes ---------- */
+let WAP=null;
+function waParse(href){try{const u=new URL(href);return {tel:u.pathname.replace(/\D/g,''),text:u.searchParams.get('text')||''}}catch(e){return null}}
+function waPreview(href,after){
+  const p=waParse(href);if(!p)return;WAP={...p,after};
+  const who=arr(S.clientes).find(c=>{const d=String(c.telefono||'').replace(/\D/g,'');return d&&p.tel.endsWith(d)})||provs().find(x=>{const d=String(x.tel||'').replace(/\D/g,'');return d&&p.tel.endsWith(d)});
+  const nm=who?(who.nombre||who.n):'';
+  openModal('💬 Vista previa del mensaje',`<div class="row" style="margin-bottom:12px;gap:10px"><div class="av" style="background:linear-gradient(135deg,#25d366,#128c7e)">${nm?esc(initials(nm)):'📱'}</div><div style="flex:1;min-width:0"><div style="font-weight:700" class="ell">${esc(nm||'Contacto')}</div><input class="inp" id="wapTel" value="${esc(p.tel)}" inputmode="tel" style="margin-top:4px;padding:6px 10px;width:100%;max-width:220px" title="Número de WhatsApp"></div></div>
+   <div class="f"><label>Mensaje <span class="opt">(puede editarlo antes de enviar)</span></label><textarea id="wapTxt" style="min-height:260px;font-size:14.5px;line-height:1.5">${esc(p.text)}</textarea></div>
+   <div class="small muted">Los *asteriscos* salen en negrita en WhatsApp.</div>`,
+   `<button class="btn" data-act="wapCopy">Copiar</button><button class="btn" data-act="wapPrint">${ic('print')} Imprimir</button><span class="sp"></span><button class="btn" data-act="close">Cancelar</button><button class="btn wa" data-act="wapSend">${ic('msg')} Enviar por WhatsApp</button>`);
+}
+function wapSend(){
+  if(!WAP)return;let d=($('#wapTel')?.value||'').replace(/\D/g,'');if(d.length===8)d='506'+d;if(!d)return toast('Falta el número de WhatsApp');
+  const txt=$('#wapTxt')?.value||'';window.open('https://wa.me/'+d+'?text='+encodeURIComponent(txt),'_blank','noopener');
+  const after=WAP.after;WAP=null;closeModal();if(after)after();
+}
 function waLink(tel,msg){let d=String(tel||'').replace(/\D/g,'');if(!d)return '';if(d.length===8)d='506'+d;return 'https://wa.me/'+d+'?text='+encodeURIComponent(msg)}
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2600)}
 function setStatus(m,k){if(k==='err')hideSplash();const s=$('#status');s.className='status'+(m?' '+k:'');s.textContent=m||''}
@@ -1318,15 +1336,20 @@ async function addProveedor(n,tel){n=String(n||'').trim();if(!n)return false;con
 function pendPorRep(){const m={};arr(S.pedidos).filter(p=>p.estado==='Pedido').forEach(p=>p.items.forEach(i=>{if(i.repuestoId)m[i.repuestoId]=(m[i.repuestoId]||0)+num(i.cant)}));return m}
 function porPedir(){
   const pend=pendPorRep();const L=[];
-  arr(S.porpedir).forEach(m=>{const r=m.repuestoId&&rep(m.repuestoId);L.push({key:'m:'+m.id,mid:m.id,repuestoId:r?r.id:'',sku:r?r.sku:(m.sku||''),nombre:r?r.nombre:m.nombre,cond:r?r.condicion:(m.condicion||'Nuevo'),compatible:r?r.compatible:(m.compatible||''),stock:r?num(r.stock):null,min:r?num(r.stockMin):null,proveedor:m.proveedor||(r&&r.proveedor)||'',sug:Math.max(1,num(m.cant)),boletaId:m.boletaId||'',numero:m.numero||'',motivo:m.boletaId?'Falta en '+nb(m.numero):'Agregado a la lista',pend:r?pend[r.id]||0:0})});
-  arr(S.repuestos).filter(r=>stockSt(r).k!=='ok'&&!L.some(l=>l.repuestoId===r.id)).forEach(r=>L.push({key:'r:'+r.id,repuestoId:r.id,sku:r.sku,nombre:r.nombre,cond:r.condicion||'Nuevo',compatible:r.compatible||'',stock:num(r.stock),min:num(r.stockMin),proveedor:r.proveedor||'',sug:Math.max(1,num(r.stockMin)*2-num(r.stock)),motivo:num(r.stock)<=0?'Agotado':'Llegó al mínimo',pend:pend[r.id]||0}));
+  arr(S.porpedir).forEach(m=>{const r=m.repuestoId&&rep(m.repuestoId);L.push({key:'m:'+m.id,mid:m.id,cat:r?(r.categoria||''):'',repuestoId:r?r.id:'',sku:r?r.sku:(m.sku||''),nombre:r?r.nombre:m.nombre,cond:r?r.condicion:(m.condicion||'Nuevo'),compatible:r?r.compatible:(m.compatible||''),stock:r?num(r.stock):null,min:r?num(r.stockMin):null,proveedor:m.proveedor||(r&&r.proveedor)||'',sug:Math.max(1,num(m.cant)),boletaId:m.boletaId||'',numero:m.numero||'',motivo:m.boletaId?'Falta en '+nb(m.numero):'Agregado a la lista',pend:r?pend[r.id]||0:0})});
+  arr(S.repuestos).filter(r=>stockSt(r).k!=='ok'&&!L.some(l=>l.repuestoId===r.id)).forEach(r=>L.push({key:'r:'+r.id,cat:r.categoria||'',repuestoId:r.id,sku:r.sku,nombre:r.nombre,cond:r.condicion||'Nuevo',compatible:r.compatible||'',stock:num(r.stock),min:num(r.stockMin),proveedor:r.proveedor||'',sug:Math.max(1,num(r.stockMin)*2-num(r.stock)),motivo:num(r.stock)<=0?'Agotado':'Llegó al mínimo',pend:pend[r.id]||0}));
   return L.sort((a,b)=>(a.pend?1:0)-(b.pend?1:0)||String(a.nombre).localeCompare(b.nombre));
 }
 const pdQty=l=>UI.pQty[l.key]??l.sug;
 const pdOn=l=>UI.pOn[l.key]??!l.pend;
 function pdSelected(){const P=UI.pProv;return porPedir().filter(l=>P==='__sin'?!l.proveedor:norm(l.proveedor)===norm(P)).filter(pdOn)}
+const pdSort=lines=>lines.slice().sort((a,b)=>String(a.cat||'zz').localeCompare(String(b.cat||'zz'),'es')||String(a.nombre).localeCompare(String(b.nombre),'es'));
 function pdMsg(lines,prov){
-  return `Hola${prov?' '+prov:''}, le saluda ${CFG.nombre}. Quisiera hacer el siguiente pedido:\n\n${lines.map(l=>`• ${pdQty(l)} × ${l.nombre}${l.cond==='Usado'?' (de segunda)':''}${l.sku?' — cód. '+l.sku:''}${l.compatible?' — para '+l.compatible:''}`).join('\n')}\n\n¿Me confirma disponibilidad? Gracias.`;
+  const L=pdSort(lines);const cats=uniq(L.map(l=>l.cat||''));const grp=cats.length>1;let n=0;
+  const ln=l=>`${++n}. *${l.cant??pdQty(l)}* × ${l.nombre}${l.cond==='Usado'?' (de segunda)':''}${l.sku?' — cód. '+l.sku:''}${l.compatible?' — para '+l.compatible:''}`;
+  const body=grp?cats.map(c=>`*${c||'Otros'}*\n${L.filter(l=>(l.cat||'')===c).map(ln).join('\n')}`).join('\n\n'):L.map(ln).join('\n');
+  const tot=L.reduce((a,l)=>a+num(l.cant??pdQty(l)),0);
+  return `Hola${prov?' '+prov:''}, le saluda ${CFG.nombre}. 🛒 Quisiera hacer el siguiente pedido:\n\n${body}\n\nTotal: ${L.length} repuesto${L.length!==1?'s':''} (${tot} unidad${tot!==1?'es':''}).\n¿Me confirma disponibilidad? Gracias.`;
 }
 function vPedidos(){
   const L=porPedir();const P=UI.pProv;const ps=provs();
@@ -1352,7 +1375,7 @@ function vPedidos(){
      <button class="btn" data-act="pPrint">${ic('print')} Imprimir</button><button class="btn" data-act="pCopy">Copiar lista</button>
      ${pv&&pv.tel?(wa?`<a class="btn wa" href="${esc(wa)}" target="_blank" rel="noopener" data-act="pWa">${ic('msg')} Enviar por WhatsApp</a>`:`<button class="btn wa" disabled>${ic('msg')} Enviar por WhatsApp</button>`):`<button class="btn" data-act="provForm" data-n="${esc(P)}">${ic('phone')} Agregar teléfono de ${esc(P)}</button>`}
      <button class="btn p" data-act="pMark" ${sel.length?'':'disabled'}>${ic('check')} Marcar como pedido</button></div>`:''}
-   ${!P&&L.length?`<div class="mf" style="border-top:1px solid var(--line2)"><span class="small muted">Elija un proveedor arriba para enviarle su lista por WhatsApp.</span></div>`:''}
+   ${!P&&L.length?`<div class="mf" style="border-top:1px solid var(--line2)"><span class="small muted">Elija un proveedor arriba para enviarle su lista por WhatsApp.</span><span class="sp"></span><button class="btn" data-act="pPrintAll">${ic('print')} Imprimir lo que hace falta</button></div>`:''}
   </div>
   <div class="card" style="margin-top:16px"><div class="ch"><h2>${hic('truck')} Pedidos enviados</h2>${abiertos.length?`<span class="badge" style="background:var(--blue-l);color:var(--blue)"><i></i>${abiertos.length} por recibir</span>`:''}</div>
    ${peds.length?`<div class="rows">${peds.slice(0,40).map(p=>{const d=daysSince(iso(new Date(p.fecha)));const pv=provBy(p.proveedor);const w=pv&&pv.tel?waLink(pv.tel,`Hola ${p.proveedor}, le saluda ${CFG.nombre}. Le consulto por el pedido del ${fdate(iso(new Date(p.fecha)))}:\n${p.items.map(i=>`• ${i.cant} × ${i.nombre}`).join('\n')}`):'';
@@ -1928,13 +1951,15 @@ function pbRecep(b){
 }
 
 /* ---------- Mano de obra ---------- */
+const MO_EM=[['diagn','🔍'],['manten','🧰'],['cadena','⛓️'],['afil','🪚'],['espada','🪚'],['carbur','⛽'],['combust','⛽'],['motor','⚙️'],['arranc','🔄'],['encend','⚡'],['bujía','⚡'],['embrag','🔩'],['transm','🔩'],['sold','🔥'],['fabric','🔥'],['eléctr','🔌'],['electr','🔌'],['prueba','✅'],['ajuste final','✅'],['limpi','🧽'],['pint','🎨'],['cambio','🔧']];
+const moEm=d=>{const n=norm(d);const f=MO_EM.find(([k])=>n.includes(norm(k)));return f?f[1]:'🛠️'};
 const moH=b=>(b.manoObra||[]).reduce((a,l)=>a+num(l.h),0);
 const fh=h=>{h=Math.round(num(h)*100)/100;return (h%1?String(h).replace('.',','):h)+' h'};
 const moPuede=b=>isOpen(b)||isAdmin();
 function moCard(b){
   const L=b.manoObra||[];const can=moPuede(b);
-  return `<div class="card"><div class="ch"><h2><span class="hem">🛠️</span> Mano de obra ${L.length?`<span class="badge" style="background:var(--pri-l);color:var(--pri)">${fh(moH(b))}</span>`:''}</h2>${can?`<button class="btn sm p" data-act="moAdd" data-id="${b.id}">${ic('plus')} Agregar</button>`:''}</div>
-   ${L.length?`<div class="lines">${L.map((l,i)=>`<div class="ln"><div style="flex:1;min-width:0"><div style="font-weight:600" class="ell"><span class="mono" style="color:var(--pri)">${esc(l.c||'—')}</span> · ${esc(l.d)}</div><div class="small muted ell">${l.tec?'🔧 '+esc(l.tec):''}${l.nota?' · '+esc(l.nota):''}${l.por&&l.por!==l.tec?` · anotó ${esc(l.por)}`:''}${l.rec?' · <span style="color:var(--warn)">agregada en recepción</span>':''}</div></div>${can?`<div class="qty"><button data-act="moH" data-id="${b.id}" data-i="${i}" data-d="-0.5">${ic('minus')}</button><span style="min-width:50px">${fh(l.h)}</span><button data-act="moH" data-id="${b.id}" data-i="${i}" data-d="0.5">${ic('plus')}</button></div><button class="ib" data-act="moRm" data-id="${b.id}" data-i="${i}" title="Quitar">${ic('trash')}</button>`:`<b>${fh(l.h)}</b>`}</div>`).join('')}</div>`:emptyBox('🛠️','Sin mano de obra','Anote el trabajo hecho con su código y las horas utilizadas.'+(esTaller()?'':' Si el taller lo olvidó, puede agregarlo aquí.'))}</div>`;
+  return `<div class="card"><div class="ch"><h2><span class="hem">🛠️</span> Mano de obra ${L.length?`<span class="badge" style="background:var(--pri-l);color:var(--pri)">⏱️ ${fh(moH(b))}</span>`:''}</h2>${can?`<button class="btn sm p" data-act="moAdd" data-id="${b.id}">${ic('plus')} Agregar</button>`:''}</div>
+   ${L.length?`<div class="lines">${L.map((l,i)=>`<div class="ln"><div class="ticon" style="width:40px;height:40px;font-size:20px">${moEm(l.d)}</div><div style="flex:1;min-width:0"><div style="font-weight:600;line-height:1.3"><span class="mono" style="color:var(--pri)">${esc(l.c||'—')}</span> · ${esc(l.d)}</div><div class="small muted">${l.tec?'🔧 '+esc(l.tec):''}${l.nota?' · '+esc(l.nota):''}${l.por&&l.por!==l.tec?` · anotó ${esc(l.por)}`:''}${l.rec?' · <span style="color:var(--warn)">agregada en recepción</span>':''}</div></div>${can?`<div class="qty"><button data-act="moH" data-id="${b.id}" data-i="${i}" data-d="-0.5">${ic('minus')}</button><span style="min-width:58px">⏱️ ${fh(l.h)}</span><button data-act="moH" data-id="${b.id}" data-i="${i}" data-d="0.5">${ic('plus')}</button></div><button class="ib" data-act="moRm" data-id="${b.id}" data-i="${i}" title="Quitar">${ic('trash')}</button>`:`<b>⏱️ ${fh(l.h)}</b>`}</div>`).join('')}</div>`:emptyBox('👨‍🔧','Sin mano de obra','Anote el trabajo hecho con su código y las horas utilizadas.'+(esTaller()?'':' Si el taller lo olvidó, puede agregarlo aquí.'))}</div>`;
 }
 let MO=null;
 function moNextCode(){const n=Math.max(0,...CAT().manoObra.map(x=>+(/(\d+)$/.exec(x.c||'')||[0,0])[1]));return 'MO-'+String(n+1).padStart(2,'0')}
@@ -1945,13 +1970,13 @@ function moModal(id){
 }
 function moRender(){
   const m=MO;const cat=CAT().manoObra;const q=norm(m.f||'');const vis=cat.filter(x=>!q||norm(x.c+' '+x.d).includes(q));
-  openModal('🛠️ Agregar mano de obra',`<div class="sect"><span class="fl">Trabajo <span class="opt">(toque uno o escriba uno nuevo)</span></span>
+  openModal('🛠️ Agregar mano de obra',`<div class="sect"><span class="fl">🛠️ Trabajo <span class="opt">(toque uno o escriba uno nuevo)</span></span>
    ${cat.length>8?`<input class="inp cpfil" id="moF" placeholder="Filtrar…" value="${esc(m.f||'')}">`:''}
-   <div class="cp">${vis.map(x=>`<button type="button" class="cpc ${m.c===x.c?'on':''}" data-act="moPick" data-c="${esc(x.c)}" data-d="${esc(x.d)}"><span class="mono" style="font-size:12px;opacity:.8">${esc(x.c)}</span> ${esc(x.d)}</button>`).join('')}</div></div>
+   <div class="cp">${vis.map(x=>`<button type="button" class="cpc ${m.c===x.c?'on':''}" data-act="moPick" data-c="${esc(x.c)}" data-d="${esc(x.d)}"><span class="em">${moEm(x.d)}</span><span class="mono" style="font-size:12px;opacity:.8">${esc(x.c)}</span> ${esc(x.d)}</button>`).join('')}</div></div>
    <div class="fr"><div class="f"><label>Código</label><input id="moC" value="${esc(m.c)}" placeholder="${moNextCode()}" autocomplete="off"></div><div class="f" style="grid-column:span 2"><label>Descripción</label><input id="moD" value="${esc(m.d)}" placeholder="Ej.: Reparación de embrague" autocomplete="off"></div></div>
-   <div class="sect"><span class="fl">Horas utilizadas</span><div class="row"><div class="qty"><button type="button" data-act="moHh" data-d="-0.25">${ic('minus')}</button><input id="moHv" type="number" step="0.25" min="0" value="${m.h}" style="width:70px;border:0;text-align:center;font-weight:800;background:transparent;outline:none"><button type="button" data-act="moHh" data-d="0.25">${ic('plus')}</button></div>
+   <div class="sect"><span class="fl">⏱️ Horas utilizadas</span><div class="row"><div class="qty"><button type="button" data-act="moHh" data-d="-0.25">${ic('minus')}</button><input id="moHv" type="number" step="0.25" min="0" value="${m.h}" style="width:70px;border:0;text-align:center;font-weight:800;background:transparent;outline:none"><button type="button" data-act="moHh" data-d="0.25">${ic('plus')}</button></div>
     <div class="cp">${[0.5,1,1.5,2,3,4,8].map(h=>`<button type="button" class="cpc ${num(m.h)===h?'on':''}" data-act="moHs" data-v="${h}">${fh(h)}</button>`).join('')}</div></div></div>
-   <div class="sect"><span class="fl">Técnico que lo hizo</span><div class="cp">${tecChips().map(t=>`<button type="button" class="cpc ${m.tec===t?'on':''}" data-act="moTec" data-v="${esc(t)}">🔧 ${esc(t)}</button>`).join('')||'<span class="small muted">Agregue técnicos en Configuración → Personal y puestos.</span>'}</div></div>
+   <div class="sect"><span class="fl">👨‍🔧 Técnico que lo hizo</span><div class="cp">${tecChips().map(t=>`<button type="button" class="cpc ${m.tec===t?'on':''}" data-act="moTec" data-v="${esc(t)}">🔧 ${esc(t)}</button>`).join('')||'<span class="small muted">Agregue técnicos en Configuración → Personal y puestos.</span>'}</div></div>
    <div class="f"><label>Nota <span class="opt">(opcional)</span></label><input id="moN" value="${esc(m.nota)}" autocomplete="off"></div>`,
    `<span class="sp"></span><button class="btn" data-act="close">Cancelar</button><button class="btn p" data-act="moSave">${ic('check')} Agregar</button>`);
   const f=$('#moF');if(f){f.oninput=e=>{moSync();MO.f=e.target.value;const p=e.target.selectionStart;moRender();const g=$('#moF');g.focus();try{g.setSelectionRange(p,p)}catch(x){}}}
@@ -2035,7 +2060,8 @@ function printEquipo(id){const e=eq(id);const c=cli(e.clienteId)||{};const bs=ar
 function printCliente(id){const c=cli(id);const bs=arr(S.boletas).filter(b=>b.clienteId===id).sort((a,z)=>String(z.fechaIngreso).localeCompare(String(a.fechaIngreso)));
   printSimple('Historial del cliente',`<div class="bx"><p><b>${esc(c.nombre)}</b> · ${esc(c.telefono||'')}${c.cedula?' · Céd. '+esc(c.cedula):''}</p><p>${esc([c.direccion,c.provincia].filter(Boolean).join(', '))}</p></div><h4>${bs.length} servicio(s)</h4>${histTable(bs)}`)}
 function printPedido(lines,prov,titulo){
-  printSimple(titulo||('Pedido a '+(prov||'proveedor')),`<p>Proveedor: <b>${esc(prov||'')}</b>${provBy(prov)?.tel?' · Tel. '+esc(provBy(prov).tel):''}</p><table><thead><tr><th>Cant.</th><th>Repuesto</th><th>Condición</th><th>Código</th><th>Para</th></tr></thead><tbody>${lines.map(l=>`<tr><td style="text-align:right"><b>${l.cant}</b></td><td>${esc(l.nombre)}</td><td>${esc(condLbl(l.cond||l.condicion))}</td><td>${esc(l.sku||'')}</td><td>${esc(l.compatible||'')}</td></tr>`).join('')}</tbody></table><div class="sig"><div>Pedido por</div><div>Recibido por</div></div>`)}
+  lines=pdSort(lines);const cats=uniq(lines.map(l=>l.cat||''));let n=0;const tot=lines.reduce((a,l)=>a+num(l.cant),0);
+  printSimple(titulo||('Pedido a '+(prov||'proveedor')),`<p>${prov?`Proveedor: <b>${esc(prov)}</b>${provBy(prov)?.tel?' · Tel. '+esc(provBy(prov).tel):''} · `:''}${fdate(today())} · ${lines.length} repuesto${lines.length!==1?'s':''}, ${tot} unidades</p><table><thead><tr><th>#</th><th>Cant.</th><th>Repuesto</th><th>Condición</th><th>Código</th><th>Para</th><th>✓</th></tr></thead><tbody>${cats.map(c=>(cats.length>1?`<tr><td colspan="7" style="background:#f0fdf4;font-weight:700">${esc(c||'Otros')}</td></tr>`:'')+lines.filter(l=>(l.cat||'')===c).map(l=>`<tr><td>${++n}</td><td style="text-align:right"><b>${l.cant}</b></td><td>${esc(l.nombre)}</td><td>${esc(condLbl(l.cond||l.condicion))}</td><td>${esc(l.sku||'')}</td><td>${esc(l.compatible||'')}</td><td style="width:22px">☐</td></tr>`).join('')).join('')}</tbody></table><div class="sig"><div>Pedido por</div><div>Recibido por</div></div>`)}
 
 /* ================== Flujo Recepción ↔ Taller ================== */
 let PUESTO='ambos';try{PUESTO=localStorage.getItem('tallerPuesto')||'ambos'}catch(e){}
@@ -2184,6 +2210,9 @@ const A={
  pCopy:async()=>{const pv=provBy(UI.pProv);try{await navigator.clipboard.writeText(pdMsg(pdSelected(),pv?pv.n:UI.pProv));toast('Lista copiada')}catch(e){toast('No se pudo copiar')}},
  pWa:()=>{setTimeout(()=>confirmBox('¿Ya le envió el mensaje al proveedor? Márquelo como pedido para recibirlo después y no pedirlo dos veces.',async()=>{closeModal();await pMark()},'Marcar como pedido'),900)},
  pMark:()=>pMark(),
+ wapSend:()=>wapSend(),
+ wapCopy:async()=>{try{await navigator.clipboard.writeText($('#wapTxt').value);toast('Mensaje copiado')}catch(e){toast('No se pudo copiar')}},
+ wapPrint:()=>{const t=$('#wapTxt')?.value||'';printSimple('Mensaje',`<p>Para: <b>${esc($('#wapTel')?.value||'')}</b> · ${fts(Date.now())}</p><div style="white-space:pre-wrap;border:1px solid #ddd;border-radius:8px;padding:12px;font-size:13px">${esc(t).replace(/\*([^*\n]+)\*/g,'<b>$1</b>')}</div>`)},
  pdRecibir:d=>pdRecibir(d.id),
  pdCancel:d=>confirmBox('¿Cancelar este pedido? Los repuestos vuelven a la lista por pedir.',async()=>{const P=clone(S.pedidos[d.id]);P.estado='Cancelado';await put('pedidos',P);closeModal();render()},'Cancelar pedido'),
  provForm:d=>provForm(d.n),
@@ -2201,6 +2230,7 @@ const A={
  entregar:soloR(d=>estadoForm(d.id,'Entregado')),
  listo:soloT(d=>estadoForm(d.id,'Listo para entregar')),
  printEq:d=>printEquipo(d.id),printCli:d=>printCliente(d.id),
+ pPrintAll:()=>printPedido(porPedir().filter(l=>!l.pend).map(l=>({...l,cant:pdQty(l),compatible:[l.compatible,l.proveedor?'Prov.: '+l.proveedor:''].filter(Boolean).join(' · ')})),'','Repuestos que hacen falta'),
  pPrint:()=>printPedido(pdSelected().map(l=>({...l,cant:pdQty(l)})),UI.pProv),
  pdPrint:d=>{const P=S.pedidos[d.id];printPedido(P.items.map(i=>({...i,cond:i.condicion})),P.proveedor,'Pedido '+pdNum(P)+' · '+(P.proveedor||''))},
  whoSet:d=>{setWho(d.v);closeModal();render();toast(d.v?'Ahora está como '+d.v:'Sin nombre')},
@@ -2226,7 +2256,8 @@ const A={
 
 /* ================== Eventos ================== */
 document.addEventListener('click',e=>{
-  const a=e.target.closest('a[href]');if(a&&a.getAttribute('href')!=='#'&&!a.dataset.act)return; // enlaces reales (WhatsApp)
+  const wa=e.target.closest('a[href^="https://wa.me/"]');if(wa){e.preventDefault();e.stopPropagation();const pw=wa.dataset.act==='pWa';waPreview(wa.href,pw?()=>A.pWa({}):null);return}
+  const a=e.target.closest('a[href]');if(a&&a.getAttribute('href')!=='#'&&!a.dataset.act)return; // enlaces reales
   if(e.target.id==='more')return closeMore();
   const t=e.target.closest('[data-act]');if(!t)return;
   if(t.dataset.act==='pWa'){A.pWa(t.dataset);return}
