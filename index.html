@@ -8,6 +8,8 @@
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <script src="firebase-config.js"></script>
+<meta name="color-scheme" content="light dark">
+<script>(function(){var t;try{t=localStorage.getItem("taller_theme")}catch(e){}if(!t)t=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";document.documentElement.dataset.theme=t})()</script>
 <title>Taller — Recepción y servicio técnico</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -309,9 +311,184 @@ mark{background:#fef08a;border-radius:3px;padding:0 1px}
   #toast{bottom:92px}
   .pb .two{grid-template-columns:1fr}
 }
+
+/* ================== TEMA VIDRIO + COLOR ================== */
+html{color-scheme:light;
+ --bg:#eef3f0;--surface:rgba(255,255,255,.66);--surface-hi:rgba(255,255,255,.92);--field:rgba(255,255,255,.78);
+ --glass-b:rgba(255,255,255,.75);--line:rgba(20,40,28,.10);--line2:rgba(20,40,28,.06);--soft:rgba(20,40,28,.04);
+ --warn:#b45309;--blob-o:.55;--glow:rgba(34,197,94,.35);--side:rgba(10,22,16,.86);--tlbg:#f3f6f4;
+ --sh:0 1px 2px rgba(16,24,18,.04),0 8px 24px rgba(16,24,18,.06);--sh2:0 18px 40px rgba(16,24,18,.14)}
+html[data-theme=dark]{color-scheme:dark;
+ --bg:#060a09;--surface:rgba(20,28,25,.58);--surface-hi:rgba(30,40,36,.92);--field:rgba(255,255,255,.05);
+ --glass-b:rgba(255,255,255,.08);--ink:#eef5f1;--ink2:#cbd6cf;--muted:#8b9b92;--line:rgba(255,255,255,.10);--line2:rgba(255,255,255,.06);--soft:rgba(255,255,255,.05);
+ --pri:#22c55e;--pri-d:#86efac;--pri-l:rgba(34,197,94,.20);--pri-50:rgba(34,197,94,.09);
+ --acc:#fbbf24;--acc-l:rgba(251,191,36,.15);--red:#f87171;--red-l:rgba(248,113,113,.15);--blue:#60a5fa;--blue-l:rgba(96,165,250,.15);
+ --warn:#fbbf24;--blob-o:.5;--glow:rgba(34,197,94,.45);--side:rgba(8,14,12,.62);--tlbg:#0b1210;
+ --sh:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.25);--sh2:0 20px 50px rgba(0,0,0,.5)}
+html,body{background:var(--bg)}
+body{transition:background .3s}
+/* fondo animado */
+.bgfx{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.bgfx i{position:absolute;width:70vmax;height:70vmax;border-radius:50%;opacity:var(--blob-o);will-change:transform}
+.bgfx .b1{background:radial-gradient(circle,#22c55e 0,transparent 62%);left:-25vmax;top:-30vmax;animation:drift1 26s ease-in-out infinite alternate}
+.bgfx .b2{background:radial-gradient(circle,#f97316 0,transparent 62%);right:-30vmax;top:-10vmax;animation:drift2 30s ease-in-out infinite alternate;opacity:calc(var(--blob-o)*.8)}
+.bgfx .b3{background:radial-gradient(circle,#06b6d4 0,transparent 62%);left:10vmax;bottom:-40vmax;animation:drift3 34s ease-in-out infinite alternate}
+.bgfx .b4{background:radial-gradient(circle,#a855f7 0,transparent 62%);right:-20vmax;bottom:-35vmax;animation:drift1 38s ease-in-out infinite alternate-reverse;opacity:calc(var(--blob-o)*.7)}
+.bgfx::after{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(127,127,127,.12) 1px,transparent 1px);background-size:22px 22px;mask-image:linear-gradient(#000,transparent 70%);-webkit-mask-image:linear-gradient(#000,transparent 70%)}
+@keyframes drift1{to{transform:translate(18vmax,14vmax) scale(1.15)}}
+@keyframes drift2{to{transform:translate(-16vmax,18vmax) scale(.9)}}
+@keyframes drift3{to{transform:translate(14vmax,-16vmax) scale(1.1)}}
+/* vidrio */
+.card,.mbox,.kc,.mcard,.vis,.ping,.pick,.sum,.ckl{background:var(--surface);border:1px solid var(--glass-b);backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%)}
+.card{border-radius:18px;box-shadow:var(--sh);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,border-color .25s}
+.ch{border-bottom-color:var(--line2)}
+.ch h2 .hem,.hem{font-size:18px;line-height:1;display:inline-block;filter:drop-shadow(0 2px 4px rgba(0,0,0,.15))}
+.side{background:var(--side);backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);border-right:1px solid rgba(255,255,255,.06)}
+.top{background:color-mix(in srgb,var(--bg) 62%,transparent);backdrop-filter:blur(20px) saturate(170%);-webkit-backdrop-filter:blur(20px) saturate(170%);border-bottom:1px solid var(--line2)}
+.nav button{transition:background .2s,color .2s,transform .2s}
+.nav button:hover{transform:translateX(3px)}
+.nav button.on{background:linear-gradient(90deg,rgba(34,197,94,.28),rgba(34,197,94,.06));box-shadow:inset 3px 0 0 #4ade80}
+.nem{font-size:17px;width:22px;text-align:center;line-height:1;transition:transform .25s}
+.nav button:hover .nem{transform:scale(1.2) rotate(-8deg)}
+.recv,.btn.p{background:linear-gradient(135deg,#22c55e,#10b981 55%,#0d9488);border-color:transparent;color:#fff;box-shadow:0 6px 18px var(--glow)}
+.recv:hover,.btn.p:hover{background:linear-gradient(135deg,#34d399,#10b981 55%,#0f766e);filter:brightness(1.05)}
+.btn{background:var(--field);border-color:var(--line);color:var(--ink2);border-radius:12px;transition:transform .15s,background .2s,box-shadow .2s,border-color .2s}
+.btn:hover{background:var(--surface-hi);border-color:var(--line)}
+.btn:active,.cpc:active,.fchip:active,.stat:active,.rw:active,.pick:active{transform:scale(.96)}
+.btn.d{color:var(--red);border-color:color-mix(in srgb,var(--red) 35%,transparent)}
+.btn.d:hover{background:var(--red-l)}
+.btn.wa{background:linear-gradient(135deg,#25d366,#128c7e);border-color:transparent;color:#fff}
+.btn.ghost{background:transparent;border-color:transparent}
+.ib:hover{background:var(--soft)}
+.tsearch input,.inp,.sel,.f input,.f select,.f textarea,.cpadd input{background:var(--field);border-color:var(--line);transition:border-color .2s,box-shadow .25s,background .2s}
+.tsearch input:focus,.inp:focus,.sel:focus,.f input:focus,.f select:focus,.f textarea:focus,.cpadd input:focus{border-color:var(--pri);background:var(--surface-hi);box-shadow:0 0 0 4px rgba(34,197,94,.18),0 6px 20px rgba(34,197,94,.15)}
+.seg{background:var(--soft)}.seg button.on{background:var(--surface-hi)}
+.fchip{background:var(--field);border-color:var(--line);transition:transform .15s,background .2s}
+.fchip.on{background:linear-gradient(135deg,#22c55e,#0d9488);border-color:transparent;color:#fff}.fchip.on .c{color:rgba(255,255,255,.8)}
+.cpc{background:var(--field);border-color:var(--line);border-radius:12px;transition:transform .15s,background .2s,border-color .2s,box-shadow .2s}
+.cpc:hover{border-color:var(--pri);background:var(--pri-50)}
+.cpc.on{background:linear-gradient(135deg,#22c55e,#0d9488);border-color:transparent;color:#fff;box-shadow:0 4px 14px var(--glow);animation:chipOn .3s cubic-bezier(.2,.9,.3,1.4)}
+.cpc.add{background:transparent;border-color:color-mix(in srgb,var(--pri) 55%,transparent)}
+@keyframes chipOn{0%{transform:scale(.88)}100%{transform:none}}
+.rw{transition:background .2s}
+.rw:hover{background:var(--pri-50)}
+.ticon{background:linear-gradient(135deg,rgba(34,197,94,.16),rgba(6,182,212,.14));border:1px solid var(--glass-b);border-radius:13px}
+.stat{position:relative;overflow:hidden}
+.stat::before{content:"";position:absolute;inset:auto -30% -60% auto;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,var(--c,#22c55e),transparent 65%);opacity:.22;transition:transform .4s}
+.stat:hover{transform:translateY(-3px);box-shadow:var(--sh2)}
+.stat:hover::before{transform:scale(1.3)}
+.stat .si{background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 55%,#fff))!important;font-size:21px;border-radius:14px;box-shadow:0 8px 18px color-mix(in srgb,var(--c) 40%,transparent)}
+.stat .n{background:linear-gradient(135deg,var(--ink),color-mix(in srgb,var(--c) 70%,var(--ink)));-webkit-background-clip:text;background-clip:text;color:transparent}
+.badge.est{color:var(--c);background:var(--b);background:color-mix(in srgb,var(--c) 15%,transparent);border:1px solid color-mix(in srgb,var(--c) 25%,transparent)}
+.badge .be{font-size:12px;line-height:1}
+html[data-theme=dark] .badge.est{color:color-mix(in srgb,var(--c) 55%,#fff)}
+.pp.cur{text-shadow:0 0 12px color-mix(in srgb,var(--c) 50%,transparent)}
+.pp.done{border-color:var(--pri)}
+.tl li::before{box-shadow:0 0 0 3px var(--tlbg),0 0 0 4px var(--line),0 0 10px var(--c,transparent)}
+.kc{border-radius:18px}
+.kcard{background:var(--surface-hi);border:1px solid var(--glass-b);transition:transform .2s,border-color .2s}
+.kcard:hover{transform:translateY(-2px);border-color:var(--pri)}
+.mcard{transition:transform .25s,box-shadow .25s,border-color .25s}
+.mcard:hover{transform:translateY(-3px);border-color:var(--pri)}
+.pick:hover{border-color:var(--pri)}
+.pick.on,.chosen{border-color:var(--pri);background:var(--pri-50);box-shadow:0 0 0 4px rgba(34,197,94,.10)}
+.who{background:var(--field);border-color:var(--line);transition:transform .15s}
+.who.none{animation:breathe 2.4s ease-in-out infinite}
+@keyframes breathe{50%{box-shadow:0 0 0 5px rgba(34,197,94,.15)}}
+.av{background:linear-gradient(135deg,#34d399,#0d9488 60%,#6366f1)}
+.modal{background:rgba(4,10,8,.38);backdrop-filter:blur(10px) saturate(120%);-webkit-backdrop-filter:blur(10px) saturate(120%);animation:fadeIn .2s ease-out}
+.mbox{background:var(--surface-hi);border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.35);animation:pop .32s cubic-bezier(.2,.9,.3,1.15)}
+@keyframes pop{from{transform:translateY(24px) scale(.96);opacity:0;filter:blur(6px)}to{transform:none;opacity:1;filter:none}}
+@keyframes fadeIn{from{opacity:0}}
+.stp.on b{background:linear-gradient(135deg,#22c55e,#0d9488);box-shadow:0 0 0 4px rgba(34,197,94,.18)}
+.empty .ei{background:linear-gradient(135deg,rgba(34,197,94,.14),rgba(168,85,247,.12));border:1px solid var(--glass-b);font-size:26px;width:60px;height:60px;border-radius:18px;animation:floaty 3.2s ease-in-out infinite}
+@keyframes floaty{50%{transform:translateY(-6px) rotate(-4deg)}}
+#toast{background:color-mix(in srgb,#0b1410 82%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:16px}
+#toast.show{animation:toastIn .35s cubic-bezier(.2,.9,.3,1.3)}
+@keyframes toastIn{from{transform:translate(-50%,20px) scale(.9);filter:blur(4px)}}
+.ping{border-left:4px solid var(--pri)}
+.status{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--glass-b);border-radius:14px}
+/* colores de etiquetas en oscuro */
+html[data-theme=dark] .tag.n,html[data-theme=dark] .st-ok,html[data-theme=dark] .ckb button.on.ok{background:rgba(34,197,94,.16);color:#86efac;border-color:rgba(34,197,94,.35)}
+html[data-theme=dark] .tag.u{background:rgba(249,115,22,.16);color:#fdba74}
+html[data-theme=dark] .st-low,html[data-theme=dark] .pl.f,html[data-theme=dark] .last,html[data-theme=dark] .status.warn,html[data-theme=dark] .role.adm{background:rgba(251,191,36,.14);color:#fcd34d;border-color:rgba(251,191,36,.3)}
+html[data-theme=dark] .st-out,html[data-theme=dark] .ckb button.on.mal{background:rgba(248,113,113,.16);color:#fca5a5;border-color:rgba(248,113,113,.35)}
+html[data-theme=dark] .ckb button.on.na{background:rgba(148,163,184,.14);color:#cbd5e1;border-color:rgba(148,163,184,.3)}
+html[data-theme=dark] .pl.w{background:rgba(34,197,94,.12);color:#86efac;border-color:rgba(34,197,94,.3)}
+html[data-theme=dark] .role.mec{background:rgba(96,165,250,.16);color:#93c5fd}
+html[data-theme=dark] mark{background:rgba(250,204,21,.35);color:#fff}
+html[data-theme=dark] .lockn{border-color:rgba(255,255,255,.15)}
+html[data-theme=dark] .nstep{border-color:rgba(34,197,94,.3)}
+html[data-theme=dark] .ticon{border-color:rgba(255,255,255,.08)}
+html[data-theme=dark] table.t th{background:rgba(255,255,255,.04)}
+html[data-theme=dark] .pb{color:#111}
+/* animación al cambiar de página */
+.enter>*,.enter>.grid>*{animation:rise .55s cubic-bezier(.2,.8,.2,1) both}
+.enter>*:nth-child(2),.enter>.grid>*:nth-child(2){animation-delay:.06s}
+.enter>*:nth-child(3),.enter>.grid>*:nth-child(3){animation-delay:.12s}
+.enter>*:nth-child(4),.enter>.grid>*:nth-child(4){animation-delay:.18s}
+.enter>*:nth-child(n+5),.enter>.grid>*:nth-child(n+5){animation-delay:.24s}
+@keyframes rise{from{opacity:0;transform:translateY(16px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+/* hero de inicio */
+.hero{display:flex;align-items:center;gap:16px;padding:22px 24px;margin-bottom:16px;overflow:hidden;position:relative;background:linear-gradient(120deg,color-mix(in srgb,#22c55e 16%,var(--surface)),color-mix(in srgb,#f97316 12%,var(--surface)) 60%,color-mix(in srgb,#06b6d4 14%,var(--surface)))}
+.hero h1{font-size:28px}.hero .gt{background:linear-gradient(90deg,var(--ink),#16a34a 55%,#f97316);-webkit-background-clip:text;background-clip:text;color:transparent}
+html[data-theme=dark] .hero .gt{background-image:linear-gradient(90deg,#f0fdf4,#4ade80 55%,#fb923c)}
+.hero .wave{display:inline-block;animation:wave 2.2s ease-in-out infinite;transform-origin:70% 70%}
+@keyframes wave{0%,60%,100%{transform:none}10%,30%{transform:rotate(16deg)}20%,40%{transform:rotate(-8deg)}}
+.hero .sub{color:var(--muted);margin-top:4px}
+.hero-t{flex:1;min-width:0;position:relative;z-index:1}
+.hero-saw{width:230px;flex-shrink:0;position:relative;z-index:1}
+/* motosierra */
+.saw{width:100%;height:auto;overflow:visible;display:block}
+.saw .sbody{animation:buzz .09s linear infinite}
+.saw .chain{animation:chain .32s linear infinite}
+.saw .sprk{transform-box:fill-box;transform-origin:center;animation:spin .5s linear infinite}
+.saw .dust{transform-box:fill-box;opacity:0;animation:dust 1.1s ease-out infinite}
+.saw .d2{animation-delay:.2s}.saw .d3{animation-delay:.45s}.saw .d4{animation-delay:.65s}.saw .d5{animation-delay:.85s}
+.saw .smoke{transform-box:fill-box;transform-origin:center;opacity:0;animation:smoke 2.4s ease-out infinite}
+.saw .smoke.s2{animation-delay:1.2s}
+@keyframes buzz{0%{transform:translate(0,0)}25%{transform:translate(.6px,-.5px)}50%{transform:translate(-.4px,.5px)}75%{transform:translate(.5px,.3px)}}
+@keyframes chain{to{stroke-dashoffset:-20}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes dust{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--dx,22px),var(--dy,-14px)) scale(.4)}}
+@keyframes smoke{0%{opacity:.5;transform:translate(0,0) scale(.5)}100%{opacity:0;transform:translate(-18px,-26px) scale(1.8)}}
+/* pantalla de carga */
+#splash{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:color-mix(in srgb,var(--bg) 70%,transparent);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);transition:opacity .5s,filter .5s}
+#splash.out{opacity:0;filter:blur(10px);pointer-events:none}
+#splash .saw{width:min(300px,70vw)}
+#splash .sn{font-weight:800;font-size:20px;letter-spacing:-.01em}
+#splash .bar{width:180px;height:5px;border-radius:9px;background:var(--line);overflow:hidden}
+#splash .bar i{display:block;height:100%;width:40%;border-radius:9px;background:linear-gradient(90deg,#22c55e,#f97316);animation:load 1.1s ease-in-out infinite}
+@keyframes load{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
+.lsaw{width:170px;margin:-6px 0 6px -6px}
+#login{background:transparent!important}
+#login .card{background:var(--surface-hi)}
+.thb{font-size:17px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
+@media (max-width:860px){
+  .bnav{left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));padding:6px 6px;border-radius:24px;background:color-mix(in srgb,var(--bg) 60%,transparent);backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);border:1px solid var(--glass-b);box-shadow:var(--sh2)}
+  .bnav button{transition:color .2s}
+  .bnav .bem{font-size:21px;line-height:1;transition:transform .3s cubic-bezier(.2,.9,.3,1.5);display:block;padding:3px 10px;border-radius:14px}
+  .bnav button.on .bem{transform:translateY(-2px) scale(1.12);background:var(--pri-l)}
+  .bnav .fabb{margin-top:-30px}
+  .bnav .fabb span{background:linear-gradient(135deg,#22c55e,#0d9488 60%,#0891b2);border-radius:20px;box-shadow:0 10px 26px var(--glow);animation:fabGlow 2.6s ease-in-out infinite}
+  @keyframes fabGlow{50%{box-shadow:0 10px 34px var(--glow),0 0 0 8px rgba(34,197,94,.12)}}
+  .more{background:rgba(4,10,8,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .more .sheet{background:var(--surface-hi);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:26px 26px 0 0;animation:sheetUp .35s cubic-bezier(.2,.9,.3,1.1)}
+  @keyframes sheetUp{from{transform:translateY(100%)}}
+  .more .sheet button .nem{font-size:20px}
+  .card,.mbox,.kc,.mcard,.vis,.pick,.sum,.ckl{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  .hero{padding:16px 18px 18px;gap:2px;flex-direction:column;align-items:stretch}
+  .hero h1{font-size:24px}
+  .hero-saw{order:-1;width:190px;align-self:flex-end;margin:-4px -6px -14px 0}
+  .mbox,.mbox.lg,.mbox.sm{border-radius:0}
+  #toast{bottom:104px}
+}
 </style>
 </head>
 <body>
+<div class="bgfx"><i class="b1"></i><i class="b2"></i><i class="b3"></i><i class="b4"></i></div>
+<div id="splash"><div id="splashSaw"></div><div class="sn" id="splashName">Taller</div><div class="bar"><i></i></div></div>
 <div class="shell">
   <aside class="side">
     <div class="brand"><div class="logo" id="logoBox">T</div><div style="min-width:0"><div class="bname" id="bizName">Mi taller</div><div class="bsub">Servicio técnico</div></div></div>
@@ -325,7 +502,7 @@ mark{background:#fef08a;border-radius:3px;padding:0 1px}
       <div class="tsearch" id="tsearch"><span id="srchIc"></span><input id="qGlobal" data-ui="q" placeholder="Buscar cliente, teléfono, serie, orden, repuesto…" autocomplete="off"></div>
       <span class="sp hide-m"></span>
       <button class="ib" id="mSearchBtn" data-act="mSearch" style="display:none"></button>
-      <div id="whoBox"></div><div id="roleBox"></div>
+      <button class="ib thb" id="thBtn" data-act="theme" title="Cambiar tema claro/oscuro"></button><div id="whoBox"></div><div id="roleBox"></div>
     </div>
     <div class="content"><div id="status" class="status"></div><div id="view"></div></div>
   </div>
@@ -378,18 +555,43 @@ const IC={
  file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>'
 };
 const ic=(n,cls='')=>`<svg class="i ${cls}" viewBox="0 0 24 24">${IC[n]||''}</svg>`;
+/* ---------- emojis y motosierra ---------- */
+const EMO={home:'🏠',bell:'🔔',clip:'📋',users:'👥',user:'👤',tractor:'🚜',box:'📦',cart:'🛒',tag:'🏷️',chart:'📊',gear:'⚙️',inbox:'📥',wrench:'🔧',check:'✅',clock:'⏳',truck:'🚚',lock:'🔐',dl:'💾',search:'🔍',alert:'⚠️',msg:'💬',print:'🖨️',file:'📄',activity:'📈',qr:'🔳',kanban:'🗂️',list:'📝',repeat:'🔁',shield:'🛡️',pin:'📍',phone:'📞'};
+const hic=n=>EMO[n]?`<span class="hem">${EMO[n]}</span>`:ic(n);
+const nem=n=>EMO[n]?`<span class="nem">${EMO[n]}</span>`:ic(n);
+function sawSVG(cls=''){return `<svg class="saw ${cls}" viewBox="0 0 250 110" aria-hidden="true"><defs><linearGradient id="sgB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdba74"/><stop offset=".45" stop-color="#f97316"/><stop offset="1" stop-color="#c2410c"/></linearGradient><linearGradient id="sgBar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1f5f9"/><stop offset="1" stop-color="#94a3b8"/></linearGradient></defs>
+<circle class="smoke" cx="20" cy="40" r="6" fill="#94a3b8"/><circle class="smoke s2" cx="20" cy="40" r="6" fill="#94a3b8"/>
+<g class="sbody">
+<rect x="100" y="44" width="138" height="26" rx="13" fill="url(#sgBar)"/>
+<rect x="110" y="54" width="112" height="6" rx="3" fill="#475569" opacity=".25"/>
+<circle cx="225" cy="57" r="3" fill="#64748b" opacity=".6"/>
+<rect class="chain" x="96" y="40" width="146" height="34" rx="17" fill="none" stroke="#1e293b" stroke-width="4.5" stroke-dasharray="6 4"/>
+<rect class="chain" x="96" y="40" width="146" height="34" rx="17" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="2.5 7.5"/>
+<rect x="6" y="50" width="34" height="20" rx="10" fill="#1f2937"/><rect x="12" y="56" width="20" height="8" rx="4" fill="#374151"/>
+<path d="M30 38q0-16 16-16h46q16 0 18 16l4 36q0 12-12 12H44q-14 0-14-14z" fill="url(#sgB)"/>
+<path d="M36 30q4-6 12-6h40" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".35" fill="none"/>
+<g stroke="#7c2d12" stroke-width="3" stroke-linecap="round" opacity=".45"><path d="M46 46v24M55 46v24M64 46v24"/></g>
+<rect x="72" y="44" width="30" height="12" rx="4" fill="#fff" opacity=".92"/><rect x="76" y="48" width="18" height="4" rx="2" fill="#f97316"/>
+<path d="M38 30C40 4 86 0 106 32" fill="none" stroke="#1f2937" stroke-width="8" stroke-linecap="round"/>
+<g class="sprk"><circle cx="104" cy="57" r="9" fill="#111827"/><path d="M104 50v14M97 57h14M99 52l10 10M109 52l-10 10" stroke="#9ca3af" stroke-width="1.6"/></g>
+</g>
+<circle class="dust" cx="244" cy="60" r="2.4" fill="#d97706" style="--dx:18px;--dy:-16px"/><circle class="dust d2" cx="244" cy="62" r="1.8" fill="#fbbf24" style="--dx:26px;--dy:4px"/><circle class="dust d3" cx="243" cy="58" r="2" fill="#b45309" style="--dx:14px;--dy:-24px"/><circle class="dust d4" cx="244" cy="64" r="1.6" fill="#f59e0b" style="--dx:24px;--dy:14px"/><circle class="dust d5" cx="244" cy="60" r="2.2" fill="#92400e" style="--dx:30px;--dy:-6px"/>
+</svg>`}
+function setTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('taller_theme',t)}catch(e){}const b=$('#thBtn');if(b)b.textContent=t==='dark'?'☀️':'🌙'}
+const T0=Date.now();let _splashOff=false;function hideSplash(){if(_splashOff)return;_splashOff=true;setTimeout(()=>{const s=$('#splash');if(s){s.classList.add('out');setTimeout(()=>s.remove(),600)}},Math.max(0,1200-(Date.now()-T0)))}
+
 
 /* ================== Constantes ================== */
 const ESTADOS=[
- {k:'Recibido',c:'#d97706',bg:'#fef3c7'},
- {k:'En diagnóstico',c:'#0284c7',bg:'#e0f2fe'},
- {k:'Esperando aprobación',c:'#a16207',bg:'#fef9c3'},
- {k:'Esperando repuestos',c:'#c2410c',bg:'#ffedd5'},
- {k:'En reparación',c:'#7c3aed',bg:'#ede9fe'},
- {k:'Control de calidad',c:'#0f766e',bg:'#ccfbf1'},
- {k:'Listo para entregar',c:'#15803d',bg:'#dcfce7'},
- {k:'Entregado',c:'#475569',bg:'#f1f5f9'},
- {k:'Cancelado',c:'#b91c1c',bg:'#fee2e2'}
+ {k:'Recibido',em:'📥',c:'#d97706',bg:'#fef3c7'},
+ {k:'En diagnóstico',em:'🔍',c:'#0284c7',bg:'#e0f2fe'},
+ {k:'Esperando aprobación',em:'⏸️',c:'#a16207',bg:'#fef9c3'},
+ {k:'Esperando repuestos',em:'📦',c:'#c2410c',bg:'#ffedd5'},
+ {k:'En reparación',em:'🔧',c:'#7c3aed',bg:'#ede9fe'},
+ {k:'Control de calidad',em:'🧪',c:'#0f766e',bg:'#ccfbf1'},
+ {k:'Listo para entregar',em:'✅',c:'#15803d',bg:'#dcfce7'},
+ {k:'Entregado',em:'🤝',c:'#475569',bg:'#f1f5f9'},
+ {k:'Cancelado',em:'❌',c:'#b91c1c',bg:'#fee2e2'}
 ];
 const PIPE=['Recibido','En diagnóstico','En reparación','Control de calidad','Listo para entregar','Entregado'];
 const CERR=['Entregado','Cancelado'];
@@ -458,7 +660,7 @@ const eqShort=e=>e?[e.marca,e.modelo].filter(Boolean).join(' ')||e.tipo||'Equipo
 const tipoEm=t=>{const n=norm(t);const f=TIPO_EM.find(([k])=>n.includes(norm(k)));return f?f[1]:'🔧'};
 const condLbl=c=>c==='Usado'?'Segunda':'Nuevo';
 const est=k=>ESTADOS.find(e=>e.k===k)||ESTADOS[0];
-const badge=k=>{const e=est(k);return `<span class="badge" style="color:${e.c};background:${e.bg}"><i></i>${esc(k)}</span>`};
+const badge=k=>{const e=est(k);return `<span class="badge est" style="--c:${e.c};--b:${e.bg}">${e.em?`<span class="be">${e.em}</span>`:'<i></i>'}${esc(k)}</span>`};
 const fallaTxt=b=>[...(b.fallas||[]),b.falla].filter(Boolean).join(' · ');
 const condTxt=b=>[...(b.condiciones||[]),b.condicion].filter(Boolean).join(' · ');
 const accTxt=b=>[...(b.accesorios||[]),b.accesoriosOtros].filter(Boolean).join(', ');
@@ -467,12 +669,12 @@ const isOpen=b=>!CERR.includes(b.estado);
 const lastChange=b=>{const h=b.historial||[];const l=h[h.length-1];return l?iso(new Date(l.t)):b.fechaIngreso};
 function waLink(tel,msg){let d=String(tel||'').replace(/\D/g,'');if(!d)return '';if(d.length===8)d='506'+d;return 'https://wa.me/'+d+'?text='+encodeURIComponent(msg)}
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2600)}
-function setStatus(m,k){const s=$('#status');s.className='status'+(m?' '+k:'');s.textContent=m||''}
+function setStatus(m,k){if(k==='err')hideSplash();const s=$('#status');s.className='status'+(m?' '+k:'');s.textContent=m||''}
 const nextNumero=()=>arr(S.boletas).reduce((m,b)=>Math.max(m,num(b.numero)),0)+1;
 const logoOk=()=>typeof CFG.logo==='string'&&/^data:image\/(png|jpe?g|webp);base64,/.test(CFG.logo);
 const logoHTML=()=>logoOk()?`<img src="${CFG.logo}" alt="">`:esc(initials(CFG.nombre||'T'));
 function stockSt(r){const d=num(r.stock);if(d<=0)return{k:'out',l:'Agotado',c:'st-out'};if(d<=num(r.stockMin))return{k:'low',l:'Stock bajo',c:'st-low'};return{k:'ok',l:'Disponible',c:'st-ok'}}
-const emptyBox=(icon,t,sub='',extra='')=>`<div class="empty"><div class="ei">${icon.length>2?ic(icon):icon}</div><b>${t}</b>${sub?`<div class="small">${sub}</div>`:''}${extra}</div>`;
+const emptyBox=(icon,t,sub='',extra='')=>`<div class="empty"><div class="ei">${icon.length>2?(EMO[icon]||ic(icon)):icon}</div><b>${t}</b>${sub?`<div class="small">${sub}</div>`:''}${extra}</div>`;
 
 /* ================== Roles ================== */
 const pinOn=()=>!!CFG.pinHash;
@@ -605,8 +807,8 @@ async function initFirebase(){
 function stopSubs(){UNSUB.forEach(u=>{try{u()}catch(e){}});UNSUB=[];DB=null;connected=false;S={clientes:{},equipos:{},repuestos:{},boletas:{},movimientos:{},pedidos:{},porpedir:{}}}
 function showLogin(){
   let o=$('#login');if(!o){o=document.createElement('div');o.id='login';document.body.appendChild(o)}
-  o.style.cssText='position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px';
-  o.innerHTML=`<form id="fLogin" class="card" style="width:100%;max-width:380px;padding:26px"><div class="logo" style="width:52px;height:52px;border-radius:14px;margin-bottom:14px">${logoHTML()}</div><h1 style="font-size:21px">Iniciar sesión</h1><p class="muted small" style="margin:4px 0 18px">${esc(CFG.nombre||'Taller')}</p>
+  hideSplash();o.style.cssText='position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px';
+  o.innerHTML=`<form id="fLogin" class="card" style="width:100%;max-width:380px;padding:26px;animation:pop .4s cubic-bezier(.2,.9,.3,1.15)"><div class="lsaw">${sawSVG()}</div><h1 style="font-size:21px">Iniciar sesión 🔐</h1><p class="muted small" style="margin:4px 0 18px">${esc(CFG.nombre||'Taller')}</p>
    ${fld('email','Correo','','email','required autocomplete="username"')}${fld('pass','Contraseña','','password','required autocomplete="current-password"')}<div class="err" id="lgErr" style="margin-bottom:10px"></div>
    <button class="btn p lg" style="width:100%" type="submit">Entrar</button><button type="button" class="btn ghost sm" style="width:100%;margin-top:8px" id="lgReset">Olvidé mi contraseña</button></form>`;
   $('#fLogin').onsubmit=async e=>{e.preventDefault();const d=formData(e.target);$('#lgErr').textContent='';try{await FBAUTH.signInWithEmailAndPassword(d.email,d.pass)}catch(x){$('#lgErr').textContent=/wrong-password|invalid-credential|user-not-found|invalid-login/.test(x.code||'')?'Correo o contraseña incorrectos.':'No se pudo entrar: '+(x.code||x.message)}};
@@ -638,8 +840,8 @@ const PARENT={orden:'ordenes',cliente:'clientes',equipo:'equipos',repuesto:'repu
 function shell(){
   const p=PARENT[view.page]||view.page;const q=UI.q.trim();
   const al=alertas();const cnt={ordenes:arr(S.boletas).filter(isOpen).length,alertas:al.filter(a=>a.sev!=='b').length,pedidos:porPedir().filter(l=>!l.pend).length};
-  $('#nav').innerHTML=NAV.map(([k,i,l],ix)=>`${k==='catalogo'?'<div class="nl">Administración</div>':ix===0?'<div class="nl">Taller</div>':''}<button data-act="nav" data-page="${k}" class="${!q&&p===k?'on':''}">${ic(i)}<span>${l}</span>${cnt[k]?`<span class="nb" ${k==='alertas'&&al.some(a=>a.sev==='r')?'style="background:#dc2626;color:#fff"':''}>${cnt[k]}</span>`:''}</button>`).join('');
-  $('.recv').innerHTML=ic('plus')+' Recibir máquina';
+  $('#nav').innerHTML=NAV.map(([k,i,l],ix)=>`${k==='catalogo'?'<div class="nl">Administración</div>':ix===0?'<div class="nl">Taller</div>':''}<button data-act="nav" data-page="${k}" class="${!q&&p===k?'on':''}">${nem(i)}<span>${l}</span>${cnt[k]?`<span class="nb" ${k==='alertas'&&al.some(a=>a.sev==='r')?'style="background:#dc2626;color:#fff"':''}>${cnt[k]}</span>`:''}</button>`).join('');
+  $('.recv').innerHTML=ic('plus')+' Recibir máquina';{const b=$('#thBtn');if(b)b.textContent=document.documentElement.dataset.theme==='dark'?'☀️':'🌙'}
   $('#bizName').textContent=CFG.nombre||'Mi taller';
   $('#logoBox').innerHTML=logoHTML();$('#logoBoxM').innerHTML=logoHTML();
   $('#mTitle').textContent=q?'Búsqueda':TITLES[view.page]||'';
@@ -649,8 +851,8 @@ function shell(){
   document.body.classList.toggle('no-recv',!esRecep());document.body.classList.toggle('no-taller',!esTaller());
   $('#roleBox').innerHTML=pinOn()?(isAdmin()?`<button class="role adm" data-act="lockAdm" title="Cerrar administrador">${ic('unlock')}<span class="hide-m">Administrador</span></button>`:`<button class="role mec" data-act="unlock" title="Entrar como administrador">${ic('lock')}<span class="hide-m">Admin</span></button>`):'';
   const bn=[['inicio','home','Inicio'],['ordenes','clip','Órdenes'],['+','plus',''],['repuestos','box','Repuestos'],['mas','more','Más']];const nAl=cnt.alertas;
-  $('#bnav').innerHTML=bn.map(([k,i,l])=>k==='+'?`<button class="fabb" data-act="recibir" aria-label="Recibir máquina"><span>${ic('plus')}</span></button>`:`<button style="position:relative" data-act="${k==='mas'?'moreOpen':'nav'}" data-page="${k}" class="${(k===p||(k==='mas'&&['alertas','clientes','equipos','pedidos','catalogo','reportes','ajustes'].includes(p)))&&!q?'on':''}">${ic(i)}${l}${k==='mas'&&nAl?`<span style="position:absolute;top:0;right:22%;background:#dc2626;color:#fff;border-radius:9px;font-size:10px;padding:0 5px">${nAl}</span>`:''}</button>`).join('');
-  $('#moreSheet').innerHTML=NAV.filter(([k])=>!['inicio','ordenes','repuestos'].includes(k)).map(([k,i,l])=>`<button data-act="nav" data-page="${k}">${ic(i)}${l}${cnt[k]?` <span class="nb" style="background:var(--soft);color:var(--ink)">${cnt[k]}</span>`:''}</button>`).join('');
+  $('#bnav').innerHTML=bn.map(([k,i,l])=>k==='+'?`<button class="fabb" data-act="recibir" aria-label="Recibir máquina"><span>${ic('plus')}</span></button>`:`<button style="position:relative" data-act="${k==='mas'?'moreOpen':'nav'}" data-page="${k}" class="${(k===p||(k==='mas'&&['alertas','clientes','equipos','pedidos','catalogo','reportes','ajustes'].includes(p)))&&!q?'on':''}"><span class="bem">${EMO[i]||'☰'}</span>${l}${k==='mas'&&nAl?`<span style="position:absolute;top:0;right:22%;background:#dc2626;color:#fff;border-radius:9px;font-size:10px;padding:0 5px">${nAl}</span>`:''}</button>`).join('');
+  $('#moreSheet').innerHTML=NAV.filter(([k])=>!['inicio','ordenes','repuestos'].includes(k)).map(([k,i,l])=>`<button data-act="nav" data-page="${k}">${nem(i)}${l}${cnt[k]?` <span class="nb" style="background:var(--soft);color:var(--ink)">${cnt[k]}</span>`:''}</button>`).join('');
   document.title=(CFG.nombre||'Taller')+' — Servicio técnico';
 }
 function render(){
@@ -660,6 +862,8 @@ function render(){
   const p=view.page;const q=UI.q.trim();
   const F={alertas:vAlertas,pedidos:vPedidos,inicio:vInicio,ordenes:vOrdenes,orden:()=>vOrden(view.id),clientes:vClientes,cliente:()=>vCliente(view.id),equipos:vEquipos,equipo:()=>vEquipo(view.id),repuestos:vRepuestos,repuesto:()=>vRepuesto(view.id),catalogo:vCatalogo,reportes:vReportes,ajustes:vAjustes};
   v.innerHTML=q?vBuscar(q):(F[p]||vInicio)();
+  {const key=q?'q':p+(view.id||'');if(key!==render._k){render._k=key;v.classList.remove('enter');void v.offsetWidth;v.classList.add('enter');clearTimeout(render._t);render._t=setTimeout(()=>v.classList.remove('enter'),900)}}
+  if(connected||LOCAL)hideSplash();
   if(fid){const el=document.getElementById(fid);if(el){el.focus();try{if(ss!=null)el.setSelectionRange(ss,se)}catch(e){}}}
   shell();
   if(p==='ordenes'&&UI.oView==='tablero'&&!q)wireKanban();
@@ -671,7 +875,7 @@ function go(v){stack.push(view);view=v;UI.q='';$('#qGlobal').value='';render();s
 
 /* ================== Inicio ================== */
 function bandejas(){
-  const bs=arr(S.boletas);const card=(icon,t,sub,items,btn)=>`<div class="card"><div class="ch"><h2>${ic(icon)} ${t} ${items.length?`<span class="badge" style="background:var(--pri);color:#fff">${items.length}</span>`:''}</h2></div>${items.length?`<div class="rows">${items.map(btn).join('')}</div>`:emptyBox(icon,sub)}</div>`;
+  const bs=arr(S.boletas);const card=(icon,t,sub,items,btn)=>`<div class="card"><div class="ch"><h2>${hic(icon)} ${t} ${items.length?`<span class="badge" style="background:var(--pri);color:#fff">${items.length}</span>`:''}</h2></div>${items.length?`<div class="rows">${items.map(btn).join('')}</div>`:emptyBox(icon,sub)}</div>`;
   const row=(b,right)=>{const c=cli(b.clienteId)||{};return `<div class="rw rwb" data-act="open" data-page="orden" data-id="${b.id}"><div class="ticon">${tipoEm(eq(b.equipoId)?.tipo)}</div><div class="mn"><div class="t ell">${esc(eqShort(eq(b.equipoId)))} ${b.prioridad==='Urgente'?'<span class="tag urg">URG</span>':''}</div><div class="m ell"><span class="num">${nb(b.numero)}</span> · ${esc(c.nombre||'')} · ${esc(fallaTxt(b))}</div></div><div class="r row" style="gap:6px;justify-content:flex-end">${right}</div></div>`};
   const out=[];
   if(esTaller()){const n=bs.filter(b=>b.estado==='Recibido'&&!b.tallerRecibio).sort((a,b)=>(a.prioridad==='Urgente'?0:1)-(b.prioridad==='Urgente'?0:1)||(a.createdAt||0)-(b.createdAt||0));
@@ -688,28 +892,28 @@ function vInicio(){
   const hoy=bs.filter(b=>b.fechaIngreso===today());
   const bajos=arr(S.repuestos).filter(r=>stockSt(r).k!=='ok').sort((a,b)=>num(a.stock)-num(b.stock));
   const counts=ESTADOS.filter(e=>!CERR.includes(e.k)).map(e=>({...e,n:ab.filter(b=>b.estado===e.k).length})).filter(e=>e.n);
-  const stat=(icon,bg,col,n,l,act)=>`<div class="card stat" ${act}><div class="si" style="background:${bg};color:${col}">${ic(icon)}</div><div><div class="n">${n}</div><div class="l">${l}</div></div></div>`;
+  const stat=(icon,bg,col,n,l,act)=>`<div class="card stat" style="--c:${col}" ${act}><div class="si">${EMO[icon]||ic(icon)}</div><div><div class="n">${n}</div><div class="l">${l}</div></div></div>`;
   const recientes=bs.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,6);
   const h=new Date().getHours();
-  return `<div class="ph"><div><h1>${h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches'}</h1><div class="sub">${new Date().toLocaleDateString('es-CR',{weekday:'long',day:'numeric',month:'long'})} · ${ab.length} equipo${ab.length!==1?'s':''} en el taller</div></div>
-   <button class="btn p lg hide-m" data-act="recibir">${ic('plus')} Recibir máquina</button></div>
+  return `<div class="card hero"><div class="hero-t"><h1><span class="gt">${h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches'}</span> <span class="wave">👋</span></h1><div class="sub">📅 ${new Date().toLocaleDateString('es-CR',{weekday:'long',day:'numeric',month:'long'})} · 🔧 ${ab.length} equipo${ab.length!==1?'s':''} en el taller</div>
+   <div class="row" style="margin-top:14px"><button class="btn p lg hide-m" data-act="recibir">${ic('plus')} Recibir máquina</button></div></div><div class="hero-saw">${sawSVG()}</div></div>
   ${bandejas()}
   <div class="grid g4">
-   ${stat('wrench','#ede9fe','#7c3aed',ab.length,'En el taller','data-act="filtro" data-f="activas"')}
-   ${stat('check','#dcfce7','#15803d',listos.length,'Listos para entregar','data-act="filtro" data-f="Listo para entregar"')}
-   ${stat('clock','#ffedd5','#c2410c',esperando.length,'Esperando repuestos o aprobación','data-act="filtro" data-f="esperando"')}
-   ${stat('inbox','#e0f2fe','#0284c7',hoy.length,'Recibidos hoy','data-act="nav" data-page="ordenes"')}
+   ${stat('wrench','#ede9fe','#8b5cf6',ab.length,'En el taller','data-act="filtro" data-f="activas"')}
+   ${stat('check','#dcfce7','#22c55e',listos.length,'Listos para entregar','data-act="filtro" data-f="Listo para entregar"')}
+   ${stat('clock','#ffedd5','#f97316',esperando.length,'Esperando repuestos o aprobación','data-act="filtro" data-f="esperando"')}
+   ${stat('inbox','#e0f2fe','#0ea5e9',hoy.length,'Recibidos hoy','data-act="nav" data-page="ordenes"')}
   </div>
   ${counts.length?`<div class="card" style="margin-top:16px;padding:16px 18px"><div class="row" style="margin-bottom:10px"><div class="lbl" style="margin:0">Equipos por estado</div><span class="sp"></span><button class="btn sm" data-act="tablero">${ic('kanban')} Ver tablero</button></div>
    <div style="display:flex;height:10px;border-radius:9px;overflow:hidden;background:var(--line2)">${counts.map(e=>`<span style="width:${e.n/ab.length*100}%;background:${e.c}"></span>`).join('')}</div>
    <div class="row" style="margin-top:12px">${counts.map(e=>`<button class="fchip" data-act="filtro" data-f="${esc(e.k)}">${badge(e.k)}<b>${e.n}</b></button>`).join('')}</div></div>`:''}
   <div class="grid g2" style="margin-top:16px;align-items:start">
-   ${(()=>{const al=alertas();return `<div class="card"><div class="ch"><h2>${ic('bell')} Alertas ${al.length?`<span class="muted" style="font-weight:500">${al.length}</span>`:''}</h2>${al.length?'<button class="btn sm" data-act="nav" data-page="alertas">Ver todas</button>':''}</div>${al.length?`<div class="rows">${al.slice(0,5).map(alRow).join('')}</div>`:emptyBox('check','Todo en orden','Sin plazos vencidos ni repuestos por pedir.')}</div>`})()}
-    <div class="grid" style="align-content:start"><div class="card"><div class="ch"><h2>${ic('box')} Repuestos por reponer</h2>${bajos.length?`<button class="btn sm p" data-act="nav" data-page="pedidos">${ic('cart')} Hacer pedido</button>`:''}</div>
+   ${(()=>{const al=alertas();return `<div class="card"><div class="ch"><h2>${hic('bell')} Alertas ${al.length?`<span class="muted" style="font-weight:500">${al.length}</span>`:''}</h2>${al.length?'<button class="btn sm" data-act="nav" data-page="alertas">Ver todas</button>':''}</div>${al.length?`<div class="rows">${al.slice(0,5).map(alRow).join('')}</div>`:emptyBox('check','Todo en orden','Sin plazos vencidos ni repuestos por pedir.')}</div>`})()}
+    <div class="grid" style="align-content:start"><div class="card"><div class="ch"><h2>${hic('box')} Repuestos por reponer</h2>${bajos.length?`<button class="btn sm p" data-act="nav" data-page="pedidos">${ic('cart')} Hacer pedido</button>`:''}</div>
      ${bajos.length?`<div class="rows">${bajos.slice(0,6).map(r=>{const s=stockSt(r);return `<div class="rw" data-act="open" data-page="repuesto" data-id="${r.id}"><div class="mn"><div class="t ell"><span class="mono">${esc(r.sku)}</span> <span class="tag ${r.condicion==='Usado'?'u':'n'}">${esc(condLbl(r.condicion))}</span></div><div class="m ell">${esc(r.nombre)}</div></div><span class="badge ${s.c}">${num(r.stock)} ${s.k==='out'?'· agotado':'disp.'}</span></div>`}).join('')}</div>`:emptyBox('box','Inventario al día')}</div>
    </div>
   </div>
-  <div class="card" style="margin-top:16px"><div class="ch"><h2>${ic('inbox')} Últimas recepciones</h2><button class="btn sm" data-act="nav" data-page="ordenes">Ver todas</button></div>
+  <div class="card" style="margin-top:16px"><div class="ch"><h2>${hic('inbox')} Últimas recepciones</h2><button class="btn sm" data-act="nav" data-page="ordenes">Ver todas</button></div>
    ${recientes.length?`<div class="rows">${recientes.map(oRow).join('')}</div>`:emptyBox('inbox','Aún no hay órdenes','Reciba la primera máquina para empezar.',`<div style="margin-top:12px"><button class="btn p" data-act="recibir">${ic('plus')} Recibir máquina</button></div>`)}</div>`;
 }
 function oRow(b){
@@ -735,7 +939,7 @@ function vBuscar(q){
   const es=arr(S.equipos).filter(e=>norm([e.tipo,e.marca,e.modelo,e.serie].join(' ')).includes(n));
   const rs=arr(S.repuestos).filter(r=>norm([r.sku,r.nombre,r.marca,r.compatible,r.descripcion,r.ubicacion].join(' ')).includes(n));
   const tot=bs.length+cs.length+es.length+rs.length;
-  const sec=(icon,t,items,fn)=>items.length?`<div class="card" style="margin-bottom:14px"><div class="ch"><h2>${ic(icon)} ${t} <span class="muted" style="font-weight:500">${items.length}</span></h2></div><div class="rows">${items.slice(0,30).map(fn).join('')}</div></div>`:'';
+  const sec=(icon,t,items,fn)=>items.length?`<div class="card" style="margin-bottom:14px"><div class="ch"><h2>${hic(icon)} ${t} <span class="muted" style="font-weight:500">${items.length}</span></h2></div><div class="rows">${items.slice(0,30).map(fn).join('')}</div></div>`:'';
   return `<div class="ph"><div><h1>Resultados para “${esc(q)}”</h1><div class="sub">${tot} resultado${tot!==1?'s':''}</div></div><button class="btn" data-act="clearQ">${ic('x')} Cerrar búsqueda</button></div>
   ${sec('clip','Órdenes',bs,b=>{const c=cli(b.clienteId)||{},e=eq(b.equipoId)||{};return `<div class="rw" data-act="open" data-page="orden" data-id="${b.id}"><div class="ticon">${tipoEm(e.tipo)}</div><div class="mn"><div class="t ell"><span class="num">${hl(nb(b.numero),q)}</span> · ${hl(c.nombre,q)}</div><div class="m ell">${hl(eqName(e),q)}${e.serie?' · S/N '+hl(e.serie,q):''} · ${hl(fallaTxt(b),q)}</div></div>${badge(b.estado)}</div>`})}
   ${sec('users','Clientes',cs,c=>`<div class="rw" data-act="open" data-page="cliente" data-id="${c.id}"><div class="av">${esc(initials(c.nombre))}</div><div class="mn"><div class="t">${hl(c.nombre,q)}</div><div class="m">${hl(c.telefono,q)}${c.cedula?' · '+hl(c.cedula,q):''}</div></div></div>`)}
@@ -763,8 +967,8 @@ function vOrdenes(){
     const cols=ESTADOS.filter(e=>!CERR.includes(e.k));
     const ent=bs.filter(b=>b.estado==='Entregado'&&daysSince(b.fechaEntrega||lastChange(b))<=7);
     return head+`<p class="muted small" style="margin-top:-4px">Arrastre una tarjeta a otra columna para cambiar su estado${innerWidth<=860?' (en el teléfono, abra la orden y toque el estado)':''}.</p>
-    <div class="kb">${[...cols,{k:'Entregado',c:'#475569',bg:'#f1f5f9',lbl:'Entregados (7 días)'}].map(e=>{const items=(e.k==='Entregado'?ent:bs.filter(b=>b.estado===e.k)).sort((a,b)=>(a.prioridad==='Urgente'?0:1)-(b.prioridad==='Urgente'?0:1)||String(a.fechaIngreso).localeCompare(String(b.fechaIngreso)));
-      return `<div class="kc" data-col="${esc(e.k)}"><div class="kch"><span class="badge" style="color:${e.c};background:${e.bg}"><i></i>${esc(e.lbl||e.k)}</span><span class="c">${items.length}</span></div>
+    <div class="kb">${[...cols,{k:'Entregado',em:'🤝',c:'#475569',bg:'#f1f5f9',lbl:'Entregados (7 días)'}].map(e=>{const items=(e.k==='Entregado'?ent:bs.filter(b=>b.estado===e.k)).sort((a,b)=>(a.prioridad==='Urgente'?0:1)-(b.prioridad==='Urgente'?0:1)||String(a.fechaIngreso).localeCompare(String(b.fechaIngreso)));
+      return `<div class="kc" data-col="${esc(e.k)}"><div class="kch"><span class="badge est" style="--c:${e.c};--b:${e.bg}">${e.em?`<span class="be">${e.em}</span>`:'<i></i>'}${esc(e.lbl||e.k)}</span><span class="c">${items.length}</span></div>
        ${items.map(b=>{const c=cli(b.clienteId)||{},q=eq(b.equipoId);return `<div class="kcard" draggable="true" data-bid="${b.id}" data-act="open" data-page="orden" data-id="${b.id}"><div class="row" style="gap:6px"><span class="num">${nb(b.numero)}</span>${b.prioridad==='Urgente'?'<span class="tag urg">URG</span>':''}<span class="sp"></span><span class="small muted">${daysSince(b.fechaIngreso)} d</span></div><div style="font-weight:700;margin-top:4px" class="ell">${tipoEm(q?.tipo)} ${esc(eqShort(q))}</div><div class="small muted ell">${esc(c.nombre||'')}</div><div class="small ell" style="margin-top:4px">${esc(fallaTxt(b))}</div>${b.tecnico?`<div class="small muted" style="margin-top:4px">${ic('user')} ${esc(b.tecnico)}</div>`:''}</div>`}).join('')||'<div class="small muted" style="padding:8px">Vacío</div>'}</div>`}).join('')}</div>`;
   }
   if(f==='activas')bs=bs.filter(isOpen);else if(f==='esperando')bs=bs.filter(b=>['Esperando repuestos','Esperando aprobación'].includes(b.estado));else if(f!=='todas')bs=bs.filter(b=>b.estado===f);
@@ -804,19 +1008,19 @@ function vOrden(id){
   </div>
   <div class="grid g2" style="margin-top:16px;align-items:start">
    <div class="grid" style="align-content:start">
-    <div class="card"><div class="ch"><h2>${ic('user')} Cliente</h2><button class="btn sm" data-act="open" data-page="cliente" data-id="${c.id||''}">Ver historial</button></div>
+    <div class="card"><div class="ch"><h2>${hic('user')} Cliente</h2><button class="btn sm" data-act="open" data-page="cliente" data-id="${c.id||''}">Ver historial</button></div>
      <div class="cp-in"><div class="row" style="gap:12px;margin-bottom:12px"><div class="av">${esc(initials(c.nombre))}</div><div><div style="font-weight:700;font-size:15px">${esc(c.nombre||'—')}</div><div class="muted small">${esc(c.telefono||'')}${c.cedula?' · Céd. '+esc(c.cedula):''}</div></div></div>
      <dl class="kv"><dt>Dirección</dt><dd>${esc([c.direccion,c.provincia].filter(Boolean).join(', ')||'—')}</dd><dt>Equipo</dt><dd><a href="#" data-act="open" data-page="equipo" data-id="${e.id||''}">${esc(eqName(e))}</a>${e.serie?'<br><span class="muted small">S/N '+esc(e.serie)+'</span>':''}</dd><dt>Visitas previas</dt><dd>${prev.length?`${prev.length} · última ${fdate(prev[0].fechaIngreso)}: <i>${esc(fallaTxt(prev[0]))}</i>`:'Primera vez'}</dd></dl></div></div>
-    <div class="card"><div class="ch"><h2>${ic('inbox')} Recepción</h2>${A?`<button class="btn sm" data-act="editRec" data-id="${b.id}">${ic('edit')} Editar</button>`:`<span class="small muted">${ic('lock')}</span>`}</div>
+    <div class="card"><div class="ch"><h2>${hic('inbox')} Recepción</h2>${A?`<button class="btn sm" data-act="editRec" data-id="${b.id}">${ic('edit')} Editar</button>`:`<span class="small muted">${ic('lock')}</span>`}</div>
      <div class="cp-in"><div class="lbl">Falla reportada</div><div class="pillist" style="margin-bottom:12px">${(b.fallas||[]).map(x=>`<span class="pl f">${esc(x)}</span>`).join('')}</div>${b.falla?`<p style="margin:0 0 12px">${esc(b.falla)}</p>`:''}
      <dl class="kv"><dt>Servicio</dt><dd>${esc(b.tipoServicio||'—')}</dd><dt>Condición</dt><dd>${esc(condTxt(b)||'—')}</dd>${b.observaciones?`<dt>Observaciones</dt><dd>${esc(b.observaciones)}</dd>`:''}<dt>Lo que trae</dt><dd>${esc(accTxt(b)||'Nada adicional')}</dd>${(b.faltantes||[]).length?`<dt>No trae</dt><dd style="color:var(--red)">${esc(b.faltantes.join(', '))}</dd>`:''}${b.procedencia?`<dt>Procedencia</dt><dd>${esc(b.procedencia)}</dd>`:''}${b.traePor?`<dt>La trajo</dt><dd>${esc(b.traePor)}${b.traeTel?' · '+esc(b.traeTel):''}</dd>`:''}${b.tallerRecibio?`<dt>Taller la recibió</dt><dd>${fts(b.tallerRecibio.t)}${b.tallerRecibio.por?' · '+esc(b.tallerRecibio.por):''}</dd>`:''}${b.recepRecibio?`<dt>Volvió a recepción</dt><dd>${fts(b.recepRecibio.t)}${b.recepRecibio.por?' · '+esc(b.recepRecibio.por):''}${(b.recepRecibio.faltan||[]).length?` · <b style="color:var(--red)">falta: ${esc(b.recepRecibio.faltan.join(', '))}</b>`:''}</dd>`:''}${b.horas?`<dt>Horas de uso</dt><dd>${esc(b.horas)}</dd>`:''}<dt>Recibido</dt><dd>${fts((b.historial||[])[0]?.t||b.createdAt)}${(b.historial||[])[0]?.por?' · '+esc(b.historial[0].por):''}</dd></dl></div></div>
    </div>
    <div class="grid" style="align-content:start">
-    <div class="card"><div class="ch"><h2>${ic('wrench')} Trabajo del taller</h2>${esTaller()?`<button class="btn sm p" id="svTrab" data-act="saveTrab" data-id="${b.id}" disabled>${ic('check')} Guardar</button>`:`<span class="small muted">${ic('lock')} Lo llena el taller</span>`}</div>
+    <div class="card"><div class="ch"><h2>${hic('wrench')} Trabajo del taller</h2>${esTaller()?`<button class="btn sm p" id="svTrab" data-act="saveTrab" data-id="${b.id}" disabled>${ic('check')} Guardar</button>`:`<span class="small muted">${ic('lock')} Lo llena el taller</span>`}</div>
      <div class="cp-in" id="trabBox">${esTaller()?trabForm(b):trabRO(b)}</div></div>
-    <div class="card"><div class="ch"><h2>${ic('box')} Repuestos utilizados</h2><button class="btn sm" data-act="ppAdd" data-id="${b.id}" title="Pedir un repuesto que no hay">${ic('cart')} Falta</button><button class="btn sm p" data-act="addRep" data-id="${b.id}">${ic('plus')} Agregar</button></div>
+    <div class="card"><div class="ch"><h2>${hic('box')} Repuestos utilizados</h2><button class="btn sm" data-act="ppAdd" data-id="${b.id}" title="Pedir un repuesto que no hay">${ic('cart')} Falta</button><button class="btn sm p" data-act="addRep" data-id="${b.id}">${ic('plus')} Agregar</button></div>
      ${lines.length?`<div class="lines">${lines.map((l,i)=>`<div class="ln"><div style="flex:1;min-width:0"><div style="font-weight:600" class="ell">${esc(l.nombre)}</div><div class="small muted"><span class="mono">${esc(l.sku||'Sin código')}</span> · <span class="tag ${l.condicion==='Usado'?'u':'n'}">${esc(condLbl(l.condicion))}</span></div></div><div class="qty"><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="-1">${ic('minus')}</button><span>${num(l.cant)}</span><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="1">${ic('plus')}</button></div><button class="ib" data-act="rmLine" data-id="${b.id}" data-i="${i}" title="Quitar">${ic('trash')}</button></div>`).join('')}</div>`:emptyBox('box','Sin repuestos','Agregue los repuestos nuevos o de segunda que se instalen; se descuentan del inventario.')}</div>
-    <div class="card"><div class="ch"><h2>${ic('clock')} Historial</h2><button class="btn sm" data-act="nota" data-id="${b.id}">${ic('plus')} Nota</button></div>
+    <div class="card"><div class="ch"><h2>${hic('clock')} Historial</h2><button class="btn sm" data-act="nota" data-id="${b.id}">${ic('plus')} Nota</button></div>
      <ul class="tl">${(b.historial||[]).slice().reverse().map(h=>`<li style="--c:${est(h.estado).c}"><b>${esc(h.estado)}</b> <span class="muted small">· ${fts(h.t)}${h.por?' · '+esc(h.por):''}</span>${h.nota?`<div class="small" style="margin-top:2px">${esc(h.nota)}</div>`:''}</li>`).join('')}</ul></div>
    </div>
   </div>
@@ -972,7 +1176,7 @@ function prevInfo(b,fallasDraft){
 }
 function prevBanner(pi,compact){
   if(!pi)return '';const p=pi.p;
-  const col=pi.enGar?'var(--red)':pi.same.length?'#b45309':'var(--ink2)';const bg=pi.enGar?'var(--red-l)':pi.same.length?'var(--acc-l)':'var(--soft)';
+  const col=pi.enGar?'var(--red)':pi.same.length?'var(--warn)':'var(--ink2)';const bg=pi.enGar?'var(--red-l)':pi.same.length?'var(--acc-l)':'var(--soft)';
   const tit=pi.enGar?`${ic('shield')} Volvió en garantía`:pi.same.length?`${ic('repeat')} Misma falla que la vez anterior`:`${ic('clock')} Ya vino antes`;
   return `<div style="background:${bg};border:1px solid ${col}33;border-left:4px solid ${col};border-radius:10px;padding:12px 14px;margin-bottom:${compact?0:16}px">
    <div style="font-weight:800;color:${col};display:flex;gap:6px;align-items:center">${tit}<span class="small muted" style="font-weight:500;margin-left:4px">· ${pi.veces} visita${pi.veces!==1?'s':''} anteriores</span></div>
@@ -1010,7 +1214,7 @@ function alertas(){
   arr(S.pedidos).filter(p=>p.estado==='Pedido').forEach(p=>{const d=daysSince(iso(new Date(p.fecha)));if(d>=num(CFG.diasPedido))add('a','truck',`Pedido a ${p.proveedor||'proveedor'} sin recibir hace ${d} días`,`${p.items.length} artículo${p.items.length!==1?'s':''} · ${pdNum(p)}`,'data-act="nav" data-page="pedidos"')});
   const o={r:0,a:1,b:2};return L.sort((a,b)=>o[a.sev]-o[b.sev]);
 }
-const SEV={r:['var(--red)','var(--red-l)'],a:['#b45309','var(--acc-l)'],b:['var(--blue)','var(--blue-l)']};
+const SEV={r:['var(--red)','var(--red-l)'],a:['var(--warn)','var(--acc-l)'],b:['var(--blue)','var(--blue-l)']};
 const alRow=a=>`<div class="rw" ${a.act}><div class="si" style="width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:${SEV[a.sev][1]};color:${SEV[a.sev][0]};flex-shrink:0">${ic(a.icon)}</div><div class="mn"><div class="t">${esc(a.title)}</div><div class="m ell">${esc(a.detail)}</div></div>${a.extra}</div>`;
 function actividad(){
   const ev=[];
@@ -1058,12 +1262,12 @@ function vPedidos(){
   return `<div class="ph"><div><h1>Pedidos a proveedores</h1><div class="sub">Lo que hace falta comprar: repuestos en el mínimo, agotados y faltantes de las órdenes</div></div><div class="row"><button class="btn" data-act="provForm">${ic('users')} Proveedores</button><button class="btn p" data-act="ppAdd">${ic('plus')} Agregar a la lista</button></div></div>
   ${esperando.length?`<div class="card cp-in" style="margin-bottom:16px;border-left:4px solid #c2410c"><b>${esperando.length} orden${esperando.length!==1?'es':''} esperando repuestos:</b> ${esperando.map(b=>`<a href="#" data-act="open" data-page="orden" data-id="${b.id}" class="num">${nb(b.numero)}</a>`).join(', ')}</div>`:''}
   <div class="fchips"><button class="fchip ${!P?'on':''}" data-act="pProv" data-v="">Toda la lista <span class="c">${L.length}</span></button>${ps.map(p=>`<button class="fchip ${norm(P)===norm(p.n)?'on':''}" data-act="pProv" data-v="${esc(p.n)}">${esc(p.n)} <span class="c">${cntP(p.n)}</span></button>`).join('')}${sin?`<button class="fchip ${P==='__sin'?'on':''}" data-act="pProv" data-v="__sin">Sin proveedor <span class="c">${sin}</span></button>`:''}</div>
-  <div class="card"><div class="ch"><h2>${ic('cart')} ${P?P==='__sin'?'Sin proveedor asignado':'Para '+esc(P):'Lista por pedir'}</h2>${!ps.length?`<button class="btn sm p" data-act="provForm">${ic('plus')} Agregar proveedor</button>`:''}</div>
+  <div class="card"><div class="ch"><h2>${hic('cart')} ${P?P==='__sin'?'Sin proveedor asignado':'Para '+esc(P):'Lista por pedir'}</h2>${!ps.length?`<button class="btn sm p" data-act="provForm">${ic('plus')} Agregar proveedor</button>`:''}</div>
    ${shown.length?`<div class="tw"><table class="t"><thead><tr>${P&&P!=='__sin'?'<th style="width:36px"></th>':''}<th>Repuesto</th><th class="hide-m">Motivo</th><th class="n">Hay / mín.</th><th>Pedir</th><th>Proveedor</th>${''}<th></th></tr></thead><tbody>
    ${shown.map(l=>`<tr><td ${P&&P!=='__sin'?'':'style="display:none"'}><input type="checkbox" data-pon="${l.key}" ${pdOn(l)?'checked':''} style="width:18px;height:18px"></td>
     <td><div style="font-weight:600">${esc(l.nombre)} ${l.cond==='Usado'?'<span class="tag u">Segunda</span>':''}</div><div class="small muted">${l.sku?`<span class="mono">${esc(l.sku)}</span>`:'Sin código'}${l.compatible?' · '+esc(l.compatible):''}</div>${l.pend?`<div class="small" style="color:var(--blue);font-weight:600">Ya pedido: ${l.pend}</div>`:''}</td>
     <td class="hide-m small">${l.boletaId?`<a href="#" data-act="open" data-page="orden" data-id="${l.boletaId}">${esc(l.motivo)}</a>`:`<span class="${l.motivo==='Agotado'?'low':''}">${esc(l.motivo)}</span>`}</td>
-    <td class="n">${l.stock==null?'—':`<b style="color:${l.stock<=0?'var(--red)':'#b45309'}">${l.stock}</b> / ${l.min}`}</td>
+    <td class="n">${l.stock==null?'—':`<b style="color:${l.stock<=0?'var(--red)':'var(--warn)'}">${l.stock}</b> / ${l.min}`}</td>
     <td><div class="qty"><button data-act="pQty" data-k="${l.key}" data-d="-1">${ic('minus')}</button><span>${pdQty(l)}</span><button data-act="pQty" data-k="${l.key}" data-d="1">${ic('plus')}</button></div></td>
     <td><select class="sel" style="padding:6px 8px;max-width:160px" data-pprov="${l.key}"><option value="">—</option>${ps.map(p=>`<option ${norm(p.n)===norm(l.proveedor)?'selected':''}>${esc(p.n)}</option>`).join('')}</select></td>
     <td>${l.mid?`<button class="ib" data-act="ppDel" data-id="${l.mid}" title="Quitar de la lista">${ic('trash')}</button>`:''}</td></tr>`).join('')}</tbody></table></div>`:emptyBox('cart',P?'Nada pendiente para este proveedor':'No hace falta pedir nada','Cuando un repuesto llegue a su mínimo o falte en una orden, aparecerá aquí.')}
@@ -1073,7 +1277,7 @@ function vPedidos(){
      <button class="btn p" data-act="pMark" ${sel.length?'':'disabled'}>${ic('check')} Marcar como pedido</button></div>`:''}
    ${!P&&L.length?`<div class="mf" style="border-top:1px solid var(--line2)"><span class="small muted">Elija un proveedor arriba para enviarle su lista por WhatsApp.</span></div>`:''}
   </div>
-  <div class="card" style="margin-top:16px"><div class="ch"><h2>${ic('truck')} Pedidos enviados</h2>${abiertos.length?`<span class="badge" style="background:var(--blue-l);color:var(--blue)"><i></i>${abiertos.length} por recibir</span>`:''}</div>
+  <div class="card" style="margin-top:16px"><div class="ch"><h2>${hic('truck')} Pedidos enviados</h2>${abiertos.length?`<span class="badge" style="background:var(--blue-l);color:var(--blue)"><i></i>${abiertos.length} por recibir</span>`:''}</div>
    ${peds.length?`<div class="rows">${peds.slice(0,40).map(p=>{const d=daysSince(iso(new Date(p.fecha)));const pv=provBy(p.proveedor);const w=pv&&pv.tel?waLink(pv.tel,`Hola ${p.proveedor}, le saluda ${CFG.nombre}. Le consulto por el pedido del ${fdate(iso(new Date(p.fecha)))}:\n${p.items.map(i=>`• ${i.cant} × ${i.nombre}`).join('\n')}`):'';
     return `<div class="rw" style="cursor:default;align-items:flex-start"><div class="mn"><div class="t">${esc(p.proveedor||'Proveedor')} <span class="num">${pdNum(p)}</span> ${p.estado==='Recibido'?'<span class="badge st-ok"><i></i>Recibido</span>':p.estado==='Cancelado'?'<span class="badge st-out"><i></i>Cancelado</span>':`<span class="badge" style="background:var(--blue-l);color:var(--blue)"><i></i>Pedido hace ${d} d</span>`}</div><div class="m">${fts(p.fecha)}${p.fechaRec?' · recibido '+fts(p.fechaRec):''}</div><div class="small" style="margin-top:4px">${p.items.map(i=>esc(`${i.cant}× ${i.nombre}`)).join(' · ')}</div></div>
      ${p.estado==='Pedido'?`<div class="row" style="justify-content:flex-end"><button class="ib" data-act="pdPrint" data-id="${p.id}" title="Imprimir">${ic('print')}</button>${w?`<a class="btn sm wa" href="${esc(w)}" target="_blank" rel="noopener">${ic('msg')}</a>`:''}<button class="btn sm ghost" data-act="pdCancel" data-id="${p.id}">Cancelar</button><button class="btn sm p" data-act="pdRecibir" data-id="${p.id}">${ic('dl')} Recibir</button></div>`:''}</div>`}).join('')}</div>`:emptyBox('truck','Todavía no hay pedidos','Al marcar una lista como pedida queda registrada aquí para recibirla después.')}</div>`;
@@ -1221,8 +1425,8 @@ function vEquipo(id){
    <div class="row"><button class="btn p" data-act="recibir" data-cli="${e.clienteId}" data-eq="${id}">${ic('plus')} Recibir este equipo</button><button class="btn" data-act="printEq" data-id="${id}">${ic('print')} Historial</button>${A?`<button class="btn" data-act="equipoForm" data-id="${id}">${ic('edit')} Editar</button>`:''}</div></div></div>
   ${bs[0]?`<div class="last" style="margin-top:16px;padding:12px 14px;font-size:13.5px"><b>⭐ Última vez que vino (${fdate(bs[0].fechaIngreso)} · ${nb(bs[0].numero)}):</b> ${esc(fallaTxt(bs[0])||'—')}</div>`:''}
   <div class="grid g2" style="margin-top:16px;align-items:start">
-   <div class="card"><div class="ch"><h2>${ic('clock')} Historial de servicios (${bs.length})</h2></div>${bs.length?`<div class="cp-in">${bs.map(visita).join('')}</div>`:emptyBox('clock','Sin servicios todavía')}</div>
-   <div class="card"><div class="ch"><h2>${ic('box')} Repuestos instalados</h2></div>${Object.keys(used).length?`<div class="rows">${Object.entries(used).sort((a,b)=>b[1]-a[1]).map(([n,c])=>`<div class="rw" style="cursor:default"><div class="mn">${esc(n)}</div><b>${c}</b></div>`).join('')}</div>`:emptyBox('box','Ninguno')}</div>
+   <div class="card"><div class="ch"><h2>${hic('clock')} Historial de servicios (${bs.length})</h2></div>${bs.length?`<div class="cp-in">${bs.map(visita).join('')}</div>`:emptyBox('clock','Sin servicios todavía')}</div>
+   <div class="card"><div class="ch"><h2>${hic('box')} Repuestos instalados</h2></div>${Object.keys(used).length?`<div class="rows">${Object.entries(used).sort((a,b)=>b[1]-a[1]).map(([n,c])=>`<div class="rw" style="cursor:default"><div class="mn">${esc(n)}</div><b>${c}</b></div>`).join('')}</div>`:emptyBox('box','Ninguno')}</div>
   </div>
   ${A?`<div style="margin-top:18px"><button class="btn d" data-act="delEquipo" data-id="${id}">${ic('trash')} Eliminar equipo</button></div>`:''}`;
 }
@@ -1252,7 +1456,7 @@ function vRepuesto(id){
    <div class="grid g4" style="padding:0 20px 18px;gap:10px">${[['Disponible',num(r.stock)],['Mínimo',num(r.stockMin)],['Entró',m.ing],['Usado',m.usa]].map(([l,n])=>`<div style="background:var(--soft);border-radius:10px;padding:10px 12px"><div style="font-weight:800;font-size:20px">${n}</div><div class="small muted">${l}</div></div>`).join('')}</div></div>
   <div class="grid g2" style="margin-top:16px;align-items:start">
    <div class="card"><div class="ch"><h2>Detalles</h2></div><div class="cp-in"><dl class="kv"><dt>Compatible con</dt><dd>${esc(r.compatible||'—')}</dd><dt>Detalles</dt><dd style="white-space:pre-wrap">${esc(r.descripcion||'—')}</dd><dt>Ubicación</dt><dd>${esc(r.ubicacion||'—')}</dd><dt>Proveedor</dt><dd>${esc(r.proveedor||'—')}</dd></dl></div></div>
-   <div class="card"><div class="ch"><h2>${ic('clock')} Movimientos</h2></div>${ms.length?`<div class="rows">${ms.map(x=>{const neg=x.tipo==='salida'||(x.tipo==='ajuste'&&num(x.cant)<0);return `<div class="rw" style="cursor:${x.boletaId?'pointer':'default'}" ${x.boletaId?`data-act="open" data-page="orden" data-id="${x.boletaId}"`:''}><div class="mn"><div class="t" style="text-transform:capitalize">${esc(x.tipo)}</div><div class="m">${fts(x.fecha)}${x.boletaId?' · '+nb(x.numero):''}${x.nota?' · '+esc(x.nota):''}</div></div><b style="color:${neg?'var(--red)':'var(--pri)'}">${neg?'−':'+'}${Math.abs(num(x.cant))}</b></div>`}).join('')}</div>`:emptyBox('clock','Sin movimientos')}</div>
+   <div class="card"><div class="ch"><h2>${hic('clock')} Movimientos</h2></div>${ms.length?`<div class="rows">${ms.map(x=>{const neg=x.tipo==='salida'||(x.tipo==='ajuste'&&num(x.cant)<0);return `<div class="rw" style="cursor:${x.boletaId?'pointer':'default'}" ${x.boletaId?`data-act="open" data-page="orden" data-id="${x.boletaId}"`:''}><div class="mn"><div class="t" style="text-transform:capitalize">${esc(x.tipo)}</div><div class="m">${fts(x.fecha)}${x.boletaId?' · '+nb(x.numero):''}${x.nota?' · '+esc(x.nota):''}</div></div><b style="color:${neg?'var(--red)':'var(--pri)'}">${neg?'−':'+'}${Math.abs(num(x.cant))}</b></div>`}).join('')}</div>`:emptyBox('clock','Sin movimientos')}</div>
   </div>
   ${A?`<div style="margin-top:18px"><button class="btn d" data-act="delRep" data-id="${id}">${ic('trash')} Eliminar repuesto</button></div>`:''}`;
 }
@@ -1359,17 +1563,17 @@ function vAjustes(){
    <div class="f"><label>Enlace de la app <span class="opt">(para el QR de las etiquetas)</span></label><input name="appUrl" type="url" value="${esc(CFG.appUrl)}" placeholder="${esc(appUrl())}"></div>
    <button class="btn p" type="submit">${ic('check')} Guardar</button></div></form>
   <div class="grid" style="align-content:start">
-   ${FB_MODE?`<div class="card"><div class="ch"><h2>${ic('user')} Cuenta</h2></div><div class="cp-in"><p style="margin-top:0">Sesión iniciada como <b>${esc(FBUSER?.email||'')}</b>. Los datos se guardan en Firebase y se sincronizan entre todos los equipos que inicien sesión.</p><p>${fbPerson()?`Usted es <b>${esc(fbPerson().n)}</b> · ${PLBL[fbPerson().puesto]}.`:'<span style="color:#b45309">Este correo no está en <b>Personal y puestos</b>. Agréguelo ahí con su nombre y puesto.</span>'}</p><button class="btn" data-act="logout">${ic('logout')} Cerrar sesión</button></div></div>`:''}
-   <div class="card"><div class="ch"><h2>${ic('users')} Personal y puestos</h2></div><div class="cp-in">
+   ${FB_MODE?`<div class="card"><div class="ch"><h2>${hic('user')} Cuenta</h2></div><div class="cp-in"><p style="margin-top:0">Sesión iniciada como <b>${esc(FBUSER?.email||'')}</b>. Los datos se guardan en Firebase y se sincronizan entre todos los equipos que inicien sesión.</p><p>${fbPerson()?`Usted es <b>${esc(fbPerson().n)}</b> · ${PLBL[fbPerson().puesto]}.`:'<span style="color:var(--warn)">Este correo no está en <b>Personal y puestos</b>. Agréguelo ahí con su nombre y puesto.</span>'}</p><button class="btn" data-act="logout">${ic('logout')} Cerrar sesión</button></div></div>`:''}
+   <div class="card"><div class="ch"><h2>${hic('users')} Personal y puestos</h2></div><div class="cp-in">
     <p class="small muted" style="margin-top:0">Cada persona trabaja en su puesto: <b>Recepcionista</b> recibe y entrega máquinas; <b>Mecánico</b> recibe en taller, revisa, repara y pone repuestos. Al elegir su nombre${FB_MODE?' o iniciar sesión con su correo':''}, la app se pone sola en su puesto.</p>
     ${personal().length?`<div class="card" style="margin-bottom:12px"><div class="rows">${personal().map((p,i)=>`<div class="rw" style="cursor:default;flex-wrap:wrap;row-gap:8px"><div class="av">${esc(initials(p.n))}</div><div class="mn"><div class="t">${esc(p.n)}</div><div class="m">${PLBL[p.puesto]}${p.email?' · '+esc(p.email):''}</div></div><button class="ib" data-act="perDel" data-n="${esc(p.n)}" title="Quitar">${ic('trash')}</button><div class="row" style="width:100%;padding-left:54px"><select class="sel" data-perp="${i}">${Object.entries(PLBL).map(([k,l])=>`<option value="${k}" ${p.puesto===k?'selected':''}>${l}</option>`).join('')}</select>${FB_MODE?`<input class="inp" style="flex:1;min-width:160px" type="email" placeholder="Correo de inicio de sesión" value="${esc(p.email)}" data-pere="${i}">`:''}</div></div>`).join('')}</div></div>`:''}
     <div class="row"><input class="inp" id="perN" placeholder="Nombre" style="flex:1;min-width:130px"><select class="sel" id="perP">${Object.entries(PLBL).map(([k,l])=>`<option value="${k}">${l}</option>`).join('')}</select>${FB_MODE?'<input class="inp" id="perE" type="email" placeholder="Correo" style="width:180px">':''}<button class="btn p" data-act="perAdd">${ic('plus')} Agregar</button></div>
-    ${!pinOn()?'<p class="small" style="color:#b45309;margin-bottom:0">Cree un PIN de administrador (abajo) para que nadie pueda cambiarse de puesto por su cuenta.</p>':''}</div></div>
-   <div class="card"><div class="ch"><h2>${ic('lock')} PIN de administrador</h2></div><div class="cp-in">
+    ${!pinOn()?'<p class="small" style="color:var(--warn);margin-bottom:0">Cree un PIN de administrador (abajo) para que nadie pueda cambiarse de puesto por su cuenta.</p>':''}</div></div>
+   <div class="card"><div class="ch"><h2>${hic('lock')} PIN de administrador</h2></div><div class="cp-in">
     ${pinOn()?`<p style="margin-top:0">PIN activo. Cada persona trabaja según su puesto. Para editar recepciones ya guardadas, eliminar, cambiar puestos o configurar se necesita el PIN. Con el PIN abierto el administrador puede hacer todo.</p><div class="row"><button class="btn" data-act="setPin">Cambiar PIN</button><button class="btn d" data-act="quitarPin">Quitar PIN</button></div>`
     :`<p style="margin-top:0">Sin PIN, cualquiera puede cambiar la configuración y los puestos. Cree un PIN para que solo usted lo haga.</p><button class="btn p" data-act="setPin">Crear PIN</button>`}
     <p class="small muted">El PIN es un control práctico para el taller, no una contraseña de banco.</p></div></div>
-   <div class="card"><div class="ch"><h2>${ic('dl')} Respaldo</h2></div><div class="cp-in">
+   <div class="card"><div class="ch"><h2>${hic('dl')} Respaldo</h2></div><div class="cp-in">
     <p class="small muted" style="margin-top:0">${LOCAL?'<b>Modo local:</b> los datos están solo en este navegador. Exporte respaldos seguido.':FB_MODE?'Los datos están en Firebase. Igual conviene exportar un respaldo cada semana.':'Los datos se guardan en línea y se ven igual en todos sus dispositivos.'}</p>
     <div class="row"><button class="btn" data-act="export">${ic('dl')} Exportar respaldo</button><label class="btn">Importar respaldo<input type="file" id="impFile" accept=".json,application/json" hidden></label></div>
     <p class="small muted">${arr(S.clientes).length} clientes · ${arr(S.equipos).length} equipos · ${arr(S.boletas).length} órdenes · ${arr(S.repuestos).length} repuestos</p></div></div>
@@ -1750,6 +1954,7 @@ const A={
  close:()=>closeModal(),
  recibir:soloR(d=>{closeMore();recibir({cli:d.cli,eq:d.eq})}),
  moreOpen:()=>$('#more').classList.add('open'),moreClose:()=>{},
+ theme:()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'),
  mSearch:()=>{$('#tsearch').classList.add('open');$('#qGlobal').focus()},
  clearQ:()=>{UI.q='';$('#qGlobal').value='';$('#tsearch').classList.remove('open');render()},
  filtro:d=>{UI.oEst=d.f;UI.oView='lista';UI.oq='';A.nav({page:'ordenes'})},
@@ -1912,6 +2117,7 @@ async function importFile(file){
 window.addEventListener('hashchange',fromHash);
 window.addEventListener('resize',()=>{clearTimeout(window._rz);window._rz=setTimeout(shell,150)});
 fromHash();
+{const ss=$('#splashSaw');if(ss)ss.innerHTML=sawSVG();try{const c=JSON.parse(localStorage.getItem(LSKEY)||'null');if(c&&c.CFG&&c.CFG.nombre)$('#splashName').textContent=c.CFG.nombre}catch(e){}setTimeout(hideSplash,LOCAL?600:7000)}
 initStore();
 </script>
 </body>
