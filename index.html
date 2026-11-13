@@ -1012,7 +1012,7 @@ function render(){
   if(!SES&&(connected||LOCAL)&&!$('#login')&&!$('#userScr')&&!(W&&W.step!=null))userScreen();
 }
 const backBtn=()=>`<button class="back" data-act="back">${ic('left')} Volver</button>`;
-function go(v){stack.push(view);view=v;UI.q='';$('#qGlobal').value='';render();scrollTo(0,0)}
+function go(v){flushTrab();stack.push(view);view=v;UI.q='';$('#qGlobal').value='';render();scrollTo(0,0)}
 
 /* ================== Inicio ================== */
 function bandejas(){
@@ -1171,7 +1171,7 @@ function vOrden(id){
      <dl class="kv"><dt>Servicio</dt><dd>${esc(b.tipoServicio||'—')}</dd><dt>Condición</dt><dd>${esc(condTxt(b)||'—')}</dd>${b.observaciones?`<dt>Observaciones</dt><dd>${esc(b.observaciones)}</dd>`:''}<dt>Lo que trae</dt><dd>${esc(accTxt(b)||'Nada adicional')}</dd>${(b.faltantes||[]).length?`<dt>No trae</dt><dd style="color:var(--red)">${esc(b.faltantes.join(', '))}</dd>`:''}${b.procedencia?`<dt>Procedencia</dt><dd>${esc(b.procedencia)}</dd>`:''}${b.traePor?`<dt>La trajo</dt><dd>${esc(b.traePor)}${b.traeTel?' · '+esc(b.traeTel):''}</dd>`:''}${b.tallerRecibio?`<dt>Taller la recibió</dt><dd>${fts(b.tallerRecibio.t)}${b.tallerRecibio.por?' · '+esc(b.tallerRecibio.por):''}</dd>`:''}${b.recepRecibio?`<dt>Volvió a recepción</dt><dd>${fts(b.recepRecibio.t)}${b.recepRecibio.por?' · '+esc(b.recepRecibio.por):''}${(b.recepRecibio.faltan||[]).length?` · <b style="color:var(--red)">falta: ${esc(b.recepRecibio.faltan.join(', '))}</b>`:''}</dd>`:''}${b.horas?`<dt>Horas de uso</dt><dd>${esc(b.horas)}</dd>`:''}<dt>Recibido</dt><dd>${fts((b.historial||[])[0]?.t||b.createdAt)}${(b.historial||[])[0]?.por?' · '+esc(b.historial[0].por):''}</dd></dl></div></div>
    </div>
    <div class="grid" style="align-content:start">
-    <div class="card"><div class="ch"><h2>${hic('wrench')} Trabajo del taller</h2>${esTaller()?`<button class="btn sm p" id="svTrab" data-act="saveTrab" data-id="${b.id}" disabled>${ic('check')} Guardar</button>`:`<span class="small muted">${ic('lock')} Lo llena el taller</span>`}</div>
+    <div class="card"><div class="ch"><h2>${hic('wrench')} Trabajo del taller</h2>${esTaller()?`<button class="btn sm" id="svTrab" data-act="saveTrab" data-id="${b.id}" disabled>✅ Guardado</button>`:`<span class="small muted">${ic('lock')} Lo llena el taller</span>`}</div>
      <div class="cp-in" id="trabBox">${esTaller()?trabForm(b):trabRO(b)}</div></div>
     <div class="card"><div class="ch"><h2>${hic('box')} Repuestos utilizados</h2><button class="btn sm" data-act="ppAdd" data-id="${b.id}" title="Pedir un repuesto que no hay">${ic('cart')} Falta</button><button class="btn sm p" data-act="addRep" data-id="${b.id}">${ic('plus')} Agregar</button></div>
      ${lines.length?`<div class="lines">${lines.map((l,i)=>`<div class="ln"><div style="flex:1;min-width:0"><div style="font-weight:600" class="ell">${esc(l.nombre)}</div><div class="small muted"><span class="mono">${esc(l.sku||'Sin código')}</span> · <span class="tag ${l.condicion==='Usado'?'u':'n'}">${esc(condLbl(l.condicion))}</span></div></div><div class="qty"><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="-1">${ic('minus')}</button><span>${num(l.cant)}</span><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="1">${ic('plus')}</button></div><button class="ib" data-act="rmLine" data-id="${b.id}" data-i="${i}" title="Quitar">${ic('trash')}</button></div>`).join('')}</div>`:emptyBox('box','Sin repuestos','Agregue los repuestos nuevos o de segunda que se instalen; se descuentan del inventario.')}</div>
@@ -1211,14 +1211,19 @@ function trabRO(b){const s=ckSum(b);
   return `<dl class="kv"><dt>Técnico</dt><dd>${esc(b.tecnico||'Sin asignar')}</dd><dt>Revisión</dt><dd>${s.n?`${s.ok} bien${s.mal.length?` · <b style="color:var(--red)">falla: ${esc(s.mal.join(', '))}</b>`:''}`:'Sin revisar'}</dd><dt>Diagnóstico</dt><dd>${esc(b.diagnostico||'—')}</dd><dt>Trabajo</dt><dd>${esc(trabTxt(b)||'—')}</dd><dt>Entrega prometida</dt><dd>${fdate(b.fechaEstimada)}</dd><dt>Garantía</dt><dd>${num(b.garantiaDias)?num(b.garantiaDias)+' días':'—'}</dd></dl>`}
 function reTrab(){const el=$('#trabBox');if(el){el.innerHTML=trabInner();dirtyTrab()}}
 function trDirty(){const b=S.boletas[TR?.id];if(!b)return false;const o={checklist:sortO(b.checklist),diagnostico:b.diagnostico||'',trabajos:b.trabajos||[],trabajo:b.trabajo||'',tecnico:b.tecnico||'',fechaEstimada:b.fechaEstimada||'',garantiaDias:String(b.garantiaDias??num(CFG.garantia)),notas:b.notas||''};const n={checklist:sortO(TR.checklist),diagnostico:TR.diagnostico,trabajos:TR.trabajos,trabajo:TR.trabajo,tecnico:TR.tecnico,fechaEstimada:TR.fechaEstimada,garantiaDias:String(TR.garantiaDias),notas:TR.notas};return JSON.stringify(o)!==JSON.stringify(n)}
-function dirtyTrab(){const btn=$('#svTrab');if(btn)btn.disabled=!trDirty()}
-async function saveTrab(id){
+function dirtyTrab(){const btn=$('#svTrab');const d=trDirty();if(btn){btn.disabled=!d;btn.innerHTML=d?'✏️ Guardando en un momento…':'✅ Guardado'}
+  clearTimeout(dirtyTrab._t);if(d&&TR)dirtyTrab._t=setTimeout(()=>{if(TR&&trDirty()&&esTaller())saveTrab(TR.id,true)},1800)}
+function flushTrab(){clearTimeout(dirtyTrab._t);if(TR&&S.boletas[TR.id]&&trDirty()&&esTaller())return saveTrab(TR.id,true)}
+async function saveTrab(id,auto){
   const old=S.boletas[id];const b=clone(old);Object.assign(b,{checklist:sortO(TR.checklist),diagnostico:TR.diagnostico.trim(),trabajos:TR.trabajos,trabajo:TR.trabajo.trim(),tecnico:TR.tecnico,fechaEstimada:TR.fechaEstimada,garantiaDias:num(TR.garantiaDias),notas:TR.notas});
   const nm={checklist:'revisión',diagnostico:'diagnóstico',trabajos:'trabajos',trabajo:'detalle del trabajo',fechaEstimada:'fecha de entrega',garantiaDias:'garantía',notas:'notas'};
   const ch=Object.keys(nm).filter(k=>JSON.stringify(k==='checklist'?sortO(old[k]):old[k]??'')!==JSON.stringify(b[k]??'')&&!(k==='garantiaDias'&&num(old[k]??CFG.garantia)===b[k])).map(k=>nm[k]);
   const notes=[];if((old.tecnico||'')!==b.tecnico)notes.push(b.tecnico?'Asignó a '+b.tecnico:'Quitó el técnico');if(ch.length)notes.push('Actualizó '+ch.join(', '));
-  if(notes.length)b.historial=[...(b.historial||[]),{t:Date.now(),estado:b.estado,nota:notes.join(' · '),por:quien(),dev:DEV}];
-  if(await put('boletas',b)){toast('Trabajo guardado');render()}
+  if(notes.length){const h=[...(b.historial||[])];const l=h[h.length-1];
+    if(l&&l.dev===DEV&&l.por===quien()&&l.estado===b.estado&&l.auto&&Date.now()-l.t<15*60e3){const prev=String(l.nota||'').replace(/^Actualizó /,'').split(' · ');const parts=new Set();String(l.nota||'').split(' · ').forEach(x=>{if(/^Actualizó /.test(x))x.replace(/^Actualizó /,'').split(', ').forEach(y=>parts.add(y))});notes.forEach(x=>{if(/^Actualizó /.test(x))x.replace(/^Actualizó /,'').split(', ').forEach(y=>parts.add(y))});
+      const asg=[...String(l.nota||'').split(' · '),...notes].filter(x=>/^(Asignó|Quitó)/.test(x)).slice(-1);h[h.length-1]={...l,t:Date.now(),nota:[...asg,...(parts.size?['Actualizó '+[...parts].join(', ')]:[])].join(' · ')}}
+    else h.push({t:Date.now(),estado:b.estado,nota:notes.join(' · '),por:quien(),dev:DEV,auto:true});b.historial=h}
+  if(await put('boletas',b)){if(!auto)toast('Trabajo guardado');if(TR&&TR.id===id&&!trDirty()){const btn=$('#svTrab');if(btn){btn.disabled=true;btn.innerHTML='✅ Guardado'}}else render()}
 }
 
 /* ---------- estados ---------- */
@@ -2369,7 +2374,7 @@ const soloR=f=>d=>{if(!esRecep())return toast('Esto lo hace recepción. El admin
 const A={
  nav:d=>{closeMore();if(location.hash==='#'+d.page)fromHash();else location.hash=d.page},
  open:d=>{if(d.id)go({page:d.page,id:d.id})},
- back:()=>{view=stack.pop()||{page:'inicio'};render();scrollTo(0,0)},
+ back:()=>{flushTrab();view=stack.pop()||{page:'inicio'};render();scrollTo(0,0)},
  close:()=>closeModal(),
  recibir:soloR(d=>{closeMore();recibir({cli:d.cli,eq:d.eq})}),
  moreOpen:()=>$('#more').classList.add('open'),moreClose:()=>{},
@@ -2570,6 +2575,7 @@ window.addEventListener('resize',()=>{clearTimeout(window._rz);window._rz=setTim
 fromHash();
 {const ss=$('#splashSaw');if(ss)ss.innerHTML=sawSVG();try{const c=JSON.parse(localStorage.getItem(LSKEY)||'null');if(c&&c.CFG&&c.CFG.nombre)$('#splashName').textContent=c.CFG.nombre}catch(e){}setTimeout(hideSplash,LOCAL?600:7000)}
 let _bkPing=0;setInterval(()=>{if(!(connected||LOCAL)||!respaldoPend()||!isAdmin())return;const f=viernesMedioDia();if(_bkPing===f)return;_bkPing=f;ping(`💾 Toca el respaldo ${respFrec()==='dia'?'diario':'semanal'}`,'Descargue una copia de todos los datos del taller.',()=>A.export({}))},60000);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)flushTrab()});window.addEventListener('pagehide',()=>flushTrab());
 initStore();
 </script>
 </body>
