@@ -1855,10 +1855,15 @@ async function scanQR(){
     if(SCAN)SCAN.t=setTimeout(tick,220)};tick();
 }
 function openModal(title,body,foot,cls=''){
-  const m=$('#modal');m.innerHTML=`<div class="mbox ${cls}"><div class="mh"><h2>${title}</h2><button class="ib" data-act="close" aria-label="Cerrar">${ic('x')}</button></div><div class="mb" id="mb">${body}</div>${foot?`<div class="mf" id="mf">${foot}</div>`:''}</div>`;
+  const m=$('#modal');const box=m.querySelector('.mbox'),mb0=$('#mb');
+  if(box&&mb0&&!m.classList.contains('hidden')&&m._t===title){ // re-dibujo de la misma ventana: sin salto ni animación
+    const st=mb0.scrollTop,ae=document.activeElement,aid=ae&&ae.id;mb0.innerHTML=body;let mf=$('#mf');
+    if(foot){if(!mf){mf=document.createElement('div');mf.className='mf';mf.id='mf';box.appendChild(mf)}mf.innerHTML=foot}else if(mf)mf.remove();
+    box.className='mbox '+cls;box.style.animation='none';mb0.scrollTop=st;if(aid){const n=document.getElementById(aid);if(n&&n!==document.activeElement)try{n.focus({preventScroll:true})}catch(e){}}return}
+  m._t=title;m.innerHTML=`<div class="mbox ${cls}"><div class="mh"><h2>${title}</h2><button class="ib" data-act="close" aria-label="Cerrar">${ic('x')}</button></div><div class="mb" id="mb">${body}</div>${foot?`<div class="mf" id="mf">${foot}</div>`:''}</div>`;
   m.classList.remove('hidden');document.body.style.overflow='hidden';
 }
-function closeModal(){stopScan();const m=$('#modal');m.classList.add('hidden');m.innerHTML='';document.body.style.overflow='';W=null;RP=null}
+function closeModal(){stopScan();const m=$('#modal');m.classList.add('hidden');m.innerHTML='';m._t='';document.body.style.overflow='';W=null;RP=null}
 function confirmBox(msg,yes,label='Eliminar'){
   openModal('Confirmar',`<p style="margin:0">${msg}</p>`,`<span class="sp"></span><button class="btn" data-act="close">Cancelar</button><button class="btn d" id="cYes">${esc(label)}</button>`,'sm');
   $('#cYes').onclick=async()=>{$('#cYes').disabled=true;await yes()};
