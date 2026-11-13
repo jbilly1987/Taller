@@ -654,7 +654,7 @@ const IC={
 };
 const ic=(n,cls='')=>`<svg class="i ${cls}" viewBox="0 0 24 24">${IC[n]||''}</svg>`;
 /* ---------- emojis y motosierra ---------- */
-const EMO={factory:'🏭',home:'🏠',bell:'🔔',clip:'📋',users:'👥',user:'👤',tractor:'🚜',box:'📦',cart:'🛒',tag:'🏷️',chart:'📊',gear:'⚙️',inbox:'📥',wrench:'🔧',check:'✅',clock:'⏳',truck:'🚚',lock:'🔐',dl:'💾',search:'🔍',alert:'⚠️',msg:'💬',print:'🖨️',file:'📄',activity:'📈',qr:'🔳',kanban:'🗂️',list:'📝',repeat:'🔁',shield:'🛡️',pin:'📍',phone:'📞'};
+const EMO={save:'💾',factory:'🏭',home:'🏠',bell:'🔔',clip:'📋',users:'👥',user:'👤',tractor:'🚜',box:'📦',cart:'🛒',tag:'🏷️',chart:'📊',gear:'⚙️',inbox:'📥',wrench:'🔧',check:'✅',clock:'⏳',truck:'🚚',lock:'🔐',dl:'💾',search:'🔍',alert:'⚠️',msg:'💬',print:'🖨️',file:'📄',activity:'📈',qr:'🔳',kanban:'🗂️',list:'📝',repeat:'🔁',shield:'🛡️',pin:'📍',phone:'📞'};
 const hic=n=>EMO[n]?`<span class="hem">${EMO[n]}</span>`:ic(n);
 const nem=n=>EMO[n]?`<span class="nem">${EMO[n]}</span>`:ic(n);
 function sawSVG(cls=''){return `<svg class="saw ${cls}" viewBox="0 0 250 110" aria-hidden="true"><defs><linearGradient id="sgB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdba74"/><stop offset=".45" stop-color="#f97316"/><stop offset="1" stop-color="#c2410c"/></linearGradient><linearGradient id="sgBar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1f5f9"/><stop offset="1" stop-color="#94a3b8"/></linearGradient></defs>
@@ -975,8 +975,8 @@ async function initStore(){
 }
 
 /* ================== Shell / render ================== */
-const NAV=[['inicio','home','Inicio'],['alertas','bell','Alertas'],['ordenes','clip','Órdenes'],['clientes','users','Clientes'],['equipos','tractor','Equipos'],['repuestos','box','Repuestos'],['pedidos','cart','Pedidos'],['proveedores','factory','Proveedores'],['catalogo','tag','Catálogo'],['reportes','chart','Reportes'],['ajustes','gear','Configuración']];
-const TITLES={proveedores:'Proveedores',proveedor:'Proveedor',alertas:'Alertas',pedidos:'Pedidos',inicio:'Inicio',ordenes:'Órdenes de servicio',orden:'Orden de servicio',clientes:'Clientes',cliente:'Cliente',equipos:'Equipos',equipo:'Equipo',repuestos:'Repuestos',repuesto:'Repuesto',catalogo:'Catálogo',reportes:'Reportes',ajustes:'Configuración'};
+const NAV=[['inicio','home','Inicio'],['alertas','bell','Alertas'],['ordenes','clip','Órdenes'],['clientes','users','Clientes'],['equipos','tractor','Equipos'],['repuestos','box','Repuestos'],['pedidos','cart','Pedidos'],['proveedores','factory','Proveedores'],['respaldo','save','Respaldo'],['catalogo','tag','Catálogo'],['reportes','chart','Reportes'],['ajustes','gear','Configuración']];
+const TITLES={respaldo:'Respaldo',proveedores:'Proveedores',proveedor:'Proveedor',alertas:'Alertas',pedidos:'Pedidos',inicio:'Inicio',ordenes:'Órdenes de servicio',orden:'Orden de servicio',clientes:'Clientes',cliente:'Cliente',equipos:'Equipos',equipo:'Equipo',repuestos:'Repuestos',repuesto:'Repuesto',catalogo:'Catálogo',reportes:'Reportes',ajustes:'Configuración'};
 const PARENT={proveedor:'proveedores',orden:'ordenes',cliente:'clientes',equipo:'equipos',repuesto:'repuestos'};
 function shell(){
   const p=PARENT[view.page]||view.page;const q=UI.q.trim();
@@ -1001,7 +1001,7 @@ function render(){
   if(fid){try{ss=ae.selectionStart;se=ae.selectionEnd}catch(e){}}
   tryPend();
   const p=view.page;const q=UI.q.trim();
-  const F={proveedores:vProveedores,proveedor:()=>vProveedor(view.id),alertas:vAlertas,pedidos:vPedidos,inicio:vInicio,ordenes:vOrdenes,orden:()=>vOrden(view.id),clientes:vClientes,cliente:()=>vCliente(view.id),equipos:vEquipos,equipo:()=>vEquipo(view.id),repuestos:vRepuestos,repuesto:()=>vRepuesto(view.id),catalogo:vCatalogo,reportes:vReportes,ajustes:vAjustes};
+  const F={respaldo:vRespaldo,proveedores:vProveedores,proveedor:()=>vProveedor(view.id),alertas:vAlertas,pedidos:vPedidos,inicio:vInicio,ordenes:vOrdenes,orden:()=>vOrden(view.id),clientes:vClientes,cliente:()=>vCliente(view.id),equipos:vEquipos,equipo:()=>vEquipo(view.id),repuestos:vRepuestos,repuesto:()=>vRepuesto(view.id),catalogo:vCatalogo,reportes:vReportes,ajustes:vAjustes};
   v.innerHTML=q?vBuscar(q):(F[p]||vInicio)();
   {const key=q?'q':p+(view.id||'');if(key!==render._k){render._k=key;v.classList.remove('enter');void v.offsetWidth;v.classList.add('enter');clearTimeout(render._t);render._t=setTimeout(()=>v.classList.remove('enter'),900)}}
   if(connected||LOCAL)hideSplash();
@@ -1057,6 +1057,7 @@ function vInicio(){
    ${stat('clock','#ffedd5','#f97316',esperando.length,'Esperando repuestos o aprobación','data-act="filtro" data-f="esperando"')}
    ${stat('inbox','#e0f2fe','#0ea5e9',hoy.length,'Recibidos hoy','data-act="nav" data-page="ordenes"')}
   </div>
+  ${respaldoPend()&&isAdmin()?`<div class="card" style="margin-top:16px;padding:14px 18px;display:flex;align-items:center;gap:12px;border-color:color-mix(in srgb,var(--acc) 45%,transparent)"><div style="font-size:26px">💾</div><div style="flex:1;min-width:0"><b>Toca hacer el respaldo</b><div class="small muted">${esc(respTxt())}${ultResp()?' · último: '+esc(ultResp()):''}</div></div><button class="btn p" data-act="export">${ic('dl')} Respaldar</button></div>`:''}
   ${resumenMes()}
   ${counts.length?`<div class="card" style="margin-top:16px;padding:16px 18px"><div class="row" style="margin-bottom:10px"><div class="lbl" style="margin:0">Equipos por estado</div><span class="sp"></span><button class="btn sm" data-act="tablero">${ic('kanban')} Ver tablero</button></div>
    <div style="display:flex;height:10px;border-radius:9px;overflow:hidden;background:var(--line2)">${counts.map(e=>`<span style="width:${e.n/ab.length*100}%;background:${e.c}"></span>`).join('')}</div>
@@ -1344,8 +1345,15 @@ function prevBanner(pi,compact){
 }
 
 /* ================== Alertas ================== */
-function viernesMedioDia(){const d=new Date();const k=(d.getDay()-5+7)%7;const f=new Date(d.getFullYear(),d.getMonth(),d.getDate()-k,12,0,0);if(f>d)f.setDate(f.getDate()-7);return f.getTime()}
-const respaldoPend=()=>num(CFG.ultimoRespaldo)<viernesMedioDia();
+const DIAS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const respFrec=()=>CFG.respFrec||'semana',respDia=()=>CFG.respDia==null?5:+CFG.respDia,respHora=()=>CFG.respHora==null?12:+CFG.respHora;
+function viernesMedioDia(){const d=new Date(),h=respHora();
+  if(respFrec()==='dia'){const f=new Date(d.getFullYear(),d.getMonth(),d.getDate(),h,0,0);if(f>d)f.setDate(f.getDate()-1);return f.getTime()}
+  const k=(d.getDay()-respDia()+7)%7;const f=new Date(d.getFullYear(),d.getMonth(),d.getDate()-k,h,0,0);if(f>d)f.setDate(f.getDate()-7);return f.getTime()}
+const hLbl=h=>h===0?'12 a. m.':h<12?h+' a. m.':h===12?'12 m. d.':(h-12)+' p. m.';
+const respTxt=()=>respFrec()==='no'?'Sin recordatorio':respFrec()==='dia'?`Todos los días a las ${hLbl(respHora())}`:`Cada ${DIAS[respDia()]} a las ${hLbl(respHora())}`;
+const respaldoPend=()=>respFrec()!=='no'&&num(CFG.ultimoRespaldo)<viernesMedioDia();
+const ultResp=()=>{const u=num(CFG.ultimoRespaldo);return u?new Date(u).toLocaleString('es-CR',{weekday:'long',day:'numeric',month:'long',hour:'numeric',minute:'2-digit'})+(CFG.respaldoPor?' · por '+CFG.respaldoPor:''):''};
 function alertas(){
   const L=[];const t=today();
   const add=(sev,icon,title,detail,act,extra='')=>L.push({sev,icon,title,detail,act,extra});
@@ -1375,7 +1383,7 @@ function alertas(){
     Object.values(last).forEach(b=>{if(b.estado!=='Entregado'||!b.fechaEntrega||b.mantAvisado)return;const d=daysSince(b.fechaEntrega);if(d<mm*30)return;const c=cli(b.clienteId)||{},e=eq(b.equipoId);const ms=Math.floor(d/30);
      const wa=waLink(c.telefono,`Hola ${c.nombre||''}, le saluda ${CFG.nombre}. 🔧 Ya pasaron ${ms} meses desde el último servicio de su ${eqShort(e)}. ¿Le gustaría traerlo para un mantenimiento preventivo? Así evita daños mayores. ¡Saludos!`);
      add('b','repeat',`Toca mantenimiento · ${ms} meses desde el servicio`,`${c.nombre||''} · ${eqShort(e)}`,`data-act="open" data-page="equipo" data-id="${e?e.id:''}"`,`${wa?`<a class="btn sm wa" href="${esc(wa)}" target="_blank" rel="noopener">${ic('msg')} Ofrecer</a>`:''}<button class="btn sm" data-act="mantOk" data-id="${b.id}" title="Ya se le avisó">${ic('check')}</button>`)})}}
-  if(respaldoPend()){const u=num(CFG.ultimoRespaldo);add('a','dl','Toca hacer el respaldo semanal 💾',u?'Último respaldo: '+new Date(u).toLocaleDateString('es-CR',{weekday:'long',day:'numeric',month:'long'}):'Todavía no se ha hecho ningún respaldo','data-act="export"',`<button class="btn sm p" data-act="export">${ic('dl')} Respaldar</button>`)}
+  if(respaldoPend()){const u=num(CFG.ultimoRespaldo);add('a','dl',`Toca hacer el respaldo ${respFrec()==='dia'?'diario':'semanal'} 💾`,u?'Último respaldo: '+new Date(u).toLocaleDateString('es-CR',{weekday:'long',day:'numeric',month:'long'}):'Todavía no se ha hecho ningún respaldo','data-act="export"',`<button class="btn sm p" data-act="export">${ic('dl')} Respaldar</button>`)}
   const o={r:0,a:1,b:2};return L.sort((a,b)=>o[a.sev]-o[b.sev]);
 }
 const SEV={r:['var(--red)','var(--red-l)'],a:['var(--warn)','var(--acc-l)'],b:['var(--blue)','var(--blue-l)']};
@@ -1510,6 +1518,26 @@ function ppAddForm(bid){
 const provIdx=n=>provs().findIndex(p=>norm(p.n)===norm(n));
 const provReps=n=>arr(S.repuestos).filter(r=>norm(r.proveedor)===norm(n));
 function provTelLink(t){const d=String(t||'').replace(/\D/g,'');return d?'tel:+'+(d.length===8?'506'+d:d):''}
+
+function vRespaldo(){
+  const pend=respaldoPend(),u=ultResp(),fr=respFrec();
+  const n=`${arr(S.clientes).length} clientes · ${arr(S.equipos).length} máquinas · ${arr(S.boletas).length} órdenes · ${arr(S.repuestos).length} repuestos`;
+  return `<div class="ph"><div><h1>Respaldo 💾</h1><div class="sub">Una copia de todos los datos del taller, guardada en este aparato</div></div></div>
+  <div class="card hero" style="flex-direction:column;align-items:stretch;gap:0">
+   <div class="row" style="gap:14px;align-items:center"><div class="ticon" style="width:58px;height:58px;font-size:30px;flex-shrink:0">${pend?'⏰':'✅'}</div><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:18px">${pend?'Toca hacer el respaldo':u?'Respaldo al día':'Todavía no hay respaldos'}</div><div class="small muted">${u?'Último: '+esc(u):'Haga el primero ahora.'}</div></div></div>
+   <button class="btn p lg" data-act="export" style="margin-top:16px;justify-content:center;font-size:16px;padding:14px">${ic('dl')} Respaldar ahora</button>
+   <div class="small muted" style="margin-top:10px;text-align:center">${n}</div></div>
+  <div class="grid g2" style="margin-top:16px">
+   <div class="card"><div class="ch"><h2><span class="hem">⏰</span> Recordatorio</h2></div><div class="cp-in">
+    <div class="seg" style="margin-bottom:14px">${[['dia','Diario'],['semana','Semanal'],['no','Apagado']].map(([k,l])=>`<button class="${fr===k?'on':''}" data-act="respSet" data-k="respFrec" data-v="${k}">${l}</button>`).join('')}</div>
+    ${fr!=='no'?`<div class="fr">${fr==='semana'?`<div class="f"><label>Día</label><select class="sel" data-resp="respDia">${DIAS.map((d,i)=>`<option value="${i}" ${respDia()===i?'selected':''}>${d[0].toUpperCase()+d.slice(1)}</option>`).join('')}</select></div>`:''}<div class="f"><label>Hora</label><select class="sel" data-resp="respHora">${Array.from({length:17},(_,i)=>i+6).map(h=>`<option value="${h}" ${respHora()===h?'selected':''}>${hLbl(h)}</option>`).join('')}</select></div></div>`:''}
+    <p class="small muted" style="margin:4px 0 0">🔔 ${esc(respTxt())} — a esa hora aparece un aviso aquí, en Inicio y en Alertas hasta que haga el respaldo.</p></div></div>
+   <div class="card"><div class="ch"><h2><span class="hem">📂</span> ¿Dónde se guarda?</h2></div><div class="cp-in small" style="line-height:1.6">
+    <p style="margin-top:0">💻 <b>En la PC</b> (Chrome o Edge) le pregunta <b>en qué carpeta</b> guardarlo. Puede crear una carpeta “Respaldos taller”, o elegir una memoria USB o Google Drive.</p>
+    <p>📱 <b>En el teléfono</b> se guarda en <b>Descargas</b> (en iPhone, en la app <b>Archivos</b>).</p>
+    <p style="margin-bottom:0">♻️ Para recuperar los datos: <b>Configuración → Respaldo → Importar</b> y elija el archivo.</p></div></div>
+  </div>`;
+}
 function vProveedores(){
   const q=norm(UI.prq);const L=porPedir();
   let ps=provs().map((p,i)=>({...p,i}));if(q)ps=ps.filter(p=>norm([p.n,p.tel,p.contacto,p.correo,p.dir,p.notas].join(' ')).includes(q));
@@ -1786,7 +1814,8 @@ async function repPdf(k){
     y=doc.lastAutoTable.finalY+20});
   await saveFile(fname(R.t)+'_'+stamp()+'.pdf',doc.output('blob'));
 }
-async function saveFile(name,data){
+async function saveFile(name,data,pick){
+  if(!DL&&pick&&window.showSaveFilePicker){try{const h=await window.showSaveFilePicker({suggestedName:name,types:[{description:'Respaldo del taller',accept:{'application/json':['.json']}}]});const w=await h.createWritable();await w.write(data);await w.close();return true}catch(e){if(e&&e.name==='AbortError')return false}}
   if(!DL){try{const bl=data instanceof Blob?data:new Blob([data],{type:/\.html$/.test(name)?'text/html':'text/plain'});const u=URL.createObjectURL(bl);const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);return true}catch(e){toast('No se pudo descargar el archivo.');return false}}
   try{await DL.save({filename:name,data});return true}
   catch(e){const c=e&&e.code;if(c==='declined')return false;toast(c==='rate_limited'?'Ya hay una descarga esperando confirmación.':'No se pudo descargar el archivo.');return false}
@@ -1823,7 +1852,7 @@ function vAjustes(){
     ${!('Notification' in window)?(esIOS()&&!esInstalada()?`<p class="small" style="color:var(--warn)">📱 En iPhone, primero instale la app: Safari → Compartir ⬆️ → <b>Agregar a pantalla de inicio</b>, y ábrala desde ese ícono.</p>`:''):Notification.permission==='granted'?`<button class="btn" data-act="avisoTest">🔔 Probar aviso</button>`:Notification.permission==='denied'?`<button class="btn" data-act="avisoAyuda">¿Cómo desbloquearlos?</button>`:`<button class="btn p" data-act="avisos">🔔 Activar avisos</button>`}</div></div>
    <div class="card"><div class="ch"><h2>${hic('dl')} Respaldo</h2></div><div class="cp-in">
     <p class="small muted" style="margin-top:0">${LOCAL?'<b>Modo local:</b> los datos están solo en este navegador. Exporte respaldos seguido.':FB_MODE?'Los datos están en Firebase. Igual conviene exportar un respaldo cada semana.':'Los datos se guardan en línea y se ven igual en todos sus dispositivos.'}</p>
-    <div class="row"><button class="btn" data-act="export">${ic('dl')} Exportar respaldo</button><label class="btn">Importar respaldo<input type="file" id="impFile" accept=".json,application/json" hidden></label></div>
+    <div class="row"><button class="btn p" data-act="export">${ic('dl')} Respaldar ahora</button><button class="btn" data-act="nav" data-page="respaldo">⏰ Recordatorio</button><label class="btn">Importar respaldo<input type="file" id="impFile" accept=".json,application/json" hidden></label></div>
     <p class="small muted">${arr(S.clientes).length} clientes · ${arr(S.equipos).length} equipos · ${arr(S.boletas).length} órdenes · ${arr(S.repuestos).length} repuestos</p></div></div>
   </div></div>`;
 }
@@ -2432,6 +2461,7 @@ const A={
  pdRecibir:d=>pdRecibir(d.id),
  pdCancel:d=>confirmBox('¿Cancelar este pedido? Los repuestos vuelven a la lista por pedir.',async()=>{const P=clone(S.pedidos[d.id]);P.estado='Cancelado';await put('pedidos',P);closeModal();render()},'Cancelar pedido'),
  provForm:d=>provForm(d.n),
+ respSet:adminOnly(async d=>{await saveCfg({...CFG,[d.k]:d.v});render()}),
  provEdit:d=>provEditForm(d.i),
  provSave:d=>provSave(d.i),
  provRm:adminOnly(d=>{const p=provs()[+d.i];if(!p)return;const nr=provReps(p.n).length;confirmBox(`¿Borrar el proveedor <b>${esc(p.n)}</b>?${nr?` Sus ${nr} repuesto${nr!==1?'s':''} quedarán sin proveedor.`:''}`,async()=>{const c=CAT();c.proveedores=(c.proveedores||[]).filter((_,i)=>i!==+d.i);if(!await saveCat(c))return;for(const r of provReps(p.n))await put('repuestos',{...r,proveedor:''});closeModal();go({page:'proveedores'});toast('Proveedor borrado')},'Borrar')}),
@@ -2476,7 +2506,7 @@ const A={
  setPin:adminOnly(()=>pinForm()),
  quitarPin:adminOnly(()=>confirmBox('¿Quitar el PIN? Todos tendrán acceso completo.',async()=>{const c={...CFG};delete c.pinHash;if(await saveCfg(c)){setAdm('');closeModal();render();toast('PIN eliminado')}},'Quitar PIN')),
  delLogo:adminOnly(async()=>{if(await saveCfg({...CFG,logo:''}))render()}),
- export:adminOnly(async()=>{const data=JSON.stringify({version:2,exportado:new Date().toISOString(),config:CFG,catalogo:CATD,...S},null,1);const ok=await saveFile('respaldo-taller-'+today()+'.json',data);if(ok!==false){await saveCfg({...CFG,ultimoRespaldo:Date.now(),respaldoPor:quien()});toast('Respaldo descargado ✅ Guárdelo en un lugar seguro');render()}})
+ export:adminOnly(async()=>{const data=JSON.stringify({version:2,exportado:new Date().toISOString(),config:CFG,catalogo:CATD,...S},null,1);const ok=await saveFile('respaldo-taller-'+today()+'-'+new Date().toTimeString().slice(0,5).replace(':','h')+'.json',data,true);if(ok!==false){await saveCfg({...CFG,ultimoRespaldo:Date.now(),respaldoPor:quien()});toast('Respaldo descargado ✅ Guárdelo en un lugar seguro');render()}})
 };
 
 /* ================== Eventos ================== */
@@ -2513,6 +2543,7 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.id==='impFile'&&t.files[0])importFile(t.files[0]);
+  if(t.dataset.resp)A.respSet({k:t.dataset.resp,v:+t.value});
   if(t.id==='logoFile'&&t.files[0])loadLogo(t.files[0]);
   if(t.dataset.perp!=null||t.dataset.pere!=null){if(!isAdmin())return toast('Solo el administrador');const L=personal();const i=+(t.dataset.perp??t.dataset.pere);if(L[i]){if(t.dataset.perp!=null)L[i].puesto=t.value;else L[i].email=t.value.trim();savePersonal(L).then(()=>{toast('Personal actualizado');render()})}}
   if(t.dataset.pon){UI.pOn[t.dataset.pon]=t.checked;render()}
@@ -2538,7 +2569,7 @@ window.addEventListener('hashchange',fromHash);
 window.addEventListener('resize',()=>{clearTimeout(window._rz);window._rz=setTimeout(shell,150)});
 fromHash();
 {const ss=$('#splashSaw');if(ss)ss.innerHTML=sawSVG();try{const c=JSON.parse(localStorage.getItem(LSKEY)||'null');if(c&&c.CFG&&c.CFG.nombre)$('#splashName').textContent=c.CFG.nombre}catch(e){}setTimeout(hideSplash,LOCAL?600:7000)}
-let _bkPing=0;setInterval(()=>{if(!(connected||LOCAL)||!respaldoPend()||!isAdmin())return;const f=viernesMedioDia();if(_bkPing===f)return;_bkPing=f;ping('Es viernes: toca el respaldo semanal 💾','Descargue una copia de todos los datos del taller.',()=>A.export({}))},60000);
+let _bkPing=0;setInterval(()=>{if(!(connected||LOCAL)||!respaldoPend()||!isAdmin())return;const f=viernesMedioDia();if(_bkPing===f)return;_bkPing=f;ping(`💾 Toca el respaldo ${respFrec()==='dia'?'diario':'semanal'}`,'Descargue una copia de todos los datos del taller.',()=>A.export({}))},60000);
 initStore();
 </script>
 </body>
