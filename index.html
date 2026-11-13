@@ -562,6 +562,13 @@ html[data-theme=dark] .sync.s-ok{color:#4ade80}html[data-theme=dark] .sync.s-syn
 @keyframes syncPulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,currentColor 60%,transparent)}70%,100%{box-shadow:0 0 0 7px transparent}}
 @keyframes syncBlink{50%{opacity:.3}}
 @media (max-width:860px){.sync{padding:8px;gap:0}}
+
+@media (max-width:860px){.rw .r .badge{font-size:11px;padding:3px 8px}.rw .r{font-size:11.5px}}
+.mq{text-overflow:clip!important;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+.mq.mq-end{-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%);mask-image:linear-gradient(90deg,transparent,#000 12%)}
+.mqi{display:inline-block;white-space:nowrap;animation:mqMove var(--t) ease-in-out 1.2s infinite alternate;will-change:transform}
+.rw:hover .mqi{animation-play-state:paused}
+@keyframes mqMove{0%,18%{transform:translateX(0)}82%,100%{transform:translateX(var(--d))}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
 @media (max-width:860px){
   .bnav{left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));padding:6px 6px;border-radius:24px;background:color-mix(in srgb,var(--bg) 60%,transparent);backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);border:1px solid var(--glass-b);box-shadow:var(--sh2)}
@@ -1005,6 +1012,7 @@ function render(){
   v.innerHTML=q?vBuscar(q):(F[p]||vInicio)();
   {const key=q?'q':p+(view.id||'');if(key!==render._k){render._k=key;v.classList.remove('enter');void v.offsetWidth;v.classList.add('enter');clearTimeout(render._t);render._t=setTimeout(()=>v.classList.remove('enter'),900)}}
   if(connected||LOCAL)hideSplash();
+  requestAnimationFrame(marquee);
   if(fid){const el=document.getElementById(fid);if(el){el.focus();try{if(ss!=null)el.setSelectionRange(ss,se)}catch(e){}}}
   shell();
   if(p==='ordenes'&&UI.oView==='tablero'&&!q)wireKanban();
@@ -2155,6 +2163,16 @@ function syncUI(){
 }
 window.addEventListener('online',()=>syncUI());window.addEventListener('offline',()=>syncUI());
 setInterval(syncUI,15000);
+
+/* ---------- texto que camina cuando no cabe ---------- */
+function marquee(){
+  document.querySelectorAll('#view .rw .mn .ell, #view .rw .mn > .t, #view .rw .mn > .s, #view .rw .mn > .m').forEach(el=>{
+    if(el.querySelector('.mqi'))return;
+    const d=el.scrollWidth-el.clientWidth;if(d<6)return;
+    el.classList.add('mq');el.innerHTML=`<span class="mqi" style="--d:-${d+14}px;--t:${Math.min(9,Math.max(3.5,d/22+2.5)).toFixed(1)}s">${el.innerHTML}</span>`;
+  });
+}
+let _mqT=0;window.addEventListener('resize',()=>{clearTimeout(_mqT);_mqT=setTimeout(()=>{document.querySelectorAll('#view .mqi').forEach(x=>{const p=x.parentElement;p.classList.remove('mq');p.innerHTML=x.innerHTML});marquee()},250)});
 /* ---------- Mano de obra ---------- */
 const MO_EM=[['diagn','🔍'],['manten','🧰'],['cadena','⛓️'],['afil','🪚'],['espada','🪚'],['carbur','⛽'],['combust','⛽'],['motor','⚙️'],['arranc','🔄'],['encend','⚡'],['bujía','⚡'],['embrag','🔩'],['transm','🔩'],['sold','🔥'],['fabric','🔥'],['eléctr','🔌'],['electr','🔌'],['prueba','✅'],['ajuste final','✅'],['limpi','🧽'],['pint','🎨'],['cambio','🔧']];
 const moEm=d=>{const n=norm(d);const f=MO_EM.find(([k])=>n.includes(norm(k)));return f?f[1]:'🛠️'};
