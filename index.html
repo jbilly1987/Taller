@@ -367,7 +367,7 @@ body{transition:background .3s}
 .fchip.on{background:linear-gradient(135deg,#22c55e,#0d9488);border-color:transparent;color:#fff}.fchip.on .c{color:rgba(255,255,255,.8)}
 .cpc{background:var(--field);border-color:var(--line);border-radius:12px;transition:transform .15s,background .2s,border-color .2s,box-shadow .2s}
 .cpc:hover{border-color:var(--pri);background:var(--pri-50)}
-.cpc.on{background:linear-gradient(135deg,#22c55e,#0d9488);border-color:transparent;color:#fff;box-shadow:0 4px 14px var(--glow);animation:chipOn .3s cubic-bezier(.2,.9,.3,1.4)}
+.cpc.on{background:linear-gradient(135deg,#22c55e,#0d9488);border-color:transparent;color:#fff;box-shadow:0 4px 14px var(--glow)}
 .cpc.add{background:transparent;border-color:color-mix(in srgb,var(--pri) 55%,transparent)}
 @keyframes chipOn{0%{transform:scale(.88)}100%{transform:none}}
 .rw{transition:background .2s}
@@ -967,9 +967,9 @@ function subscribe(db){
   const ok=(k,snap)=>{const md=snap.metadata||{};SYNC[k]={c:!!md.fromCache,p:!!md.hasPendingWrites};syncUI();if(!snap.metadata.fromCache){done.add(k);if(done.size>=total&&!connected){connected=true;clearTimeout(timer);setStatus('')}}};
   const onErr=e=>{clearTimeout(timer);setStatus(e.code==='revoked'?'Se retiró el acceso a los datos de esta página.':e.code==='permission-denied'?'Sin permiso para leer los datos. Revise las reglas de Firestore o vuelva a iniciar sesión.':'Error al leer los datos ('+e.code+').','err')};
   const on=(ref,cb)=>FB_MODE?ref.onSnapshot({includeMetadataChanges:true},cb,onErr):ref.onSnapshot(cb,onErr);
-  UNSUB=[...COLS.map(c=>on(db.collection(c),s=>{const m={};s.docs.forEach(d=>{m[d.id]={...d.data(),id:d.id}});S[c]=m;ok(c,s);if(c==='boletas'&&(SEEN||!s.metadata.fromCache))watchBoletas(m);later()})),
-   on(db.doc('config/taller'),d=>{CFG={...DEF_CFG,...(d.exists?d.data():{})};ok('cfg',d);later()}),
-   on(db.doc('config/catalogo'),d=>{CATD=d.exists?d.data():null;ok('cat',d);later()})];
+  UNSUB=[...COLS.map(c=>on(db.collection(c),s=>{if(FB_MODE&&S[c]&&typeof s.docChanges==='function'&&s.docChanges().length===0){ok(c,s);return}const m={};s.docs.forEach(d=>{m[d.id]={...d.data(),id:d.id}});S[c]=m;ok(c,s);if(c==='boletas'&&(SEEN||!s.metadata.fromCache))watchBoletas(m);later()})),
+   on(db.doc('config/taller'),d=>{const j=JSON.stringify(d.exists?d.data():null);if(FB_MODE&&j===on._cfg){ok('cfg',d);return}on._cfg=j;CFG={...DEF_CFG,...(d.exists?d.data():{})};ok('cfg',d);later()}),
+   on(db.doc('config/catalogo'),d=>{const j=JSON.stringify(d.exists?d.data():null);if(FB_MODE&&j===on._cat){ok('cat',d);return}on._cat=j;CATD=d.exists?d.data():null;ok('cat',d);later()})];
 }
 async function initStore(){
   if(FB_MODE)return initFirebase();
@@ -985,22 +985,23 @@ async function initStore(){
 const NAV=[['inicio','home','Inicio'],['alertas','bell','Alertas'],['ordenes','clip','Órdenes'],['clientes','users','Clientes'],['equipos','tractor','Equipos'],['repuestos','box','Repuestos'],['pedidos','cart','Pedidos'],['proveedores','factory','Proveedores'],['respaldo','save','Respaldo'],['catalogo','tag','Catálogo'],['reportes','chart','Reportes'],['ajustes','gear','Configuración']];
 const TITLES={respaldo:'Respaldo',proveedores:'Proveedores',proveedor:'Proveedor',alertas:'Alertas',pedidos:'Pedidos',inicio:'Inicio',ordenes:'Órdenes de servicio',orden:'Orden de servicio',clientes:'Clientes',cliente:'Cliente',equipos:'Equipos',equipo:'Equipo',repuestos:'Repuestos',repuesto:'Repuesto',catalogo:'Catálogo',reportes:'Reportes',ajustes:'Configuración'};
 const PARENT={proveedor:'proveedores',orden:'ordenes',cliente:'clientes',equipo:'equipos',repuesto:'repuestos'};
+const setH=(el,h)=>{if(el&&el._h!==h){el.innerHTML=h;el._h=h}};
 function shell(){
   const p=PARENT[view.page]||view.page;const q=UI.q.trim();
   const al=alertas();const cnt={ordenes:arr(S.boletas).filter(isOpen).length,alertas:al.filter(a=>a.sev!=='b').length,pedidos:porPedir().filter(l=>!l.pend).length};
-  $('#nav').innerHTML=NAV.map(([k,i,l],ix)=>`${k==='catalogo'?'<div class="nl">Administración</div>':ix===0?'<div class="nl">Taller</div>':''}<button data-act="nav" data-page="${k}" class="${!q&&p===k?'on':''}">${nem(i)}<span>${l}</span>${cnt[k]?`<span class="nb" ${k==='alertas'&&al.some(a=>a.sev==='r')?'style="background:#dc2626;color:#fff"':''}>${cnt[k]}</span>`:''}</button>`).join('');
-  $('.recv').innerHTML=ic('plus')+' Recibir máquina';{const b=$('#thBtn');if(b)b.textContent=document.documentElement.dataset.theme==='dark'?'☀️':'🌙'}
+  setH($('#nav'),NAV.map(([k,i,l],ix)=>`${k==='catalogo'?'<div class="nl">Administración</div>':ix===0?'<div class="nl">Taller</div>':''}<button data-act="nav" data-page="${k}" class="${!q&&p===k?'on':''}">${nem(i)}<span>${l}</span>${cnt[k]?`<span class="nb" ${k==='alertas'&&al.some(a=>a.sev==='r')?'style="background:#dc2626;color:#fff"':''}>${cnt[k]}</span>`:''}</button>`).join(''));
+  setH($('.recv'),ic('plus')+' Recibir máquina');{const b=$('#thBtn');if(b)b.textContent=document.documentElement.dataset.theme==='dark'?'☀️':'🌙'}
   $('#bizName').textContent=CFG.nombre||'Mi taller';
-  $('#logoBox').innerHTML=logoHTML();$('#logoBoxM').innerHTML=logoHTML();
+  setH($('#logoBox'),logoHTML());setH($('#logoBoxM'),logoHTML());
   $('#mTitle').textContent=q?'Búsqueda':TITLES[view.page]||'';
-  $('#srchIc').innerHTML=ic('search');$('#mSearchBtn').innerHTML=ic('search');
+  setH($('#srchIc'),ic('search'));setH($('#mSearchBtn'),ic('search'));
   $('#mSearchBtn').style.display=innerWidth<=860?'inline-flex':'none';
   {const n=quien();const real=WHO||fbName();$('#whoBox').innerHTML=`<button class="who ${real?'':'none'}" data-act="whoPick" title="¿Quién está usando este equipo?">${real?`<span class="av">${esc(initials(real))}</span><span class="hide-m">${esc(real)} · </span><span>${PEMO[puestoActual()]}<span class="hide-m"> ${PLBL[puestoActual()]}</span></span>`:SES?`<span>${PEMO[puestoActual()]}<span class="hide-m"> ${PLBL[puestoActual()]}</span></span>`:`${ic('user')}<span>¿Quién es?</span>`}</button>`}
   document.body.classList.toggle('no-recv',!esRecep());document.body.classList.toggle('no-taller',!esTaller());
-  $('#roleBox').innerHTML=pinOn()?(isAdmin()?`<button class="role adm" data-act="lockAdm" title="Cerrar administrador">${ic('unlock')}<span class="hide-m">Administrador</span></button>`:`<button class="role mec" data-act="unlock" title="Entrar como administrador">${ic('lock')}<span class="hide-m">Admin</span></button>`):'';
+  setH($('#roleBox'),pinOn()?(isAdmin()?`<button class="role adm" data-act="lockAdm" title="Cerrar administrador">${ic('unlock')}<span class="hide-m">Administrador</span></button>`:`<button class="role mec" data-act="unlock" title="Entrar como administrador">${ic('lock')}<span class="hide-m">Admin</span></button>`):'');
   const bn=[['inicio','home','Inicio'],['ordenes','clip','Órdenes'],['+','plus',''],['repuestos','box','Repuestos'],['mas','more','Más']];const nAl=cnt.alertas;
-  $('#bnav').innerHTML=bn.map(([k,i,l])=>k==='+'?`<button class="fabb" data-act="recibir" aria-label="Recibir máquina"><span>${ic('plus')}</span></button>`:`<button style="position:relative" data-act="${k==='mas'?'moreOpen':'nav'}" data-page="${k}" class="${(k===p||(k==='mas'&&['alertas','clientes','equipos','pedidos','catalogo','reportes','ajustes'].includes(p)))&&!q?'on':''}"><span class="bem">${EMO[i]||'☰'}</span>${l}${k==='mas'&&nAl?`<span style="position:absolute;top:0;right:22%;background:#dc2626;color:#fff;border-radius:9px;font-size:10px;padding:0 5px">${nAl}</span>`:''}</button>`).join('');
-  $('#moreSheet').innerHTML=`<div class="msig"><div class="logo">${logoHTML()}</div><div style="min-width:0"><div style="font-weight:700;font-size:14px" class="ell">${esc(CFG.nombre||'Mi taller')}</div><div class="small muted">Servicio técnico</div><div class="bsig">✍️ ForBillyComputer</div></div></div>`+NAV.filter(([k])=>!['inicio','ordenes','repuestos'].includes(k)).map(([k,i,l])=>`<button data-act="nav" data-page="${k}">${nem(i)}${l}${cnt[k]?` <span class="nb" style="background:var(--soft);color:var(--ink)">${cnt[k]}</span>`:''}</button>`).join('');
+  setH($('#bnav'),bn.map(([k,i,l])=>k==='+'?`<button class="fabb" data-act="recibir" aria-label="Recibir máquina"><span>${ic('plus')}</span></button>`:`<button style="position:relative" data-act="${k==='mas'?'moreOpen':'nav'}" data-page="${k}" class="${(k===p||(k==='mas'&&['alertas','clientes','equipos','pedidos','catalogo','reportes','ajustes'].includes(p)))&&!q?'on':''}"><span class="bem">${EMO[i]||'☰'}</span>${l}${k==='mas'&&nAl?`<span style="position:absolute;top:0;right:22%;background:#dc2626;color:#fff;border-radius:9px;font-size:10px;padding:0 5px">${nAl}</span>`:''}</button>`).join(''));
+  setH($('#moreSheet'),`<div class="msig"><div class="logo">${logoHTML()}</div><div style="min-width:0"><div style="font-weight:700;font-size:14px" class="ell">${esc(CFG.nombre||'Mi taller')}</div><div class="small muted">Servicio técnico</div><div class="bsig">✍️ ForBillyComputer</div></div></div>`+NAV.filter(([k])=>!['inicio','ordenes','repuestos'].includes(k)).map(([k,i,l])=>`<button data-act="nav" data-page="${k}">${nem(i)}${l}${cnt[k]?` <span class="nb" style="background:var(--soft);color:var(--ink)">${cnt[k]}</span>`:''}</button>`).join(''));
   document.title=(CFG.nombre||'Taller')+' — Servicio técnico';syncUI();
 }
 function render(){
@@ -1011,11 +1012,12 @@ function render(){
   tryPend();
   const p=view.page;const q=UI.q.trim();
   const F={respaldo:vRespaldo,proveedores:vProveedores,proveedor:()=>vProveedor(view.id),alertas:vAlertas,pedidos:vPedidos,inicio:vInicio,ordenes:vOrdenes,orden:()=>vOrden(view.id),clientes:vClientes,cliente:()=>vCliente(view.id),equipos:vEquipos,equipo:()=>vEquipo(view.id),repuestos:vRepuestos,repuesto:()=>vRepuesto(view.id),catalogo:vCatalogo,reportes:vReportes,ajustes:vAjustes};
-  v.innerHTML=q?vBuscar(q):(F[p]||vInicio)();
+  const html=q?vBuscar(q):(F[p]||vInicio)();const key0=q?'q':p+(view.id||'');const same=html===v._h&&key0===render._k;
+  if(!same){v.innerHTML=html;v._h=html}
   {const key=q?'q':p+(view.id||'');if(key!==render._k){render._k=key;v.classList.remove('enter');void v.offsetWidth;v.classList.add('enter');clearTimeout(render._t);render._t=setTimeout(()=>v.classList.remove('enter'),900)}}
   if(connected||LOCAL)hideSplash();
-  requestAnimationFrame(marquee);
-  if(fid){const el=document.getElementById(fid);if(el){el.focus();try{if(ss!=null)el.setSelectionRange(ss,se)}catch(e){}}}
+  if(!same)requestAnimationFrame(marquee);
+  if(fid&&!same){const el=document.getElementById(fid);if(el){el.focus();try{if(ss!=null)el.setSelectionRange(ss,se)}catch(e){}}}
   shell();
   if(p==='ordenes'&&UI.oView==='tablero'&&!q)wireKanban();
   if(p==='orden'&&!q)dirtyTrab();
@@ -2155,11 +2157,15 @@ function syncState(){
   return 'ok';
 }
 const SYNC_L={ok:['Sincronizado','🟢'],sync:['Sincronizando…','🟡'],conn:['Conectando…','🟡'],off:['Sin conexión','🔴'],local:['Solo este aparato','⚪']};
+let _syncShow='',_syncT=0;
 function syncUI(){
-  const st=syncState();if(st==='ok'&&SYNC_ST!=='ok')SYNC_T=Date.now();
+  let st=syncState();
+  if(st==='sync'&&_syncShow==='ok'){if(!_syncT)_syncT=setTimeout(()=>{_syncT=0;if(syncState()==='sync'){_syncShow='';syncUI()}},900);st='ok'}else if(st!=='sync'){clearTimeout(_syncT);_syncT=0}
+  _syncShow=st;if(st==='ok'&&SYNC_ST!=='ok')SYNC_T=Date.now();
   if(st==='off'&&SYNC_ST&&SYNC_ST!=='off')toast('🔴 Sin internet: lo que haga se guarda en este aparato y se sincroniza al volver la conexión');
   if(st==='ok'&&SYNC_ST==='off')toast('🟢 Conexión recuperada: todo sincronizado');
   SYNC_ST=st;const b=$('#syncBox');if(!b)return;
+  if(b.dataset.st===st)return;b.dataset.st=st;
   b.className='sync s-'+st;b.title=SYNC_L[st][0];
   b.innerHTML=`<i></i><span class="hide-m">${SYNC_L[st][0]}</span>`;
 }
