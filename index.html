@@ -1004,6 +1004,8 @@ function shell(){
   document.title=(CFG.nombre||'Taller')+' — Servicio técnico';syncUI();
 }
 function render(){
+  {const a=document.activeElement;if(a&&a.matches&&a.matches('#trabBox textarea,#trabBox input:not([type=date])')&&view.page==='orden'&&render._k===view.page+(view.id||'')&&!UI.q.trim()){render._pend=true;return}}
+  render._pend=false;
   const v=$('#view');const ae=document.activeElement;const fid=ae&&v.contains(ae)&&ae.id;let ss=null,se=null;
   if(fid){try{ss=ae.selectionStart;se=ae.selectionEnd}catch(e){}}
   tryPend();
@@ -2593,6 +2595,7 @@ window.addEventListener('resize',()=>{clearTimeout(window._rz);window._rz=setTim
 fromHash();
 {const ss=$('#splashSaw');if(ss)ss.innerHTML=sawSVG();try{const c=JSON.parse(localStorage.getItem(LSKEY)||'null');if(c&&c.CFG&&c.CFG.nombre)$('#splashName').textContent=c.CFG.nombre}catch(e){}setTimeout(hideSplash,LOCAL?600:7000)}
 let _bkPing=0;setInterval(()=>{if(!(connected||LOCAL)||!respaldoPend()||!isAdmin())return;const f=viernesMedioDia();if(_bkPing===f)return;_bkPing=f;ping(`💾 Toca el respaldo ${respFrec()==='dia'?'diario':'semanal'}`,'Descargue una copia de todos los datos del taller.',()=>A.export({}))},60000);
+document.addEventListener('focusout',e=>{if(render._pend&&e.target.closest&&e.target.closest('#trabBox'))setTimeout(()=>{const a=document.activeElement;if(render._pend&&!(a&&a.closest&&a.closest('#trabBox')&&a.matches('textarea,input')))render()},60)});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)flushTrab()});window.addEventListener('pagehide',()=>flushTrab());
 initStore();
 </script>
