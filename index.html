@@ -633,6 +633,7 @@ html[data-theme=dark] .sent-msg{color:#5eead4}
 }
 .ckb button{-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .cpc,.btn,.fchip,.pick{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.lk [data-act=qty],.lk [data-act=rmLine],.lk [data-act=addRep],.lk [data-act=ppAdd]{display:none!important}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
 @media (max-width:860px){
   .bnav{left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));padding:6px 6px;border-radius:24px;background:color-mix(in srgb,var(--bg) 60%,transparent);backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);border:1px solid var(--glass-b);box-shadow:var(--sh2)}
@@ -1218,21 +1219,28 @@ function wireKanban(){
   document.querySelectorAll('.kc').forEach(col=>{
     col.addEventListener('dragover',e=>{e.preventDefault();col.classList.add('over')});
     col.addEventListener('dragleave',()=>col.classList.remove('over'));
-    col.addEventListener('drop',async e=>{e.preventDefault();col.classList.remove('over');const id=e.dataTransfer.getData('text/plain');const b=S.boletas[id];if(!b||b.estado===col.dataset.col)return;
+    col.addEventListener('drop',async e=>{e.preventDefault();col.classList.remove('over');const id=e.dataTransfer.getData('text/plain');const b=S.boletas[id];if(!b||b.estado===col.dataset.col)return;if(bloqueado(b)&&col.dataset.col!=='Entregado')return avisoBloq(b);
       if(!puedeEstado(col.dataset.col))return;if(col.dataset.col==='Entregado')return estadoForm(id,'Entregado');await setEstado(id,col.dataset.col,'');render()});
   });
 }
 
 /* ================== Detalle de orden ================== */
+const tecDueno=b=>b.tecnico||((b.historial||[]).slice().reverse().find(h=>h.estado==='Listo para entregar'&&h.por)||{}).por||'';
+const adminReal=()=>pinOn()?isAdmin():puestoActual()==='ambos';
+const yoNombre=()=>WHO||fbName()||'';
+const bloqueado=b=>!!(b&&b.estado==='Listo para entregar'&&tecDueno(b)&&norm(yoNombre())!==norm(tecDueno(b))&&!adminReal());
+const avisoBloq=b=>toast(`🔒 Este trabajo lo terminó ${tecDueno(b)}. Solo ${tecDueno(b)} o el administrador pueden modificarlo.`);
+const sinBloq=f=>(d,el)=>{const b=S.boletas[d.id];if(bloqueado(b))return avisoBloq(b);return f(d,el)};
 function vOrden(id){
   const b=S.boletas[id];if(!b)return backBtn()+`<div class="card">${emptyBox('clip','Orden no encontrada')}</div>`;
   const c=cli(b.clienteId)||{},e=eq(b.equipoId)||{};const A=isAdmin();
   const w=waLink(c.telefono,waMsg(b));const ci=PIPE.indexOf(b.estado);
   const side=!PIPE.includes(b.estado);
   const prev=arr(S.boletas).filter(x=>x.equipoId===b.equipoId&&x.id!==b.id).sort((a,z)=>String(z.fechaIngreso).localeCompare(String(a.fechaIngreso)));
-  const lines=b.repuestos||[];
+  const lines=b.repuestos||[];const LK=bloqueado(b);
   return `${backBtn()}
   ${prevBanner(prevInfo(b))}
+  ${LK?`<div class="card" style="padding:12px 16px;margin-bottom:12px;display:flex;gap:12px;align-items:center;border-color:color-mix(in srgb,var(--blue) 40%,transparent);background:color-mix(in srgb,var(--blue) 8%,var(--surface))"><span style="font-size:24px">🔒</span><div><b>Trabajo terminado por ${esc(tecDueno(b))}</b><div class="small muted">Solo ${esc(tecDueno(b))} o el administrador pueden modificar el trabajo, los repuestos y la mano de obra.${esRecep()?' Recepción puede recibirla y entregarla.':''}</div></div></div>`:''}
   <div class="card">
    <div class="ohead"><div class="ticon" style="width:56px;height:56px;font-size:28px;border-radius:14px">${tipoEm(e.tipo)}</div>
     <div style="flex:1;min-width:220px"><div class="row" style="gap:8px"><span class="onum">${nb(b.numero)}</span>${badge(b.estado)}${b.prioridad==='Urgente'?'<span class="tag urg">URGENTE</span>':''}</div>
@@ -1253,9 +1261,9 @@ function vOrden(id){
      <dl class="kv"><dt>Servicio</dt><dd>${esc(b.tipoServicio||'—')}</dd><dt>Condición</dt><dd>${esc(condTxt(b)||'—')}</dd>${b.observaciones?`<dt>Observaciones</dt><dd>${esc(b.observaciones)}</dd>`:''}<dt>Lo que trae</dt><dd>${esc(accTxt(b)||'Nada adicional')}</dd>${(b.faltantes||[]).length?`<dt>No trae</dt><dd style="color:var(--red)">${esc(b.faltantes.join(', '))}</dd>`:''}${b.procedencia?`<dt>Procedencia</dt><dd>${esc(b.procedencia)}</dd>`:''}${b.traePor?`<dt>La trajo</dt><dd>${esc(b.traePor)}${b.traeTel?' · '+esc(b.traeTel):''}</dd>`:''}${b.tallerRecibio?`<dt>Taller la recibió</dt><dd>${fts(b.tallerRecibio.t)}${b.tallerRecibio.por?' · '+esc(b.tallerRecibio.por):''}</dd>`:''}${b.recepRecibio?`<dt>Volvió a recepción</dt><dd>${fts(b.recepRecibio.t)}${b.recepRecibio.por?' · '+esc(b.recepRecibio.por):''}${(b.recepRecibio.faltan||[]).length?` · <b style="color:var(--red)">falta: ${esc(b.recepRecibio.faltan.join(', '))}</b>`:''}</dd>`:''}${b.horas?`<dt>Horas de uso</dt><dd>${esc(b.horas)}</dd>`:''}<dt>Recibido</dt><dd>${fts((b.historial||[])[0]?.t||b.createdAt)}${(b.historial||[])[0]?.por?' · '+esc(b.historial[0].por):''}</dd></dl></div></div>
    </div>
    <div class="grid" style="align-content:start">
-    <div class="card"><div class="ch"><h2>${hic('wrench')} Trabajo del taller</h2>${esTaller()?`<button class="btn sm" id="svTrab" data-act="saveTrab" data-id="${b.id}" disabled>✅ Guardado</button>`:`<span class="small muted">${ic('lock')} Lo llena el taller</span>`}</div>
-     <div class="cp-in" id="trabBox">${esTaller()?trabForm(b):trabRO(b)}</div></div>
-    <div class="card"><div class="ch"><h2>${hic('box')} Repuestos utilizados</h2><button class="btn sm" data-act="ppAdd" data-id="${b.id}" title="Pedir un repuesto que no hay">${ic('cart')} Falta</button><button class="btn sm p" data-act="addRep" data-id="${b.id}">${ic('plus')} Agregar</button></div>
+    <div class="card"><div class="ch"><h2>${hic('wrench')} Trabajo del taller</h2>${LK?`<span class="small muted">🔒 Solo ${esc(tecDueno(b))}</span>`:esTaller()?`<button class="btn sm" id="svTrab" data-act="saveTrab" data-id="${b.id}" disabled>✅ Guardado</button>`:`<span class="small muted">${ic('lock')} Lo llena el taller</span>`}</div>
+     <div class="cp-in" id="${LK?'trabRO':'trabBox'}">${esTaller()&&!LK?trabForm(b):trabRO(b)}</div></div>
+    <div class="card ${LK?'lk':''}"><div class="ch"><h2>${hic('box')} Repuestos utilizados</h2><button class="btn sm" data-act="ppAdd" data-id="${b.id}" title="Pedir un repuesto que no hay">${ic('cart')} Falta</button><button class="btn sm p" data-act="addRep" data-id="${b.id}">${ic('plus')} Agregar</button></div>
      ${lines.length?`<div class="lines">${lines.map((l,i)=>`<div class="ln"><div style="flex:1;min-width:0"><div style="font-weight:600" class="ell">${esc(l.nombre)}</div><div class="small muted"><span class="mono">${esc(l.sku||'Sin código')}</span> · <span class="tag ${l.condicion==='Usado'?'u':'n'}">${esc(condLbl(l.condicion))}</span></div></div><div class="qty"><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="-1">${ic('minus')}</button><span>${num(l.cant)}</span><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="1">${ic('plus')}</button></div><button class="ib" data-act="rmLine" data-id="${b.id}" data-i="${i}" title="Quitar">${ic('trash')}</button></div>`).join('')}</div>`:emptyBox('box','Sin repuestos','Agregue los repuestos nuevos o de segunda que se instalen; se descuentan del inventario.')}</div>
     ${moCard(b)}
     <div class="card"><div class="ch"><h2>${hic('clock')} Historial</h2><button class="btn sm" data-act="nota" data-id="${b.id}">${ic('plus')} Nota</button></div>
@@ -1296,7 +1304,7 @@ function trDirty(){const b=S.boletas[TR?.id];if(!b)return false;const o={checkli
 function dirtyTrab(){const btn=$('#svTrab');const d=trDirty();if(btn){btn.disabled=!d;btn.innerHTML=d?'✏️ Guardando en un momento…':'✅ Guardado'}
   clearTimeout(dirtyTrab._t);if(d&&TR)dirtyTrab._t=setTimeout(()=>{if(TR&&trDirty()&&esTaller())saveTrab(TR.id,true)},1800)}
 function flushTrab(){clearTimeout(dirtyTrab._t);if(TR&&S.boletas[TR.id]&&trDirty()&&esTaller())return saveTrab(TR.id,true)}
-async function saveTrab(id,auto){
+async function saveTrab(id,auto){if(bloqueado(S.boletas[id]))return;
   const old=S.boletas[id];const b=clone(old);Object.assign(b,{checklist:sortO(TR.checklist),diagnostico:TR.diagnostico.trim(),trabajos:TR.trabajos,trabajo:TR.trabajo.trim(),tecnico:TR.tecnico,fechaEstimada:TR.fechaEstimada,garantiaDias:num(TR.garantiaDias),notas:TR.notas});
   const nm={checklist:'revisión',diagnostico:'diagnóstico',trabajos:'trabajos',trabajo:'detalle del trabajo',fechaEstimada:'fecha de entrega',garantiaDias:'garantía',notas:'notas'};
   const ch=Object.keys(nm).filter(k=>JSON.stringify(k==='checklist'?sortO(old[k]):old[k]??'')!==JSON.stringify(b[k]??'')&&!(k==='garantiaDias'&&num(old[k]??CFG.garantia)===b[k])).map(k=>nm[k]);
@@ -2268,7 +2276,7 @@ const MO_EM=[['diagn','🔍'],['manten','🧰'],['cadena','⛓️'],['afil','�
 const moEm=d=>{const n=norm(d);const f=MO_EM.find(([k])=>n.includes(norm(k)));return f?f[1]:'🛠️'};
 const moH=b=>(b.manoObra||[]).reduce((a,l)=>a+num(l.h),0);
 const fh=h=>{h=Math.round(num(h)*100)/100;return (h%1?String(h).replace('.',','):h)+' h'};
-const moPuede=b=>isOpen(b)||isAdmin();
+const moPuede=b=>(isOpen(b)||isAdmin())&&!bloqueado(b);
 function moCard(b){
   const L=b.manoObra||[];const can=moPuede(b);
   return `<div class="card"><div class="ch"><h2><span class="hem">🛠️</span> Mano de obra ${L.length?`<span class="badge" style="background:var(--pri-l);color:var(--pri)">⏱️ ${fh(moH(b))}</span>`:''}</h2>${can?`<button class="btn sm p" data-act="moAdd" data-id="${b.id}">${ic('plus')} Agregar</button>`:''}</div>
@@ -2534,11 +2542,11 @@ const A={
  cTab:d=>{UI.cTab[d.id]=d.t;render()},
  lockAdm:()=>{setAdm('');render();toast('Administrador cerrado')},unlock:()=>unlockForm(),
  // orden
- estado:d=>{const b=S.boletas[d.id];if(b.estado===d.e)return;if(!puedeEstado(d.e))return;estadoForm(d.id,d.e)},
+ estado:d=>{const b=S.boletas[d.id];if(b.estado===d.e)return;if(bloqueado(b)&&d.e!=='Entregado')return avisoBloq(b);if(!puedeEstado(d.e))return;estadoForm(d.id,d.e)},
  nota:d=>notaForm(d.id),
- saveTrab:d=>saveTrab(d.id),
- addRep:soloT(d=>addRepModal(d.id)),
- moAdd:d=>{const b=S.boletas[d.id];if(b&&!moPuede(b))return toast('La orden está cerrada. Solo el administrador puede cambiarla.');moModal(d.id)},
+ saveTrab:sinBloq(d=>saveTrab(d.id)),
+ addRep:soloT(sinBloq(d=>addRepModal(d.id))),
+ moAdd:d=>{const b=S.boletas[d.id];if(bloqueado(b))return avisoBloq(b);if(b&&!moPuede(b))return toast('La orden está cerrada. Solo el administrador puede cambiarla.');moModal(d.id)},
  moPick:d=>{moSync();MO.c=d.c;MO.d=d.d;moRender()},moTec:d=>{moSync();MO.tec=MO.tec===d.v?'':d.v;moRender()},
  moHs:d=>{moSync();MO.h=num(d.v);moRender()},moHh:d=>{moSync();MO.h=Math.max(0,Math.round((num(MO.h)+num(d.d))*100)/100);const e=$('#moHv');if(e)e.value=MO.h},
  moSave:()=>moSave(),
@@ -2551,8 +2559,8 @@ const A={
  nfClose:()=>{RP.nf=null;rpRender()},
  nfCond:d=>{const f=RP.nf;f.condicion=d.v;if(/^REP-\d+(-U)?$/.test(f.sku||''))f.sku=suggestSku(d.v);rpRender()},
  nfSave:()=>nfSave(),
- qty:soloT(d=>qtyLine(d.id,+d.i,num(d.d))),
- rmLine:soloT(d=>rmLine(d.id,+d.i)),
+ qty:soloT(sinBloq(d=>qtyLine(d.id,+d.i,num(d.d)))),
+ rmLine:soloT(sinBloq(d=>rmLine(d.id,+d.i))),
  print:d=>printOrden(d.id),
  editRec:adminOnly(d=>recibir({},d.id)),
  delOrden:adminOnly(d=>confirmBox('¿Eliminar esta orden? Los repuestos instalados regresan al inventario.',async()=>{const b=S.boletas[d.id];for(const l of b.repuestos||[])if(l.repuestoId)await moveStock(l.repuestoId,-num(l.cant),b);await del('boletas',d.id);closeModal();A.back();toast('Orden eliminada')})),
