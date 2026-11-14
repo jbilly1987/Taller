@@ -985,7 +985,12 @@ async function saveCfg(c){
   if(LOCAL||!DB){saveLocal();return true}
   try{await DB.doc('config/taller').set(clone(CFG));return true}catch(e){handleErr(e);return false}
 }
-let _rq=0;const later=()=>{cancelAnimationFrame(_rq);_rq=requestAnimationFrame(render)};
+let _rq=0,_trTouch=0,_rqT=0;
+const later=()=>{cancelAnimationFrame(_rq);clearTimeout(_rqT);
+  const wait=view.page==='orden'&&$('#trabBox')?4000-(Date.now()-_trTouch):0;
+  if(wait>0){_rqT=setTimeout(later,wait+50);return}
+  _rq=requestAnimationFrame(render)};
+document.addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('#trabBox'))_trTouch=Date.now()},true);
 /* ---------- Firebase (versión GitHub) ---------- */
 const FIREBASE_CONFIG=window.FIREBASE_CONFIG||null;const GH_BUILD=true; // se lee de firebase-config.js
 const FB_MODE=!!FIREBASE_CONFIG;
@@ -1264,7 +1269,7 @@ function trabInner(){
   CPR.tr_trab={items:()=>uniq([...CAT().trabajos,...TR.trabajos]),get:()=>TR.trabajos,set:v=>{TR.trabajos=v},multi:true,cat:'trabajos',re:reTrab};
   const e=eq(S.boletas[TR.id]?.equipoId)||{};const items=uniq([...ckList(e.tipo),...Object.keys(TR.checklist)]);const cs=ckSum(TR);
   return `<div class="sect"><span class="fl">Técnico a cargo</span>${chipPick('tr_tec')}</div>
-  <div class="sect"><span class="fl">Lista de revisión <span class="opt">· ${esc(ckKey(e.tipo)||'General')}${cs.n?` · ${cs.ok} bien${cs.mal.length?`, <b style="color:var(--red)">${cs.mal.length} con falla</b>`:''} de ${items.length}`:''}</span></span>
+  <div class="sect"><span class="fl">Lista de revisión <span class="opt" id="ckSumTxt" data-tipo="${esc(e.tipo||'')}">· ${esc(ckKey(e.tipo)||'General')}${cs.n?` · ${cs.ok} bien${cs.mal.length?`, <b style="color:var(--red)">${cs.mal.length} con falla</b>`:''} de ${items.length}`:''}</span></span>
    <div class="ckl">${items.map(it=>{const v=TR.checklist[it]||'';return `<div class="ckr"><span>${esc(it)}</span><div class="ckb">${[['ok','Bien'],['mal','Falla'],['na','N/A']].map(([k,l])=>`<button type="button" class="${v===k?'on '+k:''}" data-act="ck" data-k="${esc(it)}" data-v="${k}">${l}</button>`).join('')}</div></div>`}).join('')}</div>
    <div class="row" style="margin-top:8px"><input class="inp" id="ckNew" placeholder="Otro punto a revisar" style="flex:1;min-width:140px"><button type="button" class="btn sm" data-act="ckAdd">${ic('plus')} Punto</button>${items.length>cs.n?`<button type="button" class="btn sm ghost" data-act="ckAll">Marcar el resto como Bien</button>`:''}</div></div>
   <div class="f"><label>Diagnóstico</label><textarea id="tr_diagnostico" data-tr="diagnostico" placeholder="Qué se encontró al revisar el equipo">${esc(TR.diagnostico)}</textarea></div>
@@ -2625,7 +2630,11 @@ const A={
  whoAdd:async()=>{const v=($('#whoNew')?.value||'').trim();if(!v)return;const pu=$('#whoPu')?.value||'ambos';const L=personal();if(!L.some(p=>norm(p.n)===norm(v)))L.push({n:v,puesto:pu,email:''});await savePersonal(L);setWho(v);closeModal();render();toast(`Ahora está como ${v} (${PLBL[pu]})`)},
  perAdd:adminOnly(async()=>{const n=($('#perN')?.value||'').trim();if(!n)return toast('Escriba el nombre');const L=personal();if(L.some(p=>norm(p.n)===norm(n)))return toast('Ya existe');L.push({n,puesto:$('#perP').value,email:($('#perE')?.value||'').trim()});if(await savePersonal(L)){toast(n+' agregado');render()}}),
  perDel:adminOnly(d=>confirmBox(`¿Quitar a ${esc(d.n)} del personal? Su historial se conserva.`,async()=>{const c=CAT();const L=personal().filter(p=>p.n!==d.n);c.tecnicos=(c.tecnicos||[]).filter(t=>t!==d.n);c.personas=(c.personas||[]).filter(t=>t!==d.n);c.usuarios=(c.usuarios||[]).filter(u=>u.nombre!==d.n);CATD=c;await savePersonal(L);if(WHO===d.n)setWho('');closeModal();render()},'Quitar')),
- ck:d=>{if(TR.checklist[d.k]===d.v)delete TR.checklist[d.k];else TR.checklist[d.k]=d.v;reTrab()},
+ ck:(d,el)=>{if(TR.checklist[d.k]===d.v)delete TR.checklist[d.k];else TR.checklist[d.k]=d.v;
+   const v=TR.checklist[d.k]||'';const box=el&&el.closest('.ckb');
+   if(box){box.querySelectorAll('button').forEach(b=>{b.className=b.dataset.v===v?'on '+v:''});
+    const st=$('#ckSumTxt');if(st){const tipo=st.dataset.tipo;const items=uniq([...ckList(tipo),...Object.keys(TR.checklist)]);const cs=ckSum(TR);st.innerHTML=`· ${esc(ckKey(tipo)||'General')}${cs.n?` · ${cs.ok} bien${cs.mal.length?`, <b style="color:var(--red)">${cs.mal.length} con falla</b>`:''} de ${items.length}`:''}`}
+    try{el.blur()}catch(x){}dirtyTrab()}else reTrab()},
  ckAll:()=>{const e=eq(S.boletas[TR.id]?.equipoId)||{};uniq([...ckList(e.tipo),...Object.keys(TR.checklist)]).forEach(k=>{if(!TR.checklist[k])TR.checklist[k]='ok'});reTrab()},
  ckAdd:async()=>{const v=($('#ckNew')?.value||'').trim();if(!v)return;const e=eq(S.boletas[TR.id]?.equipoId)||{};if(await ckAddPoint(e.tipo,v)){toast('Punto agregado a la lista de '+(e.tipo||'General'));reTrab()}},
  revAdd:async d=>{const v=($('#revNew')?.value||'').trim();if(!v)return;if(await ckAddPoint(d.t,v)){UI.revT=d.t;render();setTimeout(()=>$('#revNew')?.focus(),20)}},
@@ -2649,7 +2658,7 @@ document.addEventListener('click',e=>{
   if(e.target.id==='more')return closeMore();
   const t=e.target.closest('[data-act]');if(!t)return;
   if(t.dataset.act==='pWa'){A.pWa(t.dataset);return}
-  e.preventDefault();const f=A[t.dataset.act];if(f)f(t.dataset);
+  e.preventDefault();const f=A[t.dataset.act];if(f)f(t.dataset,t);
 });
 document.addEventListener('input',e=>{
   const t=e.target;
