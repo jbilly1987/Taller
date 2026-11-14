@@ -616,6 +616,12 @@ html[data-theme=dark] .sent-msg{color:#5eead4}
 @keyframes sentShop{0%{transform:scale(1)}40%{transform:scale(1.25) rotate(-8deg)}100%{transform:scale(1)}}
 @keyframes sentOk{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:scale(1)}}
 @media (max-width:420px){@keyframes sentFly{0%{transform:translate(0,0)}60%{transform:translate(150px,-24px) rotate(12deg) scale(.9)}100%{transform:translate(185px,-10px) scale(.2);opacity:0}}}
+
+#pings{max-height:calc(100vh - 170px);overflow-y:auto;overscroll-behavior:contain;padding:4px 4px 8px;margin:-4px}
+.ping2.calm{animation:pgIn .5s cubic-bezier(.2,1.2,.3,1) both}
+.ping2:not(.calm) .pg-ic::after{animation:pgRing 1.6s ease-out infinite}
+.ping2.calm .pg-ic::after{animation:pgRing 2.4s ease-out infinite}
+.pg-all{all:unset;pointer-events:auto;align-self:flex-end;cursor:pointer;padding:7px 14px;border-radius:20px;font-size:12.5px;font-weight:800;color:var(--ink2);background:var(--surface-hi);border:1px solid var(--line);box-shadow:var(--sh)}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
 @media (max-width:860px){
   .bnav{left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));padding:6px 6px;border-radius:24px;background:color-mix(in srgb,var(--bg) 60%,transparent);backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);border:1px solid var(--glass-b);box-shadow:var(--sh2)}
@@ -1063,6 +1069,7 @@ function render(){
   if(!same){v.innerHTML=html;v._h=html}
   {const key=q?'q':p+(view.id||'');if(key!==render._k){render._k=key;v.classList.remove('enter');void v.offsetWidth;v.classList.add('enter');clearTimeout(render._t);render._t=setTimeout(()=>v.classList.remove('enter'),900)}}
   if(connected||LOCAL)hideSplash();
+  if(connected||LOCAL)setTimeout(pingsRestore,1500);
   if(!same)requestAnimationFrame(marquee);
   if(fid&&!same){const el=document.getElementById(fid);if(el){el.focus();try{if(ss!=null)el.setSelectionRange(ss,se)}catch(e){}}}
   shell();
@@ -2453,25 +2460,35 @@ function flashScreen(c){const f=document.createElement('div');f.className='pflas
 function titleBlink(t){if(!document.hidden)return;const base=document.title.replace(/^🔔 \(\d+\) .*? · /,'');let on=0;clearInterval(titleBlink._i);
   titleBlink._i=setInterval(()=>{document.title=(on=!on)?`🔔 (${PCOUNT}) ${t} · `+base:base},1100);
   const stop=()=>{if(!document.hidden){clearInterval(titleBlink._i);document.title=base;PCOUNT=0;try{navigator.clearAppBadge&&navigator.clearAppBadge()}catch(e){}document.removeEventListener('visibilitychange',stop)}};document.addEventListener('visibilitychange',stop)}
+const PKEY='tallerPings';
+const pingsGet=()=>{try{return JSON.parse(localStorage.getItem(PKEY)||'[]')}catch(e){return []}};
+const pingsSet=L=>{try{localStorage.setItem(PKEY,JSON.stringify(L.slice(-20)))}catch(e){}try{L.length?navigator.setAppBadge&&navigator.setAppBadge(L.length):navigator.clearAppBadge&&navigator.clearAppBadge()}catch(e){}};
+function pingCard(P,fresh){
+  const k=PK[P.kind]||PK.info;let box=$('#pings');if(!box){box=document.createElement('div');box.id='pings';document.body.appendChild(box)}
+  const clean=String(P.title).replace(/^\p{Extended_Pictographic}️?\s*/u,'');
+  const hace=m=>m<1?'ahora':m<60?`hace ${m} min`:m<1440?`hace ${Math.floor(m/60)} h`:`hace ${Math.floor(m/1440)} d`;
+  const el=document.createElement('div');el.className='ping2'+(fresh?'':' calm');el.dataset.pid=P.pid;el.style.setProperty('--c',k.c);el.style.setProperty('--c2',k.c2);
+  el.innerHTML=`<div class="pg-ic"><span>${k.em}</span></div><div class="pg-tx"><div class="pg-k">${k.lbl} · <span class="pg-t">${hace(Math.floor((Date.now()-P.t)/60000))}</span></div><b>${esc(clean)}</b>${P.d?`<div class="pg-d">${esc(P.d)}</div>`:''}
+    <div class="pg-act"><button class="pg-go">${P.id&&P.id!=='__fn'?'Ver orden':'Abrir'} →</button><button class="pg-x">Cerrar</button></div></div>`;
+  const close=()=>{pingsSet(pingsGet().filter(x=>x.pid!==P.pid));el.classList.add('out');setTimeout(()=>{el.remove();pingMore()},350)};
+  el.querySelector('.pg-go').onclick=()=>{close();if(P.fn)P.fn();else if(P.id&&P.id!=='__fn')go({page:'orden',id:P.id})};
+  el.querySelector('.pg-x').onclick=close;
+  box.prepend(el);pingMore();
+  setInterval(()=>{const t=el.querySelector('.pg-t');if(t)t.textContent=hace(Math.floor((Date.now()-P.t)/60000))},60000);
+}
+function pingMore(){const box=$('#pings');if(!box)return;const n=box.querySelectorAll('.ping2:not(.out)').length;let m=box.querySelector('.pg-all');
+  if(n>1){if(!m){m=document.createElement('button');m.className='pg-all';m.onclick=()=>{pingsSet([]);box.querySelectorAll('.ping2').forEach(x=>{x.classList.add('out');setTimeout(()=>x.remove(),350)});setTimeout(pingMore,400)};box.appendChild(m)}m.textContent=`Cerrar todos (${n})`;box.appendChild(m)}else if(m)m.remove()}
 function ping(title,desc,id,kind){
-  setTimeout(()=>{const d=typeof desc==='function'?desc():desc;const k=PK[kind||pingKind(title)]||PK.info;
-    let box=$('#pings');if(!box){box=document.createElement('div');box.id='pings';document.body.appendChild(box)}
-    const clean=String(title).replace(/^\p{Extended_Pictographic}️?\s*/u,'');const dur=25000;
-    const el=document.createElement('div');el.className='ping2';el.style.setProperty('--c',k.c);el.style.setProperty('--c2',k.c2);
-    el.innerHTML=`<div class="pg-ic"><span>${k.em}</span></div><div class="pg-tx"><div class="pg-k">${k.lbl} · ahora</div><b>${esc(clean)}</b>${d?`<div class="pg-d">${esc(d)}</div>`:''}
-      <div class="pg-act"><button class="pg-go">${typeof id==='function'?'Abrir':'Ver orden'} →</button><button class="pg-x">Cerrar</button></div></div><i class="pg-bar" style="animation-duration:${dur}ms"></i>`;
-    const close=()=>{el.classList.add('out');setTimeout(()=>el.remove(),350)};
-    el.querySelector('.pg-go').onclick=()=>{close();typeof id==='function'?id():go({page:'orden',id})};el.querySelector('.pg-x').onclick=close;
-    let tm=setTimeout(close,dur);el.onmouseenter=()=>{clearTimeout(tm);el.classList.add('hold')};el.onmouseleave=()=>{el.classList.remove('hold');tm=setTimeout(close,6000)};
-    let sx=null;el.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;clearTimeout(tm);el.classList.add('hold')},{passive:true});
-    el.addEventListener('touchmove',e=>{if(sx==null)return;const dx=e.touches[0].clientX-sx;if(dx>0)el.style.transform=`translateX(${dx}px)`;el.style.opacity=String(Math.max(.2,1-dx/260))},{passive:true});
-    el.addEventListener('touchend',e=>{const dx=(e.changedTouches[0].clientX-(sx||0));sx=null;el.classList.remove('hold');if(dx>90)close();else{el.style.transform='';el.style.opacity='';tm=setTimeout(close,8000)}});
-    box.prepend(el);while(box.children.length>4)box.lastElementChild.remove();
-    chime(k.notes);flashScreen(k.c);PCOUNT++;titleBlink(clean);try{navigator.setAppBadge&&navigator.setAppBadge(PCOUNT)}catch(e){}
-    try{navigator.vibrate&&navigator.vibrate(kind==='asignada'||pingKind(title)==='asignada'?[200,90,200,90,300]:[140,80,140])}catch(e){}
+  setTimeout(()=>{const d=typeof desc==='function'?desc():desc;kind=kind||pingKind(title);const k=PK[kind]||PK.info;
+    const P={pid:uid(),title,d:d||'',id:typeof id==='string'?id:'__fn',kind,t:Date.now()};
+    if(typeof id!=='function')pingsSet([...pingsGet(),P]);else P.fn=id;
+    pingCard(P,true);
+    chime(k.notes);flashScreen(k.c);PCOUNT++;titleBlink(String(title).replace(/^\p{Extended_Pictographic}️?\s*/u,''));
+    try{navigator.vibrate&&navigator.vibrate(kind==='asignada'?[200,90,200,90,300]:[140,80,140])}catch(e){}
     sysNotif(title,d,typeof id==='string'?id:'');
   },300);
 }
+let _pRest=false;function pingsRestore(){if(_pRest||!(connected||LOCAL))return;_pRest=true;pingsGet().slice(-6).forEach(P=>pingCard(P,false));pingsSet(pingsGet())}
 
 const printOrden=id=>printMenu(id);
 
