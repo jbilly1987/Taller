@@ -2019,7 +2019,7 @@ function vEquipo(id){
   const used={};bs.forEach(b=>(b.repuestos||[]).forEach(l=>{used[l.nombre]=(used[l.nombre]||0)+num(l.cant)}));
   return `${backBtn()}<div class="card"><div class="ohead"><div class="ticon" style="width:56px;height:56px;font-size:28px;border-radius:14px">${tipoEm(e.tipo)}</div>
    <div style="flex:1;min-width:220px"><div class="muted small">${esc(e.tipo||'')}</div><div class="otitle">${esc(eqShort(e))}</div><div class="muted small">${e.serie?'S/N '+esc(e.serie):'Sin serie'}${e.anio?' · Año '+esc(e.anio):''} · Dueño: <a href="#" data-act="open" data-page="cliente" data-id="${c.id||''}">${esc(c.nombre||'—')}</a></div>${e.notas?`<div class="small" style="margin-top:4px">${esc(e.notas)}</div>`:''}</div>
-   <div class="row"><button class="btn p" data-act="recibir" data-cli="${e.clienteId}" data-eq="${id}">${ic('plus')} Recibir este equipo</button><button class="btn" data-act="printEq" data-id="${id}">${ic('print')} Historial</button>${A?`<button class="btn" data-act="equipoForm" data-id="${id}">${ic('edit')} Editar</button>`:''}</div></div></div>
+   <div class="row"><button class="btn p" data-act="recibir" data-cli="${e.clienteId}" data-eq="${id}">${ic('plus')} Recibir este equipo</button><button class="btn" data-act="m3dEq" data-id="${id}">🧊 Ver en 3D</button><button class="btn" data-act="printEq" data-id="${id}">${ic('print')} Historial</button>${A?`<button class="btn" data-act="equipoForm" data-id="${id}">${ic('edit')} Editar</button>`:''}</div></div></div>
   ${bs[0]?`<div class="last" style="margin-top:16px;padding:12px 14px;font-size:13.5px"><b>⭐ Última vez que vino (${fdate(bs[0].fechaIngreso)} · ${nb(bs[0].numero)}):</b> ${esc(fallaTxt(bs[0])||'—')}</div>`:''}
   <div class="grid g2" style="margin-top:16px;align-items:start">
    <div class="card"><div class="ch"><h2>${hic('clock')} Historial de servicios (${bs.length})</h2></div>${bs.length?`<div class="cp-in">${bs.map(visita).join('')}</div>`:emptyBox('clock','Sin servicios todavía')}</div>
@@ -2692,13 +2692,13 @@ function pzAuto(b,links){const e=eq(b.equipoId)||{};const kind=m3dKind(e.tipo,[e
 function repCod(l){const r=l.repuestoId&&S.repuestos[l.repuestoId];const c=[l.sku||(r&&r.sku),r&&r.codProv&&r.codProv!==(l.sku||r.sku)?'prov. '+r.codProv:''].filter(Boolean);return c.length?' · '+c.join(' / '):''}
 function pzMarks(b){const a=pzAuto(b);const m={};Object.keys(a).forEach(k=>m[k]='cambiado');Object.entries(b.partes||{}).forEach(([k,v])=>{if(v==='none')delete m[k];else m[k]=v});return m}
 let M3=null;
-function m3dOpen(id){
-  const b=S.boletas[id];if(!b)return;const e=eq(b.equipoId)||{};const kind=m3dKind(e.tipo,[e.marca,e.modelo].join(' '));const P=m3dModel(kind);
+function m3dOpen(id,tmp){
+  const b=tmp||S.boletas[id];if(!b)return;const e=eq(b.equipoId)||{};const kind=m3dKind(e.tipo,[e.marca,e.modelo].join(' '));const P=m3dModel(kind);
   const parts=PZ_DEF[kind]?PZ_DEF[kind].map(([k,l])=>({k,l})):[];if(!parts.length)P.forEach(p=>{if(!parts.some(x=>x.k===p.k))parts.push({k:p.k,l:p.l})});
-  const can=esTaller()&&!bloqueado(b)&&(isOpen(b)||isAdmin());
+  const can=!tmp&&esTaller()&&!bloqueado(b)&&(isOpen(b)||isAdmin());
   const F=m3dFaces(P);const fit=V=>{const mn=[0,1,2].map(i=>Math.min(...V.map(v=>v[i]))),mx=[0,1,2].map(i=>Math.max(...V.map(v=>v[i])));const C=mn.map((v,i)=>(v+mx[i])/2);return {C,R:Math.max(...V.map(v=>Math.hypot(v[0]-C[0],v[1]-C[1],v[2]-C[2])))}};
   const fa=fit(F.flatMap(f=>f.v)),fe=fit(F.flatMap(f=>f.v.map(v=>[v[0]+f.e[0],v[1]+f.e[1],v[2]+f.e[2]])));const C=fa.C,RR=fa.R;
-  const AUTO=pzAuto(b);M3={id,kind,modelo:[e.marca,e.modelo].join(' '),P,F,C,RR,fa,fe,parts,AUTO,links:{...(b.repPz||{})},linking:'',mark:pzMarks(b),mode:'cambiado',yaw:-.75,pitch:.45,zoom:1,auto:true,sel:'',can,hover:'',ex:kind==='sierra'?1:0,exT:kind==='sierra'?1:0,names:innerWidth>700};
+  const AUTO=pzAuto(b);M3={id,b:tmp||null,kind,modelo:[e.marca,e.modelo].join(' '),P,F,C,RR,fa,fe,parts,AUTO,links:{...(b.repPz||{})},linking:'',mark:pzMarks(b),mode:'cambiado',yaw:-.75,pitch:.45,zoom:1,auto:true,sel:'',can,hover:'',ex:kind==='sierra'?1:0,exT:kind==='sierra'?1:0,names:innerWidth>700};
   openModal(`🧩 Vista 3D · ${esc(eqShort(e)||e.tipo||'Máquina')}`,`
    ${can?`<div class="m3modes">${Object.entries(PZ_ST).map(([k,v])=>`<button type="button" class="m3m ${k==='cambiado'?'on':''}" data-m3="${k}" style="--c:${v.c}">${v.em} ${v.l}</button>`).join('')}<button type="button" class="m3m" data-m3="" style="--c:#94a3b8">⚪ Quitar</button></div>`:''}
    <div class="m3wrap"><canvas id="m3c"></canvas><div class="m3tip" id="m3tip">${can?'👆 Toque una pieza para marcarla · arrastre para girar':'Arrastre para girar · solo lectura'}</div><div class="m3tools"><button type="button" class="m3t ${kind==='sierra'?'on':''}" data-m3x="1">💥 Despiece</button><button type="button" class="m3t ${innerWidth>700?'on':''}" data-m3n="1">🏷️ Nombres</button></div><div class="m3zoom"><button type="button" data-m3z="1.15">＋</button><button type="button" data-m3z="0.87">－</button><button type="button" data-m3z="0">⟲</button></div></div>
@@ -2712,15 +2712,15 @@ function m3dList(){const L=$('#m3list');if(!L||!M3)return;
   L.innerHTML=M3.parts.map(p=>{const st=PZ_ST[M3.mark[p.k]];const au=M3.AUTO[p.k]&&M3.mark[p.k]==='cambiado';return `<button type="button" class="cpc m3p ${st?'on':''}" data-m3p="${p.k}" title="${au?'Por repuesto: '+esc(M3.AUTO[p.k].join(', ')):''}" style="${st?`background:${st.c};border-color:${st.c};color:#fff`:''}">${st?st.em+' ':''}${esc(p.l)}${au?' · 📦':''}</button>`}).join('');
   const n=Object.keys(M3.mark).length,c=$('#m3cnt');if(c)c.textContent=n?`${n} pieza${n!==1?'s':''} marcada${n!==1?'s':''}`:''}
 
-function m3dReps(){const box=$('#m3reps');if(!box||!M3)return;const b=S.boletas[M3.id];const L=b.repuestos||[];
+function m3dReps(){const box=$('#m3reps');if(!box||!M3)return;const b=M3.b||S.boletas[M3.id];const L=b.repuestos||[];
   if(!L.length){box.innerHTML='';return}const bb={...b,repPz:M3.links};
   box.innerHTML=`<div class="lbl" style="margin-top:12px">📦 Repuestos de esta orden ${M3.can?'<span class="opt" style="text-transform:none;letter-spacing:0">· toque uno y luego la pieza para ubicarlo</span>':''}</div><div class="cp">${L.map(l=>{const k=repPz(bb,l,M3.kind);const pl=k?(M3.parts.find(p=>p.k===k)||{}).l:'';const on=M3.linking===repKey(l);
    return `<button type="button" class="cpc m3r ${on?'link':''} ${k?'ok':''}" data-m3r="${esc(repKey(l))}">📦 ${esc(l.nombre)}${num(l.cant)>1?' ×'+num(l.cant):''}${repCod(l)?`<span class="mono" style="opacity:.75;font-size:11px">${esc(repCod(l))}</span>`:''} <span class="m3rto">${on?'👆 toque la pieza…':k?'→ '+esc(pl):'📍 sin ubicar'}</span></button>`}).join('')}</div>`}
 function m3dLink(rk){if(!M3||!M3.can)return;M3.linking=M3.linking===rk?'':rk;const t=$('#m3tip');if(t&&M3.linking)t.innerHTML='👆 Ahora toque la pieza donde va este repuesto';m3dReps()}
-function m3dDoLink(k){const b=S.boletas[M3.id];const rk=M3.linking;M3.linking='';M3.links[rk]=k;M3.AUTO=pzAuto(b,M3.links);
+function m3dDoLink(k){const b=M3.b||S.boletas[M3.id];const rk=M3.linking;M3.linking='';M3.links[rk]=k;M3.AUTO=pzAuto(b,M3.links);
   Object.keys(M3.mark).forEach(x=>{if(M3.mark[x]==='cambiado'&&!M3.AUTO[x]&&!(b.partes||{})[x])delete M3.mark[x]});Object.keys(M3.AUTO).forEach(x=>{if(!M3.mark[x])M3.mark[x]='cambiado'});
   const l=(b.repuestos||[]).find(l=>repKey(l)===rk);const t=$('#m3tip');if(t)t.innerHTML=`📦 <b>${esc(l?l.nombre:'')}</b> → ${esc((M3.parts.find(p=>p.k===k)||{}).l||k)}`;m3dReps();m3dList();m3dDraw()}
-function m3dMark(k){if(M3&&M3.linking)return m3dDoLink(k);if(!M3||!M3.can)return;const pl=(M3.parts.find(p=>p.k===k)||{}).l||k;
+function m3dMark(k){if(M3&&M3.linking)return m3dDoLink(k);if(!M3)return;const pl=(M3.parts.find(p=>p.k===k)||{}).l||k;if(!M3.can){const t=$('#m3tip');if(t)t.textContent='🔎 '+pl;if(M3.V&&M3.V.set)try{M3.V.set({sel:k})}catch(e){}return}
   if(!M3.mode||M3.mark[k]===M3.mode)delete M3.mark[k];else M3.mark[k]=M3.mode;M3.sel=k;
   const st=PZ_ST[M3.mark[k]];const t=$('#m3tip');if(t)t.innerHTML=`<b>${esc(pl)}</b> → ${st?st.em+' '+st.l:'sin marcar'}${M3.AUTO[k]?` <span class="muted">· repuesto: ${esc(M3.AUTO[k].join(', '))}</span>`:''}`;try{navigator.vibrate&&navigator.vibrate(25)}catch(e){}m3dList();m3dDraw()}
 function m3dProj(){const W=M3.W,H=M3.H,cy=Math.cos(M3.yaw),sy=Math.sin(M3.yaw),cp=Math.cos(M3.pitch),sp=Math.sin(M3.pitch);
@@ -2788,7 +2788,7 @@ async function m3dTry3(){
   cv.style.display='none';my.auto=false;my.V.set({...m3dState(),exNow:my.exT});wrap.classList.add('real');
   if(ld)ld.innerHTML=my.can?'✨ Vista realista · toque una pieza para marcarla':'✨ Vista realista · arrastre para girar';
 }
-async function m3dSave(){if(!M3)return;if(M3.V){try{M3.V.dispose()}catch(e){}M3.V=null}const b=S.boletas[M3.id];if(!b)return;const prevM=pzMarks(b);const prev=prevM;const mark={...M3.mark};const store={};Object.keys(mark).forEach(k=>{if(!(M3.AUTO[k]&&mark[k]==='cambiado'))store[k]=mark[k]});const linksCh=JSON.stringify(M3.links)!==JSON.stringify(b.repPz||{});Object.keys(M3.AUTO).forEach(k=>{if(!mark[k])store[k]='none'});
+async function m3dSave(){if(!M3)return;if(M3.V){try{M3.V.dispose()}catch(e){}M3.V=null}const b=M3.b||S.boletas[M3.id];if(!b)return;const prevM=pzMarks(b);const prev=prevM;const mark={...M3.mark};const store={};Object.keys(mark).forEach(k=>{if(!(M3.AUTO[k]&&mark[k]==='cambiado'))store[k]=mark[k]});const linksCh=JSON.stringify(M3.links)!==JSON.stringify(b.repPz||{});Object.keys(M3.AUTO).forEach(k=>{if(!mark[k])store[k]='none'});
   const lbl=k=>(M3.parts.find(p=>p.k===k)||{}).l||k;const ch=[...new Set([...Object.keys(mark),...Object.keys(prev)])].filter(k=>prev[k]!==mark[k]);
   const h=[...(b.historial||[])];if(ch.length)h.push({t:Date.now(),estado:b.estado,nota:'Vista 3D: '+ch.map(k=>`${lbl(k)} ${(PZ_ST[mark[k]]||{l:'sin marcar'}).l.toLowerCase()}`).join(', '),por:quien(),dev:DEV});
   const pl={};Object.keys(store).forEach(k=>pl[k]=lbl(k));
@@ -2797,7 +2797,7 @@ const pzList=b=>{const A=pzAuto(b);const K=pzKeys(m3dKind((eq(b.equipoId)||{}).t
 function pzCard(b){const L=pzList(b);const can=esTaller()&&!bloqueado(b);
   return `<div class="card"><div class="ch"><h2><span class="hem">🧩</span> Piezas de la máquina ${L.length?`<span class="badge" style="background:var(--pri-l);color:var(--pri)">${L.length}</span>`:''}</h2><button class="btn sm ${can?'p':''}" data-act="m3d" data-id="${b.id}">🧊 Ver en 3D</button></div>
    ${L.length?`<div class="cp-in"><div class="pillist">${L.map(x=>`<span class="pl" style="background:color-mix(in srgb,${PZ_ST[x.st].c} 14%,transparent);color:${PZ_ST[x.st].c};border-color:color-mix(in srgb,${PZ_ST[x.st].c} 35%,transparent)">${PZ_ST[x.st].em} ${esc(x.l)} · ${PZ_ST[x.st].l.toLowerCase()}${x.au?' 📦':''}</span>`).join('')}</div></div>`
-   :`<div class="cp-in small muted">${can?'Toque <b>Ver en 3D</b> y marque con un toque las piezas que se cambiaron, revisaron o tienen daño. Los repuestos que agregue a la orden se marcan solos en verde.':'Aún no hay piezas marcadas.'}</div>`}</div>`}
+   :`<div class="cp-in small muted">${can?'Toque <b>Ver en 3D</b> y marque con un toque las piezas que se cambiaron, revisaron o tienen daño. Los repuestos que agregue a la orden se marcan solos en verde.':'Aún no hay piezas marcadas. Toque <b>Ver en 3D</b> para ver la máquina entera, el despiece y los nombres de las piezas.'}</div>`}</div>`}
 function pbPZ(b){const L=pzList(b);if(!L.length)return '';return `<h4>Piezas</h4><p>${L.map(x=>`${PZ_ST[x.st].l}: <b>${esc(x.l)}</b>`).join(' · ')}</p>`}
 function moCard(b){
   const L=b.manoObra||[];const can=moPuede(b);
@@ -3081,6 +3081,7 @@ const A={
  tvExit:()=>{try{document.fullscreenElement&&document.exitFullscreen()}catch(e){}go({page:'inicio'})},
  tvFull:()=>{try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}catch(e){}},
  m3d:d=>m3dOpen(d.id),
+ m3dEq:d=>{const e=eq(d.id);if(!e)return;m3dOpen('_eq',{id:'_eq',equipoId:d.id,estado:'Entregado',repuestos:[],partes:{},historial:[]})},
  m3save:()=>m3dSave(),
  cntStep:d=>{const r=rep(d.id);if(!r)return;const c=CNT[d.id];const cur=c==null||c===''?(+d.d>0?0:num(r.stock)):num(c);CNT[d.id]=String(Math.max(0,cur+num(d.d)));cntSave();cntRow(d.id)},
  cntReset:()=>confirmBox('¿Borrar lo contado y empezar de nuevo?',()=>{CNT={};cntSave();closeModal();render()},'Empezar de nuevo'),
