@@ -1078,7 +1078,8 @@ async function initFirebase(){
   try{await fs.enablePersistence({synchronizeTabs:true})}catch(e){}
   FBAUTH=firebase.auth();
   FBAUTH.onAuthStateChanged(u=>{FBUSER=u;if(!u){stopSubs();showLogin();return}hideLogin();if(!DB){DB=fs;subscribe(fs)}render()});
-  try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')}catch(e){}
+  try{if('serviceWorker' in navigator){const had=!!navigator.serviceWorker.controller;navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>{const up=()=>{try{reg.update()}catch(e){}};document.addEventListener('visibilitychange',()=>{if(!document.hidden)up()});setInterval(up,15*60e3)}).catch(()=>{});
+    let done=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!had||done)return;done=true;newVersion()})}}catch(e){}
 }
 function stopSubs(){UNSUB.forEach(u=>{try{u()}catch(e){}});UNSUB=[];DB=null;connected=false;S={clientes:{},equipos:{},repuestos:{},boletas:{},movimientos:{},pedidos:{},porpedir:{}}}
 function showLogin(){
@@ -2993,6 +2994,10 @@ async function probarAviso(){
   try{if(navigator.serviceWorker&&navigator.serviceWorker.controller){const r=await navigator.serviceWorker.ready;await r.showNotification(t,{body:b,icon:'icons/icon-192.png',vibrate:[120,80,120],tag:'prueba'});return}}catch(e){}
   try{new Notification(t,{body:b,icon:'icons/icon-192.png'})}catch(e){ping(t,b,()=>{})}
 }
+function newVersion(){const busy=()=>{const a=document.activeElement;return a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)||($('#modal')&&!$('#modal').classList.contains('hidden'))};
+  if(document.hidden||!busy()){try{flushTrab&&flushTrab()}catch(e){}return setTimeout(()=>location.reload(),300)}
+  if($('#newv'))return;const d=document.createElement('div');d.id='newv';d.innerHTML='🔄 Hay una versión nueva del sistema <button class="btn sm p">Actualizar</button>';d.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom));z-index:9999;display:flex;gap:10px;align-items:center;padding:10px 12px 10px 16px;border-radius:16px;background:var(--surface-hi,#fff);box-shadow:0 12px 34px rgba(0,0,0,.18);font-weight:700;font-size:14px;white-space:nowrap';
+  d.querySelector('button').onclick=()=>{try{flushTrab&&flushTrab()}catch(e){}location.reload()};document.body.appendChild(d)}
 if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.open)go({page:'orden',id:e.data.open})});
 const PK={
   nueva:{em:'📥',c:'#0ea5e9',c2:'#06b6d4',lbl:'Nueva máquina',notes:[659,880,1175]},
