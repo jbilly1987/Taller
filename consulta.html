@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#14b8a6">
+<title>Estado de su máquina</title>
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#2b2f3a;--ink2:#4a5060;--muted:#8a8f9c;--line:rgba(60,50,90,.10);--card:rgba(255,255,255,.78);--pri:#14b8a6}
+*{box-sizing:border-box}
+html,body{margin:0;background:#fbf8f4;color:var(--ink);font-family:"Plus Jakarta Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden}
+.bg i{position:absolute;width:70vmax;height:70vmax;border-radius:50%;opacity:.7}
+.bg .a{background:radial-gradient(circle,#a7f3d0,transparent 62%);left:-25vmax;top:-30vmax;animation:d1 26s ease-in-out infinite alternate}
+.bg .b{background:radial-gradient(circle,#fed7aa,transparent 62%);right:-30vmax;top:-5vmax;animation:d2 30s ease-in-out infinite alternate}
+.bg .c{background:radial-gradient(circle,#ddd6fe,transparent 62%);left:5vmax;bottom:-40vmax;animation:d1 34s ease-in-out infinite alternate-reverse}
+@keyframes d1{to{transform:translate(14vmax,12vmax) scale(1.1)}}@keyframes d2{to{transform:translate(-14vmax,16vmax) scale(.9)}}
+.wrap{max-width:560px;margin:0 auto;padding:22px 16px 40px}
+.card{background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.9);border-radius:22px;box-shadow:0 10px 30px rgba(120,100,180,.10);padding:18px;margin-bottom:14px;animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+.card:nth-child(2){animation-delay:.06s}.card:nth-child(3){animation-delay:.12s}.card:nth-child(4){animation-delay:.18s}
+@keyframes rise{from{opacity:0;transform:translateY(14px);filter:blur(5px)}}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#5eead4,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 8px 18px rgba(45,212,191,.35)}
+.tn{font-weight:800;font-size:15px;line-height:1.2}.ts{font-size:12px;color:var(--muted)}
+.num{font-family:"JetBrains Mono",monospace;font-weight:600;color:#0d9488;font-size:13px}
+h1{font-size:23px;margin:4px 0 2px;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:14px}
+.big{display:flex;align-items:center;gap:14px;padding:16px;border-radius:18px;margin-top:14px;background:linear-gradient(120deg,color-mix(in srgb,var(--c) 18%,#fff),color-mix(in srgb,var(--c2) 14%,#fff));border:1px solid color-mix(in srgb,var(--c) 30%,transparent)}
+.big .em{width:58px;height:58px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;background:linear-gradient(135deg,var(--c),var(--c2));box-shadow:0 10px 22px color-mix(in srgb,var(--c) 40%,transparent);animation:wig 2.4s ease-in-out infinite}
+@keyframes wig{0%,70%,100%{transform:none}78%{transform:rotate(-10deg) scale(1.06)}86%{transform:rotate(8deg) scale(1.06)}}
+.big .k{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:color-mix(in srgb,var(--c) 80%,#000)}
+.big .v{font-size:19px;font-weight:800;line-height:1.2}
+.big .d{font-size:13px;color:var(--ink2);margin-top:2px}
+.steps{display:flex;justify-content:space-between;position:relative;margin:20px 4px 4px}
+.steps::before{content:"";position:absolute;left:14px;right:14px;top:14px;height:3px;background:var(--line);border-radius:3px}
+.steps .bar{position:absolute;left:14px;top:14px;height:3px;border-radius:3px;background:linear-gradient(90deg,#22c55e,#14b8a6);transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.st{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:5px;width:16%;text-align:center}
+.st b{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;background:#fff;border:2px solid var(--line);transition:.3s}
+.st span{font-size:10.5px;font-weight:700;color:var(--muted);line-height:1.15}
+.st.done b{background:linear-gradient(135deg,#22c55e,#14b8a6);border-color:transparent;color:#fff}
+.st.cur b{background:#fff;border-color:#14b8a6;box-shadow:0 0 0 5px rgba(20,184,166,.18);animation:pulse 1.8s ease-in-out infinite}
+.st.cur span{color:#0f766e}
+@keyframes pulse{50%{box-shadow:0 0 0 9px rgba(20,184,166,.08)}}
+.q{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:#fff7ed;border:1px solid #fed7aa;margin-top:12px;font-size:14px}
+.q .n{font-size:26px;font-weight:800;color:#ea580c;min-width:34px;text-align:center}
+h2{font-size:15px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:6px 11px;border-radius:12px;font-size:13px;font-weight:600;background:#f0fdfa;border:1px solid #ccfbf1;color:#0f766e}
+.chip.f{background:#fff7ed;border-color:#fed7aa;color:#c2410c}
+.chip.r{background:#eef2ff;border-color:#e0e7ff;color:#4338ca}
+.lbl{font-size:11.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px}
+.lbl:first-of-type{margin-top:0}
+.tl{list-style:none;margin:0;padding:0}
+.tl li{position:relative;padding:0 0 12px 22px;font-size:14px}
+.tl li::before{content:"";position:absolute;left:4px;top:5px;width:10px;height:10px;border-radius:50%;background:#14b8a6;box-shadow:0 0 0 3px #ccfbf1}
+.tl li::after{content:"";position:absolute;left:8px;top:17px;bottom:0;width:2px;background:var(--line)}
+.tl li:last-child::after{display:none}
+.tl small{display:block;color:var(--muted);font-size:12px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{flex:1;min-width:130px;text-align:center;text-decoration:none;padding:12px 14px;border-radius:14px;font-weight:800;font-size:14px;color:#fff;background:linear-gradient(135deg,#86efac,#22c55e);box-shadow:0 6px 16px rgba(34,197,94,.3)}
+.btn.t{background:#fff;color:var(--ink);border:1px solid var(--line);box-shadow:none}
+.muted{color:var(--muted)}.small{font-size:12.5px}
+.ctr{text-align:center;padding:40px 10px}
+.saw{font-size:46px;display:inline-block;animation:buzz .12s linear infinite}
+@keyframes buzz{25%{transform:translate(1px,-1px)}75%{transform:translate(-1px,1px)}}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:#16a34a}
+.live i{width:8px;height:8px;border-radius:50%;background:#22c55e;animation:pulse2 2s ease-out infinite}
+@keyframes pulse2{0%{box-shadow:0 0 0 0 rgba(34,197,94,.6)}100%{box-shadow:0 0 0 8px rgba(34,197,94,0)}}
+.foot{text-align:center;font-size:12px;color:var(--muted);margin-top:18px}
+.sig{font-family:"Dancing Script",cursive;font-weight:700}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="bg"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+<div class="wrap" id="app"><div class="ctr"><div class="saw">🪚</div><p class="muted">Buscando su máquina…</p></div></div>
+<script src="firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fd=d=>{if(!d)return'';const x=typeof d==='number'?new Date(d):new Date(String(d).length===10?d+'T12:00:00':d);return isNaN(x)?'':x.toLocaleDateString('es-CR',{weekday:'short',day:'numeric',month:'short'})};
+const ft=t=>t?new Date(t).toLocaleString('es-CR',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'';
+const EST={
+ 'Recibido':{em:'📥',c:'#0ea5e9',c2:'#06b6d4',d:'Su máquina ya está en el taller, en espera de ser revisada.'},
+ 'En diagnóstico':{em:'🔍',c:'#8b5cf6',c2:'#6366f1',d:'El mecánico está revisando qué tiene la máquina.'},
+ 'Esperando aprobación':{em:'⏸️',c:'#f59e0b',c2:'#f97316',d:'Estamos esperando su confirmación para continuar. Comuníquese con el taller.'},
+ 'Esperando repuestos':{em:'📦',c:'#f59e0b',c2:'#eab308',d:'Estamos esperando que lleguen los repuestos necesarios.'},
+ 'En reparación':{em:'🔧',c:'#14b8a6',c2:'#3b82f6',d:'Su máquina se está reparando en este momento.'},
+ 'Control de calidad':{em:'🧪',c:'#06b6d4',c2:'#22c55e',d:'Estamos probando que todo funcione bien.'},
+ 'Listo para entregar':{em:'✅',c:'#22c55e',c2:'#14b8a6',d:'¡Su máquina está lista! Puede pasar a retirarla con su boleta.'},
+ 'Entregado':{em:'🤝',c:'#64748b',c2:'#14b8a6',d:'La máquina ya fue entregada. ¡Gracias por su confianza!'},
+ 'Cancelado':{em:'❌',c:'#ef4444',c2:'#f97316',d:'Esta orden fue cancelada. Comuníquese con el taller si tiene dudas.'}};
+const STEPS=[['Recibido','📥','Recibida'],['En diagnóstico','🔍','Revisión'],['En reparación','🔧','Reparación'],['Control de calidad','🧪','Prueba'],['Listo para entregar','✅','Lista'],['Entregado','🤝','Entregada']];
+const stepIdx=e=>({'Recibido':0,'En diagnóstico':1,'Esperando aprobación':1,'Esperando repuestos':2,'En reparación':2,'Control de calidad':3,'Listo para entregar':4,'Entregado':5}[e]??0);
+const tipoEm=t=>{t=String(t||'').toLowerCase();return t.includes('motosierra')?'🪚':t.includes('desbroz')||t.includes('chapead')||t.includes('cortacésped')||t.includes('podad')?'🌿':t.includes('bomba')||t.includes('fumig')?'💧':t.includes('tractor')?'🚜':t.includes('generador')||t.includes('planta')?'⚡':'🔧'};
+function err(m){$('#app').innerHTML=`<div class="card ctr"><div style="font-size:44px">🔎</div><h1 style="font-size:19px">${m}</h1><p class="muted small">Revise que escaneó el código de su boleta, o comuníquese con el taller.</p></div>`}
+function view(d){
+  const e=EST[d.est]||EST['Recibido'];const si=stepIdx(d.est);const T=d.taller||{};const tel=String(T.tel||'').replace(/\D/g,'');const tl=tel.length===8?'506'+tel:tel;
+  const wa=tl?`https://wa.me/${tl}?text=${encodeURIComponent(`Hola, le escribo por mi equipo ${d.eq||''} (orden ${d.n}).`)}`:'';
+  const cola=d.cola&&['Recibido','En diagnóstico'].includes(d.est)?d.cola:null;
+  const hechos=(d.trabajos||[]).length||(d.mo||[]).length||(d.rep||[]).length||d.diag;
+  $('#app').innerHTML=`
+  <div class="card"><div class="top"><div class="logo">🔧</div><div style="flex:1;min-width:0"><div class="tn">${esc(T.n||'Servicio técnico')}</div><div class="ts">Seguimiento de su máquina</div></div><span class="live"><i></i>En vivo</span></div>
+   <div class="num">Orden ${esc(d.n)}</div><h1>${tipoEm(d.tipo)} ${esc(d.eq||'Su máquina')}</h1><div class="sub">${d.cli?'Hola, '+esc(d.cli)+' · ':''}Recibida el ${esc(fd(d.fi))}</div>
+   <div class="big" style="--c:${e.c};--c2:${e.c2}"><div class="em">${e.em}</div><div><div class="k">Estado actual</div><div class="v">${esc(d.est)}</div><div class="d">${e.d}</div></div></div>
+   ${d.est!=='Cancelado'?`<div class="steps"><div class="bar" style="width:calc((100% - 28px) * ${si/5})"></div>${STEPS.map(([k,em,l],i)=>`<div class="st ${i<si||d.est==='Entregado'?'done':i===si?'cur':''}"><b>${i<si||d.est==='Entregado'?'✓':em}</b><span>${l}</span></div>`).join('')}</div>`:''}
+   ${cola?`<div class="q"><div class="n">${cola.antes}</div><div>${cola.antes===0?'<b>¡Su máquina es la siguiente!</b> Será atendida pronto.':`máquina${cola.antes!==1?'s':''} antes que la suya en la fila del taller.`}<div class="small muted">${cola.total} en el taller en este momento</div></div></div>`:''}
+   ${d.fe&&!['Entregado','Listo para entregar','Cancelado'].includes(d.est)?`<p class="small" style="margin:12px 0 0">📅 Entrega aproximada: <b>${esc(fd(d.fe))}</b></p>`:''}
+   ${d.est==='Entregado'&&d.garantia?`<p class="small" style="margin:12px 0 0">🛡️ Garantía de <b>${d.garantia} días</b> desde la entrega${d.ent?' ('+esc(fd(d.ent))+')':''}.</p>`:''}
+  </div>
+  ${hechos||(d.fallas||[]).length?`<div class="card"><h2>🛠️ Lo que se le ha hecho</h2>
+   ${(d.fallas||[]).length?`<div class="lbl">Lo que usted reportó</div><div class="chips">${d.fallas.map(x=>`<span class="chip f">${esc(x)}</span>`).join('')}</div>`:''}
+   ${d.diag?`<div class="lbl">Diagnóstico del mecánico</div><p style="margin:0;font-size:14px;line-height:1.5">${esc(d.diag)}</p>`:''}
+   ${[...new Set([...(d.trabajos||[]),...(d.mo||[])])].length?`<div class="lbl">Trabajos realizados</div><div class="chips">${[...new Set([...(d.trabajos||[]),...(d.mo||[])])].map(x=>`<span class="chip">✔ ${esc(x)}</span>`).join('')}</div>`:''}
+   ${(d.rep||[]).length?`<div class="lbl">Repuestos instalados</div><div class="chips">${d.rep.map(r=>`<span class="chip r">${r.c>1?r.c+' × ':''}${esc(r.n)}${r.u?' (de segunda)':''}</span>`).join('')}</div>`:''}
+   ${!hechos?`<p class="muted small" style="margin:10px 0 0">Todavía no hay trabajos anotados. Aquí aparecerán apenas el mecánico avance.</p>`:''}</div>`:''}
+  ${(d.hist||[]).length?`<div class="card"><h2>🕒 Historial</h2><ul class="tl">${d.hist.slice().reverse().map(h=>`<li><b>${(EST[h.e]||{}).em||'•'} ${esc(h.e)}</b><small>${esc(ft(h.t))}</small></li>`).join('')}</ul></div>`:''}
+  <div class="card"><h2>📞 ¿Tiene dudas?</h2><div class="small">${esc(T.n||'')}${T.dir?'<br>📍 '+esc(T.dir):''}${T.hor?'<br>🕐 '+esc(T.hor):''}</div>
+   <div class="btns">${wa?`<a class="btn" href="${wa}" target="_blank" rel="noopener">💬 WhatsApp</a>`:''}${tl?`<a class="btn t" href="tel:+${tl}">📞 Llamar</a>`:''}</div></div>
+  <div class="foot">Se actualiza solo · ${esc(ft(d.up))}</div>`;
+  document.title=`${e.em} ${d.est} · Orden ${d.n}`;
+}
+(function(){
+  const t=new URLSearchParams(location.search).get('t');
+  if(!t||t.length<10)return err('El enlace no es válido');
+  if(!window.FIREBASE_CONFIG||!window.firebase)return err('No se pudo conectar. Revise su internet y recargue.');
+  try{firebase.initializeApp(window.FIREBASE_CONFIG)}catch(e){}
+  const db=firebase.firestore();
+  db.collection('estado').doc(t).onSnapshot(s=>{if(!s.exists)return err('No encontramos esa orden');view(s.data())},
+   e=>err(e&&e.code==='permission-denied'?'La consulta en línea todavía no está activada en el taller':'No se pudo conectar. Revise su internet y recargue.'));
+})();
+</script>
+</body>
+</html>

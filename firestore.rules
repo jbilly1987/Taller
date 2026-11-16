@@ -1,15 +1,18 @@
 rules_version = '2';
-// REGLAS DE SEGURIDAD (paso 4 de la guía)
-// Solo los correos de la lista pueden leer y escribir datos.
-// Cambie los correos de ejemplo por los suyos (los mismos que crea en Authentication).
+// REGLAS DE SEGURIDAD
+// - Todo el sistema: solo el correo del taller puede leer y escribir.
+// - "estado": la página de consulta del cliente (QR) solo puede LEER el estado
+//   de una orden si conoce su código secreto; no puede listar ni cambiar nada.
 service cloud.firestore {
   match /databases/{database}/documents {
     match /{document=**} {
       allow read, write: if request.auth != null
         && request.auth.token.email in [
-          'correo-del-taller@gmail.com',
-          'segundo-equipo@gmail.com'
+          'jbilly1987@gmail.com'
         ];
+    }
+    match /estado/{token} {
+      allow get: if true;
     }
   }
 }

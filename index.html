@@ -634,6 +634,23 @@ html[data-theme=dark] .sent-msg{color:#5eead4}
 .ckb button{-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .cpc,.btn,.fchip,.pick{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .lk [data-act=qty],.lk [data-act=rmLine],.lk [data-act=addRep],.lk [data-act=ppAdd]{display:none!important}
+
+#scanOv{position:fixed;inset:0;z-index:175;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(4,10,8,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:fadeIn .2s}
+.scbox{width:100%;max-width:440px;background:var(--surface-hi);border-radius:22px;padding:16px;box-shadow:0 30px 80px rgba(0,0,0,.4);animation:pop .3s cubic-bezier(.2,.9,.3,1.15)}
+
+.mic{all:unset;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;margin-left:6px;border-radius:50%;font-size:15px;vertical-align:middle;background:var(--soft);border:1px solid var(--line);transition:transform .15s,background .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.mic:active{transform:scale(.9)}
+.mic.on{background:#ef4444;border-color:#ef4444;box-shadow:0 0 0 0 rgba(239,68,68,.6);animation:micPulse 1.2s ease-out infinite}
+@keyframes micPulse{0%{box-shadow:0 0 0 0 rgba(239,68,68,.55)}100%{box-shadow:0 0 0 12px rgba(239,68,68,0)}}
+
+.cntin{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.cntb{all:unset;cursor:pointer;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;background:var(--soft);border:1px solid var(--line);touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.cntb:active{transform:scale(.9)}
+.cntv{width:58px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--field);text-align:center;font-weight:800;font-size:16px;color:var(--ink);font-family:inherit}
+.cntv:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px rgba(34,197,94,.18)}
+.cntd{min-width:30px;text-align:center;font-size:14px}
+.cntr.cok{background:color-mix(in srgb,#22c55e 7%,transparent)}.cntr.cdiff{background:color-mix(in srgb,#f59e0b 9%,transparent)}
+@media (max-width:860px){.cntr{flex-wrap:wrap}.cntr .mn{flex-basis:100%}.cntin{margin-left:auto}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
 @media (max-width:860px){
   .bnav{left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));padding:6px 6px;border-radius:24px;background:color-mix(in srgb,var(--bg) 60%,transparent);backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);border:1px solid var(--glass-b);box-shadow:var(--sh2)}
@@ -981,13 +998,14 @@ function handleErr(e){
   console.error(e);
 }
 async function put(col,obj){
-  const o=clone(obj);o.updatedAt=Date.now();o._dev=DEV;if(!o.createdAt)o.createdAt=o.updatedAt;
+  const o=clone(obj);o.updatedAt=Date.now();o._dev=DEV;if(!o.createdAt)o.createdAt=o.updatedAt;if(col==='boletas'&&!o.tok)o.tok=tokNew();
   S[col]={...S[col],[o.id]:o};
   if(LOCAL||!DB){saveLocal();return true}
   const w=()=>DB.collection(col).doc(o.id).set(o);
-  try{await w();return true}catch(e){if(e&&e.code==='unavailable'){await new Promise(r=>setTimeout(r,700));try{await w();return true}catch(e2){handleErr(e2);return false}}handleErr(e);return false}
+  try{await w();if(col==='boletas')pubEstado(o);return true}catch(e){if(e&&e.code==='unavailable'){await new Promise(r=>setTimeout(r,700));try{await w();if(col==='boletas')pubEstado(o);return true}catch(e2){handleErr(e2);return false}}handleErr(e);return false}
 }
 async function del(col,id){
+  if(col==='boletas'&&DB&&S.boletas[id]&&S.boletas[id].tok){try{DB.collection('estado').doc(S.boletas[id].tok).delete()}catch(e){}}
   const m={...S[col]};delete m[id];S[col]=m;
   if(LOCAL||!DB){saveLocal();return true}
   try{await DB.collection(col).doc(id).delete();return true}catch(e){handleErr(e);return false}
@@ -1053,8 +1071,8 @@ async function initStore(){
 
 /* ================== Shell / render ================== */
 const NAV=[['inicio','home','Inicio'],['alertas','bell','Alertas'],['ordenes','clip','Órdenes'],['clientes','users','Clientes'],['equipos','tractor','Equipos'],['repuestos','box','Repuestos'],['pedidos','cart','Pedidos'],['proveedores','factory','Proveedores'],['respaldo','save','Respaldo'],['catalogo','tag','Catálogo'],['reportes','chart','Reportes'],['ajustes','gear','Configuración']];
-const TITLES={respaldo:'Respaldo',proveedores:'Proveedores',proveedor:'Proveedor',alertas:'Alertas',pedidos:'Pedidos',inicio:'Inicio',ordenes:'Órdenes de servicio',orden:'Orden de servicio',clientes:'Clientes',cliente:'Cliente',equipos:'Equipos',equipo:'Equipo',repuestos:'Repuestos',repuesto:'Repuesto',catalogo:'Catálogo',reportes:'Reportes',ajustes:'Configuración'};
-const PARENT={proveedor:'proveedores',orden:'ordenes',cliente:'clientes',equipo:'equipos',repuesto:'repuestos'};
+const TITLES={conteo:'Conteo de inventario',respaldo:'Respaldo',proveedores:'Proveedores',proveedor:'Proveedor',alertas:'Alertas',pedidos:'Pedidos',inicio:'Inicio',ordenes:'Órdenes de servicio',orden:'Orden de servicio',clientes:'Clientes',cliente:'Cliente',equipos:'Equipos',equipo:'Equipo',repuestos:'Repuestos',repuesto:'Repuesto',catalogo:'Catálogo',reportes:'Reportes',ajustes:'Configuración'};
+const PARENT={conteo:'repuestos',proveedor:'proveedores',orden:'ordenes',cliente:'clientes',equipo:'equipos',repuesto:'repuestos'};
 const setH=(el,h)=>{if(el&&el._h!==h){el.innerHTML=h;el._h=h}};
 function shell(){
   const p=PARENT[view.page]||view.page;const q=UI.q.trim();
@@ -1075,18 +1093,19 @@ function shell(){
   document.title=(CFG.nombre||'Taller')+' — Servicio técnico';syncUI();
 }
 function render(){
-  {const a=document.activeElement;if(a&&a.matches&&a.matches('#trabBox textarea,#trabBox input:not([type=date])')&&view.page==='orden'&&render._k===view.page+(view.id||'')&&!UI.q.trim()){render._pend=true;return}}
+  {const a=document.activeElement;if((REC&&view.page==='orden'&&$('#trabBox')&&render._k===view.page+(view.id||''))||a&&a.matches&&a.matches('#trabBox textarea,#trabBox input:not([type=date])')&&view.page==='orden'&&render._k===view.page+(view.id||'')&&!UI.q.trim()){render._pend=true;return}}
   render._pend=false;
   const v=$('#view');const ae=document.activeElement;const fid=ae&&v.contains(ae)&&ae.id;let ss=null,se=null;
   if(fid){try{ss=ae.selectionStart;se=ae.selectionEnd}catch(e){}}
   tryPend();
   const p=view.page;const q=UI.q.trim();
-  const F={respaldo:vRespaldo,proveedores:vProveedores,proveedor:()=>vProveedor(view.id),alertas:vAlertas,pedidos:vPedidos,inicio:vInicio,ordenes:vOrdenes,orden:()=>vOrden(view.id),clientes:vClientes,cliente:()=>vCliente(view.id),equipos:vEquipos,equipo:()=>vEquipo(view.id),repuestos:vRepuestos,repuesto:()=>vRepuesto(view.id),catalogo:vCatalogo,reportes:vReportes,ajustes:vAjustes};
+  const F={conteo:vConteo,respaldo:vRespaldo,proveedores:vProveedores,proveedor:()=>vProveedor(view.id),alertas:vAlertas,pedidos:vPedidos,inicio:vInicio,ordenes:vOrdenes,orden:()=>vOrden(view.id),clientes:vClientes,cliente:()=>vCliente(view.id),equipos:vEquipos,equipo:()=>vEquipo(view.id),repuestos:vRepuestos,repuesto:()=>vRepuesto(view.id),catalogo:vCatalogo,reportes:vReportes,ajustes:vAjustes};
   const html=q?vBuscar(q):(F[p]||vInicio)();const key0=q?'q':p+(view.id||'');const same=html===v._h&&key0===render._k;
   if(!same){v.innerHTML=html;v._h=html}
   {const key=q?'q':p+(view.id||'');if(key!==render._k){render._k=key;v.classList.remove('enter');void v.offsetWidth;v.classList.add('enter');clearTimeout(render._t);render._t=setTimeout(()=>v.classList.remove('enter'),900)}}
   if(connected||LOCAL)hideSplash();
   if(connected||LOCAL)setTimeout(pingsRestore,1500);
+  if(connected)pubBackfill();
   if(!same)requestAnimationFrame(marquee);
   if(fid&&!same){const el=document.getElementById(fid);if(el){el.focus();try{if(ss!=null)el.setSelectionRange(ss,se)}catch(e){}}}
   shell();
@@ -1160,11 +1179,45 @@ function oRow(b){
    <div class="mn"><div class="row" style="gap:8px"><span class="num">${nb(b.numero)}</span>${b.prioridad==='Urgente'?'<span class="tag urg">URGENTE</span>':''}</div><div class="t ell">${esc(c.nombre||'Cliente')} <span class="muted" style="font-weight:500">· ${esc(eqShort(e))}</span></div><div class="m ell">${esc(fallaTxt(b))}</div></div>
    <div class="r">${badge(b.estado)}<div style="margin-top:4px">${fdate(b.fechaIngreso)}${isOpen(b)?' · '+daysSince(b.fechaIngreso)+' d':''}</div>${b.tecnico?`<div>${esc(b.tecnico)}</div>`:''}</div></div>`;
 }
+
+/* ---------- Consulta pública del estado ---------- */
+function tokNew(){const a='abcdefghijkmnpqrstuvwxyz23456789';let t='';const r=crypto.getRandomValues(new Uint32Array(18));r.forEach(x=>t+=a[x%a.length]);return t}
+const appBase=()=>appUrl().replace(/[#?].*$/,'').replace(/index\.html$/,'').replace(/\/?$/,'/');
+const consultaUrl=b=>b&&b.tok&&FB_MODE?appBase()+'consulta.html?t='+b.tok:'';
+function pubEstado(b){
+  if(!FB_MODE||!DB||!b||!b.tok)return;
+  const c=cli(b.clienteId)||{},e=eq(b.equipoId)||{};const H=[];(b.historial||[]).forEach(h=>{if(h.estado&&(!H.length||H[H.length-1].e!==h.estado))H.push({e:h.estado,t:h.t||0})});
+  const doc={n:nb(b.numero),eq:eqShort(e),tipo:e.tipo||'',marca:e.marca||'',modelo:e.modelo||'',est:b.estado,hist:H,fi:b.fechaIngreso||'',fe:b.fechaEstimada||'',
+   cli:String(c.nombre||'').split(/\s+/)[0]||'',taller:{n:CFG.nombre||'',tel:CFG.telefono||'',dir:CFG.direccion||'',hor:CFG.horario||''},
+   trabajos:(b.trabajos||[]).slice(0,12),mo:(b.manoObra||[]).map(l=>l.d).filter(Boolean).slice(0,12),rep:(b.repuestos||[]).map(l=>({n:l.nombre,c:num(l.cant)||1,u:l.condicion==='Usado'||l.cond==='Usado'})).slice(0,20),
+   diag:b.diagnostico||'',fallas:(b.fallas||[]).slice(0,8),garantia:b.estado==='Entregado'?num(b.garantiaDias??CFG.garantia):0,ent:b.fechaEntrega||'',
+   cola:colaPos(b),up:Date.now()};
+  const sig=JSON.stringify({...doc,up:0});if(PUBSIG[b.tok]===sig)return;PUBSIG[b.tok]=sig;
+  try{DB.collection('estado').doc(b.tok).set(doc).catch(()=>{delete PUBSIG[b.tok]})}catch(e){}
+  clearTimeout(pubEstado._t);pubEstado._t=setTimeout(pubCola,2500);
+}
+const PUBSIG={};
+const COLA_EST=['Recibido','En diagnóstico','Esperando aprobación','Esperando repuestos','En reparación','Control de calidad'];
+function colaPos(b){if(!COLA_EST.includes(b.estado))return null;const L=arr(S.boletas).filter(x=>COLA_EST.includes(x.estado)).sort((a,z)=>String(a.fechaIngreso).localeCompare(String(z.fechaIngreso))||(a.createdAt||0)-(z.createdAt||0)||(a.numero||0)-(z.numero||0));
+  const i=L.findIndex(x=>x.id===b.id);return {antes:Math.max(0,i),total:L.length}}
+function pubCola(){if(!adminReal()&&!esRecep())return;arr(S.boletas).filter(x=>x.tok&&COLA_EST.includes(x.estado)).forEach(x=>pubEstado(x))}
+let _pubDone=false;function pubBackfill(){if(_pubDone||!FB_MODE||!connected||!adminReal())return;_pubDone=true;
+  setTimeout(async()=>{for(const b of arr(S.boletas).filter(x=>!x.tok))await put('boletas',b)},4000)}
+function consultaModal(id){
+  const b=S.boletas[id];if(!b)return;const u=consultaUrl(b);if(!u)return toast('La consulta en línea funciona en la versión de GitHub/Firebase');
+  const c=cli(b.clienteId)||{};const q=qrData(u,220);
+  const wa=waLink(c.telefono,`Hola ${c.nombre||''}, le saluda ${CFG.nombre}. 🔧 Puede ver en todo momento cómo va su equipo ${eqShort(eq(b.equipoId))} (orden ${nb(b.numero)}) en este enlace:\n${u}`);
+  openModal('🔎 Consulta del cliente',`<p style="margin-top:0">Con este enlace o QR el cliente ve <b>en qué va su máquina</b>, desde su teléfono, sin llamar. Solo ve el estado, no los datos del taller.</p>
+   ${q?`<div style="text-align:center;margin:10px 0"><img src="${q}" style="width:200px;height:200px;border-radius:12px;background:#fff;padding:8px"></div>`:''}
+   <div class="f"><input class="inp" id="cnsUrl" value="${esc(u)}" readonly onclick="this.select()"></div>`,
+   `<button class="btn" data-act="cnsCopy">Copiar enlace</button><a class="btn" href="${esc(u)}" target="_blank" rel="noopener">Abrir</a><span class="sp"></span>${wa?`<a class="btn wa" href="${esc(wa)}" target="_blank" rel="noopener">${ic('msg')} Enviar al cliente</a>`:''}`,'sm');
+}
 function waMsg(b){
   const c=cli(b.clienteId)||{},e=eq(b.equipoId);
   let m=`Hola ${c.nombre||''}, le saluda ${CFG.nombre}. Su equipo ${eqShort(e)} (orden ${nb(b.numero)}) está: *${b.estado}*.`;
   if(b.estado==='Listo para entregar')m+='\nPuede pasar a retirarlo presentando su comprobante. ¡Gracias!';
   else if(b.diagnostico)m+='\nDiagnóstico: '+b.diagnostico;
+  {const u=consultaUrl(b);if(u)m+='\n\n🔎 Vea cómo va su equipo aquí: '+u}
   return m;
 }
 
@@ -1175,7 +1228,7 @@ function vBuscar(q){
   const bs=arr(S.boletas).filter(b=>{const c=cli(b.clienteId)||{},e=eq(b.equipoId)||{};return norm([nb(b.numero),c.nombre,c.telefono,c.cedula,e.tipo,e.marca,e.modelo,e.serie,fallaTxt(b),b.tecnico,b.estado,b.diagnostico,trabTxt(b),(b.repuestos||[]).map(l=>l.sku+' '+l.nombre).join(' ')].join(' ')).includes(n)}).sort((a,b)=>num(b.numero)-num(a.numero));
   const cs=arr(S.clientes).filter(c=>norm([c.nombre,c.telefono,c.telefono2,c.cedula,c.correo,c.direccion].join(' ')).includes(n));
   const es=arr(S.equipos).filter(e=>norm([e.tipo,e.marca,e.modelo,e.serie,cli(e.clienteId)?.nombre,cli(e.clienteId)?.telefono].join(' ')).includes(n));
-  const rs=arr(S.repuestos).filter(r=>norm([r.sku,r.codProv,r.nombre,r.marca,r.compatible,r.descripcion,r.ubicacion].join(' ')).includes(n));
+  const rs=arr(S.repuestos).filter(r=>norm([r.sku,r.codProv,r.codBarras,r.nombre,r.marca,r.compatible,r.descripcion,r.ubicacion].join(' ')).includes(n));
   const tot=bs.length+cs.length+es.length+rs.length;
   const sec=(icon,t,items,fn)=>items.length?`<div class="card" style="margin-bottom:14px"><div class="ch"><h2>${hic(icon)} ${t} <span class="muted" style="font-weight:500">${items.length}</span></h2></div><div class="rows">${items.slice(0,30).map(fn).join('')}</div></div>`:'';
   return `<div class="ph"><div><h1>Resultados para “${esc(q)}”</h1><div class="sub">${tot} resultado${tot!==1?'s':''}</div></div><button class="btn" data-act="clearQ">${ic('x')} Cerrar búsqueda</button></div>
@@ -1246,7 +1299,7 @@ function vOrden(id){
     <div style="flex:1;min-width:220px"><div class="row" style="gap:8px"><span class="onum">${nb(b.numero)}</span>${badge(b.estado)}${b.prioridad==='Urgente'?'<span class="tag urg">URGENTE</span>':''}</div>
      <div class="otitle">${esc(eqName(e))}</div>
      <div class="muted small">Recibido ${fdate(b.fechaIngreso)}${isOpen(b)?` · ${daysSince(b.fechaIngreso)} días en taller`:''}${b.fechaEstimada?` · Entrega prometida ${fdate(b.fechaEstimada)}`:''}${b.fechaEntrega?` · Entregado ${fdate(b.fechaEntrega)}`:''}</div></div>
-    <div class="row"><button class="btn" data-act="label" data-id="${b.id}">${ic('qr')} Etiqueta</button><button class="btn" data-act="print" data-id="${b.id}">${ic('print')} Imprimir</button>${w?`<a class="btn wa" href="${esc(w)}" target="_blank" rel="noopener">${ic('msg')} WhatsApp</a>`:''}</div></div>
+    <div class="row"><button class="btn" data-act="label" data-id="${b.id}">${ic('qr')} Etiqueta</button><button class="btn" data-act="print" data-id="${b.id}">${ic('print')} Imprimir</button>${FB_MODE?`<button class="btn" data-act="consulta" data-id="${b.id}">🔎 Consulta</button>`:''}${w?`<a class="btn wa" href="${esc(w)}" target="_blank" rel="noopener">${ic('msg')} WhatsApp</a>`:''}</div></div>
    ${(()=>{const n=nextStep(b);return n?`<div class="nstep ${n.act?'':'wait'}"><div class="ticon" style="width:38px;height:38px;font-size:16px">${ic(n.ic)}</div><div style="flex:1;min-width:180px"><div style="font-weight:800">${esc(n.t)}</div><div class="small muted">${esc(n.d)}</div></div>${n.act?`<button class="btn p" data-act="${n.act}" data-id="${b.id}">${esc(n.t)}</button>`:''}</div>`:''})()}
    <div class="pipe">${PIPE.map((k,i)=>{const E=est(k);const cls=side?(i===0?'done':''):i<ci?'done':i===ci?'cur':'';return `<button class="pp ${cls}" style="--c:${E.c}" data-act="estado" data-id="${b.id}" data-e="${esc(k)}">${esc(k)}</button>`}).join('')}</div>
    <div class="row" style="padding:0 20px 16px;gap:6px"><span class="small muted">Otros estados:</span>${['Esperando aprobación','Esperando repuestos','Cancelado'].map(k=>`<button class="fchip ${b.estado===k?'on':''}" data-act="estado" data-id="${b.id}" data-e="${esc(k)}">${esc(k)}</button>`).join('')}</div>
@@ -1266,6 +1319,7 @@ function vOrden(id){
     <div class="card ${LK?'lk':''}"><div class="ch"><h2>${hic('box')} Repuestos utilizados</h2><button class="btn sm" data-act="ppAdd" data-id="${b.id}" title="Pedir un repuesto que no hay">${ic('cart')} Falta</button><button class="btn sm p" data-act="addRep" data-id="${b.id}">${ic('plus')} Agregar</button></div>
      ${lines.length?`<div class="lines">${lines.map((l,i)=>`<div class="ln"><div style="flex:1;min-width:0"><div style="font-weight:600" class="ell">${esc(l.nombre)}</div><div class="small muted"><span class="mono">${esc(l.sku||'Sin código')}</span> · <span class="tag ${l.condicion==='Usado'?'u':'n'}">${esc(condLbl(l.condicion))}</span></div></div><div class="qty"><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="-1">${ic('minus')}</button><span>${num(l.cant)}</span><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="1">${ic('plus')}</button></div><button class="ib" data-act="rmLine" data-id="${b.id}" data-i="${i}" title="Quitar">${ic('trash')}</button></div>`).join('')}</div>`:emptyBox('box','Sin repuestos','Agregue los repuestos nuevos o de segunda que se instalen; se descuentan del inventario.')}</div>
     ${moCard(b)}
+    ${esTaller()&&isOpen(b)?modCard(b):''}
     <div class="card"><div class="ch"><h2>${hic('clock')} Historial</h2><button class="btn sm" data-act="nota" data-id="${b.id}">${ic('plus')} Nota</button></div>
      <ul class="tl">${(b.historial||[]).slice().reverse().map(h=>`<li style="--c:${est(h.estado).c}"><b>${esc(h.estado)}</b> <span class="muted small">· ${fts(h.t)}${h.por?' · '+esc(h.por):''}</span>${h.nota?`<div class="small" style="margin-top:2px">${esc(h.nota)}</div>`:''}</li>`).join('')}</ul></div>
    </div>
@@ -1291,11 +1345,11 @@ function trabInner(){
   <div class="sect"><span class="fl">Lista de revisión <span class="opt" id="ckSumTxt" data-tipo="${esc(e.tipo||'')}">· ${esc(ckKey(e.tipo)||'General')}${cs.n?` · ${cs.ok} bien${cs.mal.length?`, <b style="color:var(--red)">${cs.mal.length} con falla</b>`:''} de ${items.length}`:''}</span></span>
    <div class="ckl">${items.map(it=>{const v=TR.checklist[it]||'';return `<div class="ckr"><span>${esc(it)}</span><div class="ckb">${[['ok','Bien'],['mal','Falla'],['na','N/A']].map(([k,l])=>`<button type="button" class="${v===k?'on '+k:''}" data-act="ck" data-k="${esc(it)}" data-v="${k}">${l}</button>`).join('')}</div></div>`}).join('')}</div>
    <div class="row" style="margin-top:8px"><input class="inp" id="ckNew" placeholder="Otro punto a revisar" style="flex:1;min-width:140px"><button type="button" class="btn sm" data-act="ckAdd">${ic('plus')} Punto</button>${items.length>cs.n?`<button type="button" class="btn sm ghost" data-act="ckAll">Marcar el resto como Bien</button>`:''}</div></div>
-  <div class="f"><label>Diagnóstico</label><textarea id="tr_diagnostico" data-tr="diagnostico" placeholder="Qué se encontró al revisar el equipo">${esc(TR.diagnostico)}</textarea></div>
+  <div class="f"><label>Diagnóstico ${mic('#tr_diagnostico')}</label><textarea id="tr_diagnostico" data-tr="diagnostico" placeholder="Qué se encontró al revisar el equipo">${esc(TR.diagnostico)}</textarea></div>
   <div class="sect"><span class="fl">Trabajos realizados <span class="opt">· toque para marcar</span></span>${chipPick('tr_trab')}</div>
-  <div class="f"><label>Detalle del trabajo <span class="opt">(opcional)</span></label><textarea id="tr_trabajo" data-tr="trabajo" placeholder="Algo más que deba quedar anotado">${esc(TR.trabajo)}</textarea></div>
+  <div class="f"><label>Detalle del trabajo <span class="opt">(opcional)</span> ${mic('#tr_trabajo')}</label><textarea id="tr_trabajo" data-tr="trabajo" placeholder="Algo más que deba quedar anotado">${esc(TR.trabajo)}</textarea></div>
   <div class="fr"><div class="f"><label>Entrega prometida</label><input type="date" id="tr_fechaEstimada" data-tr="fechaEstimada" value="${esc(TR.fechaEstimada)}"></div><div class="f"><label>Garantía (días)</label><input type="number" min="0" inputmode="numeric" id="tr_garantiaDias" data-tr="garantiaDias" value="${esc(TR.garantiaDias)}"></div></div>
-  <div class="f" style="margin-bottom:0"><label>Notas internas <span class="opt">(no se imprimen)</span></label><textarea id="tr_notas" data-tr="notas" style="min-height:56px">${esc(TR.notas)}</textarea></div>`;
+  <div class="f" style="margin-bottom:0"><label>Notas internas <span class="opt">(no se imprimen)</span> ${mic('#tr_notas')}</label><textarea id="tr_notas" data-tr="notas" style="min-height:56px">${esc(TR.notas)}</textarea></div>`;
 }
 function trabRO(b){const s=ckSum(b);
   return `<dl class="kv"><dt>Técnico</dt><dd>${esc(b.tecnico||'Sin asignar')}</dd><dt>Revisión</dt><dd>${s.n?`${s.ok} bien${s.mal.length?` · <b style="color:var(--red)">falla: ${esc(s.mal.join(', '))}</b>`:''}`:'Sin revisar'}</dd><dt>Diagnóstico</dt><dd>${esc(b.diagnostico||'—')}</dd><dt>Trabajo</dt><dd>${esc(trabTxt(b)||'—')}</dd><dt>Entrega prometida</dt><dd>${fdate(b.fechaEstimada)}</dd><dt>Garantía</dt><dd>${num(b.garantiaDias)?num(b.garantiaDias)+' días':'—'}</dd></dl>`}
@@ -1363,7 +1417,7 @@ function rmLine(bid,i){
 let RP=null;
 function addRepModal(bid){
   RP={bid,q:'',sel:null,cant:1,nf:null};
-  openModal('Agregar repuesto a la orden',`<input id="rpq" class="inp" style="width:100%" placeholder="Buscar por código, nombre o modelo compatible…" autocomplete="off"><div id="rpRes" style="margin-top:12px"></div>`,
+  openModal('Agregar repuesto a la orden',`<div class="row" style="gap:8px;flex-wrap:nowrap"><input id="rpq" class="inp" style="flex:1;min-width:0" placeholder="Buscar por código, nombre o modelo compatible…" autocomplete="off"><button type="button" class="btn" data-act="rpScan">📷</button></div><div id="rpRes" style="margin-top:12px"></div>`,
    `<span class="sp"></span><button class="btn" data-act="close">Cerrar</button>`);
   rpRender();setTimeout(()=>$('#rpq')?.focus(),40);
   $('#rpq').oninput=e=>{RP.q=e.target.value;RP.sel=null;if(RP.nf&&!RP.nf._t)RP.nf.nombre=RP.q.trim();rpRender()};
@@ -1386,7 +1440,7 @@ function nfInfo(){const f=RP.nf;const q=num(f.entra)-num(f.usa);return `Quedará
 function rpRender(){
   const el=$('#rpRes');if(!el)return;const q=norm(RP.q);const b=S.boletas[RP.bid];const e=eq(b?.equipoId)||{};
   let rs=arr(S.repuestos);
-  if(q)rs=rs.filter(r=>norm([r.sku,r.codProv,r.nombre,r.compatible,r.marca,r.categoria].join(' ')).includes(q));
+  if(q)rs=rs.filter(r=>norm([r.sku,r.codProv,r.codBarras,r.nombre,r.compatible,r.marca,r.categoria].join(' ')).includes(q));
   else rs=rs.map(r=>({r,s:(e.modelo&&norm(r.compatible).includes(norm(e.modelo))?2:0)+(e.marca&&norm(r.compatible+' '+r.marca).includes(norm(e.marca))?1:0)})).sort((a,z)=>z.s-a.s||String(a.r.nombre).localeCompare(z.r.nombre)).map(x=>x.r);
   rs=rs.slice(0,30);
   const auto=!rs.length;
@@ -1614,6 +1668,33 @@ const provIdx=n=>provs().findIndex(p=>norm(p.n)===norm(n));
 const provReps=n=>arr(S.repuestos).filter(r=>norm(r.proveedor)===norm(n));
 function provTelLink(t){const d=String(t||'').replace(/\D/g,'');return d?'tel:+'+(d.length===8?'506'+d:d):''}
 
+
+/* ---------- Conteo de inventario ---------- */
+const CNTK='tallerConteo';let CNT=(()=>{try{return JSON.parse(localStorage.getItem(CNTK)||'{}')}catch(e){return {}}})();
+const cntSave=()=>{try{localStorage.setItem(CNTK,JSON.stringify(CNT))}catch(e){}};
+if(!UI.cq)UI.cq='';if(!UI.cCat)UI.cCat='';
+function cntDiffs(){return arr(S.repuestos).filter(r=>CNT[r.id]!=null&&CNT[r.id]!==''&&num(CNT[r.id])!==num(r.stock))}
+function vConteo(){
+  const all=arr(S.repuestos);const cats=uniq(all.map(r=>r.categoria).filter(Boolean)).sort();const q=norm(UI.cq);
+  let L=all.filter(r=>(!UI.cCat||r.categoria===UI.cCat)&&(!q||norm([r.nombre,r.sku,r.codProv,r.codBarras,r.ubicacion,r.categoria].join(' ')).includes(q)));
+  L.sort((a,b)=>norm(a.ubicacion||'zz').localeCompare(norm(b.ubicacion||'zz'))||norm(a.nombre).localeCompare(norm(b.nombre)));
+  const done=all.filter(r=>CNT[r.id]!=null&&CNT[r.id]!=='').length,df=cntDiffs();
+  return `<div class="ph"><div><h1>Conteo de inventario 📋</h1><div class="sub">Cuente lo que hay en el estante y corrija el stock de una vez</div></div><div class="row"><button class="btn" data-act="cntScan">📷 Contar escaneando</button></div></div>
+  <div class="card" style="padding:14px 18px;margin-bottom:14px"><div class="row" style="gap:14px;align-items:center;flex-wrap:wrap">
+   <div style="flex:1;min-width:180px"><b>${done} de ${all.length}</b> contados${df.length?` · <b style="color:var(--warn)">${df.length} con diferencia</b>`:''}<div style="height:7px;border-radius:9px;background:var(--line);margin-top:8px;overflow:hidden"><div style="height:100%;width:${all.length?Math.round(done/all.length*100):0}%;background:linear-gradient(90deg,#22c55e,#14b8a6);border-radius:9px;transition:width .3s"></div></div></div>
+   ${done?`<button class="btn" data-act="cntReset">Empezar de nuevo</button>`:''}<button class="btn p" data-act="cntApply" ${df.length?'':'disabled'}>${ic('check')} Guardar ajustes${df.length?` (${df.length})`:''}</button></div></div>
+  <div class="fbar"><input class="inp" data-ui="cq" id="cq" placeholder="Buscar repuesto, código o ubicación…" value="${esc(UI.cq)}">${cats.length?`<select class="sel" data-ui="cCat"><option value="">Todas las categorías</option>${cats.map(c=>`<option ${UI.cCat===c?'selected':''}>${esc(c)}</option>`).join('')}</select>`:''}</div>
+  <div class="card">${L.length?`<div class="rows">${L.map(r=>{const c=CNT[r.id];const has=c!=null&&c!=='';const d=has?num(c)-num(r.stock):0;
+   return `<div class="rw cntr ${has?(d?'cdiff':'cok'):''}" id="cnt_${r.id}" style="cursor:default"><div class="mn"><div class="t ell">${esc(r.nombre)}${r.condicion==='Usado'?' <span class="tag u">Segunda</span>':''}</div><div class="s ell">${r.sku?`<span class="mono">${esc(r.sku)}</span>`:'Sin código'}${r.ubicacion?' · 📍 '+esc(r.ubicacion):''} · sistema: <b>${num(r.stock)}</b></div></div>
+    <div class="cntin"><button class="cntb" data-act="cntStep" data-id="${r.id}" data-d="-1">−</button><input type="number" inputmode="numeric" min="0" class="cntv" data-cnt="${r.id}" value="${has?esc(c):''}" placeholder="?"><button class="cntb" data-act="cntStep" data-id="${r.id}" data-d="1">+</button>
+    <span class="cntd" id="cntd_${r.id}">${has?(d?`<b style="color:${d>0?'var(--pri)':'var(--red)'}">${d>0?'+':''}${d}</b>`:'✅'):''}</span></div></div>`}).join('')}</div>`:emptyBox('📦','Sin repuestos','No hay repuestos que coincidan.')}</div>`;
+}
+function cntRow(id){const r=rep(id);if(!r)return;const c=CNT[id];const has=c!=null&&c!=='';const d=has?num(c)-num(r.stock):0;
+  const row=$('#cnt_'+id);if(row){row.classList.toggle('cdiff',has&&!!d);row.classList.toggle('cok',has&&!d);const v=row.querySelector('.cntv');if(v&&document.activeElement!==v)v.value=has?c:''}
+  const dd=$('#cntd_'+id);if(dd)dd.innerHTML=has?(d?`<b style="color:${d>0?'var(--pri)':'var(--red)'}">${d>0?'+':''}${d}</b>`:'✅'):'';
+  const all=arr(S.repuestos),done=all.filter(r=>CNT[r.id]!=null&&CNT[r.id]!=='').length,df=cntDiffs();
+  const b=document.querySelector('[data-act=cntApply]');if(b){b.disabled=!df.length;b.innerHTML=`${ic('check')} Guardar ajustes${df.length?` (${df.length})`:''}`}
+  const hd=b&&b.closest('.card');if(hd){const t=hd.querySelector('div>b');if(t)t.textContent=`${done} de ${all.length}`;const bar=hd.querySelector('div[style*="linear-gradient(90deg,#22c55e"]');if(bar)bar.style.width=(all.length?Math.round(done/all.length*100):0)+'%'}}
 function vRespaldo(){
   const pend=respaldoPend(),u=ultResp(),fr=respFrec();
   const n=`${arr(S.clientes).length} clientes · ${arr(S.equipos).length} máquinas · ${arr(S.boletas).length} órdenes · ${arr(S.repuestos).length} repuestos`;
@@ -1812,9 +1893,9 @@ function vRepuestos(){
   const q=norm(UI.rq);let rs=arr(S.repuestos);const ms=movStats();
   if(UI.rCond)rs=rs.filter(r=>(r.condicion||'Nuevo')===UI.rCond);
   if(UI.rStock)rs=rs.filter(r=>UI.rStock==='low'?stockSt(r).k!=='ok':stockSt(r).k===UI.rStock);
-  if(q)rs=rs.filter(r=>norm([r.sku,r.codProv,r.nombre,r.marca,r.compatible,r.categoria,r.descripcion,r.ubicacion,r.proveedor].join(' ')).includes(q));
+  if(q)rs=rs.filter(r=>norm([r.sku,r.codProv,r.codBarras,r.nombre,r.marca,r.compatible,r.categoria,r.descripcion,r.ubicacion,r.proveedor].join(' ')).includes(q));
   rs.sort((a,b)=>String(a.sku).localeCompare(String(b.sku)));const all=arr(S.repuestos);
-  return `<div class="ph"><div><h1>Repuestos</h1><div class="sub">${all.length} artículos · ${all.filter(r=>r.condicion==='Usado').length} de segunda · ${all.filter(r=>stockSt(r).k!=='ok').length} por reponer</div></div><button class="btn p" data-act="repForm">${ic('plus')} Nuevo repuesto</button></div>
+  return `<div class="ph"><div><h1>Repuestos</h1><div class="sub">${all.length} artículos · ${all.filter(r=>r.condicion==='Usado').length} de segunda · ${all.filter(r=>stockSt(r).k!=='ok').length} por reponer</div></div><div class="row"><button class="btn" data-act="nav" data-page="conteo">📋 Conteo</button><button class="btn p" data-act="repForm">${ic('plus')} Nuevo repuesto</button></div></div>
   <div class="fbar"><input id="rq" class="inp" data-ui="rq" placeholder="Buscar por código, nombre, modelo compatible o ubicación…" value="${esc(UI.rq)}">
    <select class="sel" id="rCond" data-ui="rCond"><option value="">Nuevos y de segunda</option><option ${UI.rCond==='Nuevo'?'selected':''} value="Nuevo">Solo nuevos</option><option ${UI.rCond==='Usado'?'selected':''} value="Usado">Solo de segunda</option></select>
    <select class="sel" id="rStock" data-ui="rStock"><option value="">Todo el stock</option><option value="ok" ${UI.rStock==='ok'?'selected':''}>Disponibles</option><option value="low" ${UI.rStock==='low'?'selected':''}>Por reponer</option><option value="out" ${UI.rStock==='out'?'selected':''}>Agotados</option></select></div>
@@ -1866,6 +1947,12 @@ const REPORTS={
  recibidos:{t:'Equipos recibidos',i:'inbox',d:'Todas las órdenes del período con cliente, equipo, falla, técnico y estado.',build(){
    const bs=arr(S.boletas).filter(b=>inRange(b.fechaIngreso)).sort((a,b)=>num(a.numero)-num(b.numero));
    return [{head:['Orden','Fecha','Cliente','Teléfono','Tipo','Marca','Modelo','Serie','Falla','Técnico','Estado','Días'],num:[11],rows:bs.map(b=>{const c=cli(b.clienteId)||{},e=eq(b.equipoId)||{};return [nb(b.numero),fdate(b.fechaIngreso),c.nombre||'',c.telefono||'',e.tipo||'',e.marca||'',e.modelo||'',e.serie||'',fallaTxt(b),b.tecnico||'',b.estado,daysBetween(b.fechaIngreso,b.fechaEntrega||today())]})}]}},
+ modelos:{t:'Fallas por marca y modelo',i:'tractor',d:'Qué falla más en cada marca y modelo, y qué repuestos y trabajos se usan.',build(){
+   const g={};arr(S.boletas).filter(b=>b.estado!=='Cancelado'&&inRange(b.fechaIngreso)).forEach(b=>{const e=eq(b.equipoId);if(!e||!e.marca)return;const k=modKey(e);const o=g[k]||(g[k]={nm:[e.marca,e.modelo].filter(Boolean).join(' '),tipo:e.tipo||'',bs:[]});o.bs.push(b)});
+   const top=L=>{const m={};L.forEach(x=>{if(x)m[x]=(m[x]||0)+1});const t=Object.entries(m).sort((a,b)=>b[1]-a[1]);return t.slice(0,3).map(([k,v])=>`${k} (${v})`).join(', ')};
+   const rows=Object.values(g).sort((a,b)=>b.bs.length-a.bs.length).map(o=>[o.nm,o.tipo,o.bs.length,top(o.bs.flatMap(b=>b.fallas||[])),top(o.bs.flatMap(b=>(b.repuestos||[]).map(l=>l.nombre))),top(o.bs.flatMap(b=>[...(b.trabajos||[]),...(b.manoObra||[]).map(l=>l.d)]))]);
+   const fm={};arr(S.boletas).filter(b=>b.estado!=='Cancelado'&&inRange(b.fechaIngreso)).forEach(b=>(b.fallas||[]).forEach(f=>fm[f]=(fm[f]||0)+1));
+   return [{title:'Por marca y modelo',head:['Marca / modelo','Tipo','Órdenes','Fallas más comunes','Repuestos más usados','Trabajos más comunes'],num:[2],rows},{title:'Fallas en general',head:['Falla','Veces'],num:[1],rows:Object.entries(fm).sort((a,b)=>b[1]-a[1])}]}},
  tecnicos:{t:'Trabajo por técnico',i:'users',d:'Órdenes asignadas, entregadas, activas y días promedio hasta la entrega.',build(){
    const g={};arr(S.boletas).filter(b=>b.estado!=='Cancelado'&&inRange(b.fechaIngreso)).forEach(b=>{(b.manoObra||[]).forEach(l=>{const t=l.tec||b.tecnico||'Sin asignar';const q=g[t]||(g[t]={n:0,e:0,a:0,d:0,h:0});q.h=(q.h||0)+num(l.h)});const k=b.tecnico||'Sin asignar';const o=g[k]||(g[k]={n:0,e:0,a:0,d:0,h:0});o.n++;if(b.estado==='Entregado'){o.e++;o.d+=daysBetween(b.fechaIngreso,b.fechaEntrega||today())}else o.a++});
    return [{head:['Técnico','Órdenes','Entregadas','En taller','Promedio días','Horas mano de obra'],num:[1,2,3,4,5],rows:Object.entries(g).sort((a,b)=>b[1].n-a[1].n).map(([k,o])=>[k,o.n,o.e,o.a,o.e?Math.round(o.d/o.e*10)/10:'—',Math.round((o.h||0)*100)/100])}]}},
@@ -1972,23 +2059,45 @@ function loadLogo(file){
 /* ================== Modal / campos ================== */
 let SCAN=null;
 function stopScan(){if(!SCAN)return;SCAN.on=false;clearTimeout(SCAN.t);try{SCAN.st&&SCAN.st.getTracks().forEach(t=>t.stop())}catch(e){}SCAN=null}
-async function scanQR(){
-  openModal('📷 Escanear etiqueta',`<div class="scanbox"><video id="scV" playsinline muted autoplay></video><div class="scfr"></div></div><p class="small muted" id="scMsg" style="text-align:center;margin:12px 0 0">Apunte la cámara al código QR de la etiqueta de la máquina.</p>`,`<input class="inp" id="scTxt" placeholder="…o escriba el número de orden" style="flex:1"><button class="btn p" id="scGo">Buscar</button>`,'sm');
-  const done=txt=>{txt=String(txt||'').trim();if(!txt)return;stopScan();closeModal();const m=/os-(\d+)/i.exec(txt)||/^(?:OS-?)?0*(\d+)$/i.exec(txt);if(m){PEND=+m[1];view={page:'ordenes'};stack=[];tryPend();render();if(view.page!=='orden')toast('No se encontró la orden '+txt);return}UI.q=txt;$('#qGlobal').value=txt;render()};
-  $('#scGo').onclick=()=>done($('#scTxt').value);$('#scTxt').onkeydown=e=>{if(e.key==='Enter')done(e.target.value)};
+async function scanQR(){scanCode({title:'📷 Escanear',hint:'Apunte al QR de una orden o al código de barras de un repuesto.',onCode:scanGlobal,manual:'…o escriba el número de orden o el código'})}
+function scanGlobal(txt){
+  txt=String(txt||'').trim();if(!txt)return;const n=norm(txt);
+  const m=/os-(\d+)/i.exec(txt)||/^(?:OS-?)?0*(\d{1,6})$/i.exec(txt);
+  if(m&&arr(S.boletas).some(b=>+b.numero===+m[1])){PEND=+m[1];view={page:'ordenes'};stack=[];tryPend();render();return}
+  const r=arr(S.repuestos).find(r=>[r.codBarras,r.sku,r.codProv].some(x=>x&&norm(x)===n));
+  if(r){go({page:'repuesto',id:r.id});toast('📦 '+r.nombre);return}
+  UI.q=txt;$('#qGlobal').value=txt;render();toast('Buscando “'+txt+'”')
+}
+async function scanCode({title,hint,onCode,manual,keep}){
+  stopScan();let o=$('#scanOv');if(o)o.remove();o=document.createElement('div');o.id='scanOv';
+  o.innerHTML=`<div class="scbox"><div class="row" style="justify-content:space-between;margin-bottom:10px"><b style="font-size:16px">${title}</b><button class="ib" data-sc="x">${ic('x')}</button></div>
+   <div class="scanbox"><video id="scV" playsinline muted autoplay></video><div class="scfr"></div></div><p class="small muted" id="scMsg" style="text-align:center;margin:10px 0">${hint}</p>
+   <div class="row" style="flex-wrap:nowrap"><input class="inp" id="scTxt" placeholder="${manual||'…o escríbalo aquí'}" style="flex:1;min-width:0"><button class="btn p" data-sc="go">Listo</button></div>
+   ${keep?`<div class="small" id="scLast" style="text-align:center;margin-top:10px;font-weight:700">Escanee uno tras otro. Toque ✕ al terminar.</div>`:''}</div>`;
+  document.body.appendChild(o);
+  const close=()=>{stopScan();o.remove()};let last='',lastT=0;
+  const done=txt=>{txt=String(txt||'').trim();if(!txt)return;if(keep){if(txt===last&&Date.now()-lastT<1800)return;last=txt;lastT=Date.now();try{navigator.vibrate&&navigator.vibrate(60)}catch(e){}chime([1046]);const r=onCode(txt);const l=$('#scLast');if(l)l.textContent=r||('✔ '+txt);$('#scTxt').value='';return}close();onCode(txt)};
+  o.onclick=e=>{const k=e.target.closest('[data-sc]')?.dataset.sc;if(k==='x'||e.target===o)close();else if(k==='go')done($('#scTxt').value)};
+  $('#scTxt').onkeydown=e=>{if(e.key==='Enter')done(e.target.value)};
   const msg=t=>{const e=$('#scMsg');if(e)e.textContent=t};
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return msg('Este navegador no permite usar la cámara. Escriba el número de orden abajo.');
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return msg('Este navegador no permite usar la cámara. Escriba el código abajo.');
   SCAN={on:true};let st;
-  try{st=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false})}catch(e){SCAN=null;return msg('No se pudo abrir la cámara. Revise el permiso de cámara del navegador, o escriba el número de orden abajo.')}
-  if(!SCAN){st.getTracks().forEach(t=>t.stop());return}SCAN.st=st;const v=$('#scV');v.srcObject=st;try{await v.play()}catch(e){}
-  let det=null;if('BarcodeDetector' in window){try{det=new BarcodeDetector({formats:['qr_code']})}catch(e){}}
-  if(!det&&typeof jsQR==='undefined'){for(const u of ['https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js','https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js']){try{await loadScript(u);if(typeof jsQR!=='undefined')break}catch(e){}}}
-  if(!det&&typeof jsQR==='undefined')return msg('No se pudo cargar el lector de QR. Escriba el número de orden abajo.');
+  try{st=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false})}catch(e){SCAN=null;return msg('No se pudo abrir la cámara. Revise el permiso de cámara del navegador, o escriba el código abajo.')}
+  if(!SCAN||!document.body.contains(o)){st.getTracks().forEach(t=>t.stop());SCAN=null;return}SCAN.st=st;const v=$('#scV');v.srcObject=st;try{await v.play()}catch(e){}
+  let det=null;if('BarcodeDetector' in window){try{const f=await BarcodeDetector.getSupportedFormats();const fm=['qr_code','ean_13','ean_8','code_128','code_39','upc_a','upc_e','itf','codabar'].filter(x=>f.includes(x));if(fm.length)det=new BarcodeDetector({formats:fm})}catch(e){det=null}}
+  let zx=null;
+  if(!det){if(typeof ZXing==='undefined'){for(const u of ['https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js','https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js']){try{await loadScript(u);if(typeof ZXing!=='undefined')break}catch(e){}}}
+    if(typeof ZXing!=='undefined'){try{zx=new ZXing.MultiFormatReader();const h=new Map();h.set(ZXing.DecodeHintType.TRY_HARDER,true);zx.setHints(h)}catch(e){zx=null}}
+    if(!zx&&typeof jsQR==='undefined'){for(const u of ['https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js','https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js']){try{await loadScript(u);if(typeof jsQR!=='undefined')break}catch(e){}}}}
+  if(!det&&!zx&&typeof jsQR==='undefined')return msg('No se pudo cargar el lector. Escriba el código abajo.');
   const cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});
   const tick=async()=>{if(!SCAN||!SCAN.on)return;try{if(v.readyState>=2){let r=null;
-    if(det){const c=await det.detect(v);r=c[0]&&c[0].rawValue}else{const w=Math.min(640,v.videoWidth),h=Math.round(v.videoHeight*w/v.videoWidth);cv.width=w;cv.height=h;cx.drawImage(v,0,0,w,h);const c=jsQR(cx.getImageData(0,0,w,h).data,w,h);r=c&&c.data}
-    if(r){try{navigator.vibrate&&navigator.vibrate(80)}catch(e){}return done(r)}}}catch(e){}
-    if(SCAN)SCAN.t=setTimeout(tick,220)};tick();
+    if(det){const c=await det.detect(v);r=c[0]&&c[0].rawValue}
+    else{const w=Math.min(800,v.videoWidth),h=Math.round(v.videoHeight*w/v.videoWidth);cv.width=w;cv.height=h;cx.drawImage(v,0,0,w,h);
+     if(zx){try{const lum=new ZXing.HTMLCanvasElementLuminanceSource(cv);const bmp=new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(lum));r=zx.decode(bmp).getText()}catch(e){r=null}}
+     else{const c=jsQR(cx.getImageData(0,0,w,h).data,w,h);r=c&&c.data}}
+    if(r){done(r);if(!keep)return}}}catch(e){}
+    if(SCAN)SCAN.t=setTimeout(tick,keep?300:220)};tick();
 }
 function openModal(title,body,foot,cls=''){
   const m=$('#modal');const box=m.querySelector('.mbox'),mb0=$('#mb');
@@ -2114,11 +2223,11 @@ function wRecep(){
   CPR.w_proc={items:()=>uniq([...(CAT().procedencias||[]),...arr(S.boletas).map(x=>x.procedencia)]),get:()=>d.procedencia||'',set:v=>{d.procedencia=v},cat:'procedencias',re:wRender,addLbl:'Lugar',empty:'Ej. la comunidad, finca o tienda de donde viene. Se guarda para la próxima.'};
   CPR.w_tec={items:tecChips,get:()=>d.tecnico,set:v=>{d.tecnico=v},cat:'tecnicos',re:wRender,addLbl:'Técnico',empty:'Agregue los nombres de sus técnicos una vez y quedan guardados.'};
   return `${prevBanner(pi)}<div class="sect"><span class="fl">¿Qué le pasa? <span class="opt">· toque todas las que apliquen</span></span>${chipPick('w_fallas')}</div>
-   <div class="f"><label>Lo que cuenta el cliente <span class="opt">(opcional)</span></label><textarea data-w="d.falla" placeholder="Detalles de la falla">${esc(d.falla)}</textarea></div>
+   <div class="f"><label>Lo que cuenta el cliente <span class="opt">(opcional)</span> ${mic('#w_falla')}</label><textarea id="w_falla" data-w="d.falla" placeholder="Detalles de la falla">${esc(d.falla)}</textarea></div>
    <div class="sect"><span class="fl">Tipo de servicio</span>${chipPick('w_serv')}</div>
    <div class="sect"><span class="fl">Prioridad</span><div class="seg"><button class="${d.prioridad!=='Urgente'?'on':''}" data-act="wPrio" data-v="Normal">Normal</button><button class="${d.prioridad==='Urgente'?'on':''}" data-act="wPrio" data-v="Urgente" style="${d.prioridad==='Urgente'?'color:var(--red)':''}">Urgente</button></div></div>
    <div class="sect"><span class="fl">Condición en que llega</span>${chipPick('w_cond')}</div>
-   <div class="f"><label>Observaciones de recepción <span class="opt">(lo que se ve malo, golpes, piezas sueltas, cómo viene)</span></label><textarea data-w="d.observaciones" placeholder="Ej. Carcasa del arrancador quebrada, le falta un tornillo de la tapa">${esc(d.observaciones||'')}</textarea></div>
+   <div class="f"><label>Observaciones de recepción <span class="opt">(lo que se ve malo, golpes, piezas sueltas, cómo viene)</span> ${mic('#w_obs')}</label><textarea id="w_obs" data-w="d.observaciones" placeholder="Ej. Carcasa del arrancador quebrada, le falta un tornillo de la tapa">${esc(d.observaciones||'')}</textarea></div>
    <div class="sect"><span class="fl">Lo que trae</span>${chipPick('w_acc')}<input class="inp" style="margin-top:8px;width:100%" data-w="d.accesoriosOtros" placeholder="Otros (opcional)" value="${esc(d.accesoriosOtros)}"></div>
    <div class="sect"><span class="fl">Lo que NO trae / le falta</span>${chipPick('w_falt')}</div>
    <div class="sect"><span class="fl">¿De dónde viene? <span class="opt">(opcional)</span></span>${chipPick('w_proc')}</div>
@@ -2188,6 +2297,7 @@ function repForm(id){
     f.innerHTML=`<div class="sect"><span class="fl">Condición</span><div class="seg"><button type="button" class="${RF.condicion!=='Usado'?'on':''}" data-act="rfCond" data-v="Nuevo">Nuevo</button><button type="button" class="${RF.condicion==='Usado'?'on':''}" data-act="rfCond" data-v="Usado">Segunda</button></div></div>
     <div class="fr"><div class="f"><label>🏷️ Nuestro código / SKU</label><input data-rf="sku" value="${esc(RF.sku||'')}" style="text-transform:uppercase"></div><div class="f"><label>🏭 Código del proveedor <span class="opt">(opcional)</span></label><input data-rf="codProv" value="${esc(RF.codProv||'')}" placeholder="Como lo llama su proveedor" style="text-transform:uppercase"></div></div>
     <div class="f"><label>Nombre</label><input data-rf="nombre" value="${esc(RF.nombre||'')}" placeholder="Ej. Carburador, bujía…"></div>
+    <div class="f"><label>▥ Código de barras <span class="opt">(opcional)</span></label><div class="row" style="gap:8px;flex-wrap:nowrap"><input id="rf_codBarras" data-rf="codBarras" value="${esc(RF.codBarras||'')}" placeholder="Escanéelo con la cámara" style="flex:1;min-width:0"><button type="button" class="btn" data-act="rfScan">📷</button></div></div>
     <div class="sect"><span class="fl">Categoría</span>${chipPick('r_cat')}</div>
     <div class="fr"><div class="f"><label>Compatible con <span class="opt">(marcas / modelos)</span></label><input data-rf="compatible" value="${esc(RF.compatible||'')}" placeholder="Ej. Stihl MS 250, MS 230"></div><div class="f"><label>Marca del repuesto</label><input data-rf="marca" value="${esc(RF.marca||'')}" placeholder="Original, genérico…"></div></div>
     <div class="f"><label>Detalles <span class="opt">(medidas, n.º de parte, estado si es usado)</span></label><textarea data-rf="descripcion">${esc(RF.descripcion||'')}</textarea></div>
@@ -2271,12 +2381,44 @@ function marquee(){
   });
 }
 let _mqT=0;window.addEventListener('resize',()=>{clearTimeout(_mqT);_mqT=setTimeout(()=>{document.querySelectorAll('#view .mqi').forEach(x=>{const p=x.parentElement;p.classList.remove('mq');p.innerHTML=x.innerHTML});marquee()},250)});
+
+/* ---------- Dictado por voz ---------- */
+let REC=null;
+const mic=sel=>(window.SpeechRecognition||window.webkitSpeechRecognition)?`<button type="button" class="mic" data-act="mic" data-t="${sel}" title="Dictar por voz">🎤</button>`:'';
+function micToggle(sel,btn){
+  if(REC){const same=REC._sel===sel;try{REC.stop()}catch(e){}if(same)return}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return toast('Este navegador no permite dictar. Use Chrome o Safari actualizado.');
+  const ta=$(sel);if(!ta)return;const r=new SR();r.lang='es-CR';r.continuous=true;r.interimResults=true;r._sel=sel;
+  const base=ta.value?ta.value.replace(/\s*$/,' '):'';let fin='';
+  const cap=t=>t.replace(/^\s+/,'').replace(/^./,c=>base&&!/[.!?]\s*$/.test(base)?c:c.toUpperCase());
+  r.onresult=e=>{let inter='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)fin+=(fin&&!/\s$/.test(fin)?' ':'')+t.trim();else inter+=' '+t}
+    const el=$(sel);if(!el)return;el.value=base+cap((fin+inter).trim());el.dispatchEvent(new Event('input',{bubbles:true}))};
+  const off=()=>{document.querySelectorAll('.mic.on').forEach(b=>b.classList.remove('on'));if(REC===r)REC=null;if(render._pend&&view.page==='orden')setTimeout(()=>{if(!REC)render()},300)};
+  r.onend=off;r.onerror=e=>{off();if(e.error==='not-allowed'||e.error==='service-not-allowed')toast('Permita el micrófono para dictar (candado junto a la dirección → Micrófono).');else if(e.error==='no-speech')toast('No se escuchó nada. Toque 🎤 y hable.');else if(e.error==='network')toast('Para dictar se necesita internet.')};
+  try{r.start();REC=r;document.querySelectorAll(`.mic[data-t="${sel}"]`).forEach(b=>b.classList.add('on'));toast('🎤 Hable… toque 🎤 otra vez para terminar')}catch(e){toast('No se pudo iniciar el dictado')}
+}
 /* ---------- Mano de obra ---------- */
 const MO_EM=[['diagn','🔍'],['manten','🧰'],['cadena','⛓️'],['afil','🪚'],['espada','🪚'],['carbur','⛽'],['combust','⛽'],['motor','⚙️'],['arranc','🔄'],['encend','⚡'],['bujía','⚡'],['embrag','🔩'],['transm','🔩'],['sold','🔥'],['fabric','🔥'],['eléctr','🔌'],['electr','🔌'],['prueba','✅'],['ajuste final','✅'],['limpi','🧽'],['pint','🎨'],['cambio','🔧']];
 const moEm=d=>{const n=norm(d);const f=MO_EM.find(([k])=>n.includes(norm(k)));return f?f[1]:'🛠️'};
 const moH=b=>(b.manoObra||[]).reduce((a,l)=>a+num(l.h),0);
 const fh=h=>{h=Math.round(num(h)*100)/100;return (h%1?String(h).replace('.',','):h)+' h'};
 const moPuede=b=>(isOpen(b)||isAdmin())&&!bloqueado(b);
+
+/* ---------- Historial por modelo ---------- */
+const modKey=e=>e?norm([e.marca,e.modelo||e.tipo].filter(Boolean).join(' ')):'';
+function modStats(e,skipId){
+  const k=modKey(e);if(!k||!e.marca)return null;const bs=arr(S.boletas).filter(b=>b.id!==skipId&&b.estado!=='Cancelado'&&modKey(eq(b.equipoId))===k);if(!bs.length)return null;
+  const cnt=(L)=>{const m={};L.forEach(x=>{if(x)m[x]=(m[x]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
+  return {n:bs.length,fallas:cnt(bs.flatMap(b=>b.fallas||[])),rep:cnt(bs.flatMap(b=>(b.repuestos||[]).map(l=>l.nombre))),trab:cnt(bs.flatMap(b=>[...(b.trabajos||[]),...(b.manoObra||[]).map(l=>l.d)]))};
+}
+function modCard(b){
+  const e=eq(b.equipoId);const st=modStats(e,b.id);if(!st)return '';const nm=[e.marca,e.modelo].filter(Boolean).join(' ')||e.tipo;
+  const chips=(L,cls)=>L.slice(0,5).map(([k,v])=>`<span class="pl ${cls}">${esc(k)} <b style="opacity:.7">${v}</b></span>`).join('');
+  return `<div class="card"><div class="ch"><h2><span class="hem">💡</span> Lo que suele tener ${esc(nm)}</h2><span class="small muted">${st.n} orden${st.n!==1?'es':''} anterior${st.n!==1?'es':''}</span></div><div class="cp-in">
+   ${st.fallas.length?`<div class="lbl">Fallas más comunes</div><div class="pillist" style="margin-bottom:10px">${chips(st.fallas,'f')}</div>`:''}
+   ${st.trab.length?`<div class="lbl">Trabajos que más se le hacen</div><div class="pillist" style="margin-bottom:10px">${chips(st.trab,'w')}</div>`:''}
+   ${st.rep.length?`<div class="lbl">Repuestos más usados</div><div class="pillist">${chips(st.rep,'')}</div>`:''}</div></div>`;
+}
 function moCard(b){
   const L=b.manoObra||[];const can=moPuede(b);
   return `<div class="card"><div class="ch"><h2><span class="hem">🛠️</span> Mano de obra ${L.length?`<span class="badge" style="background:var(--pri-l);color:var(--pri)">⏱️ ${fh(moH(b))}</span>`:''}</h2>${can?`<button class="btn sm p" data-act="moAdd" data-id="${b.id}">${ic('plus')} Agregar</button>`:''}</div>
@@ -2320,6 +2462,7 @@ function recepBody(b){
   <p style="margin-top:8px">Recibido: <b>${fts(r0.t||b.createdAt)}</b>${r0.por?' por '+esc(r0.por):''}${b.fechaEstimada?` · Entrega aproximada: <b>${fdate(b.fechaEstimada)}</b>`:''}</p>
   <h4>Términos y condiciones</h4><div class="terms">${esc(CFG.terminos)}</div>
   <div class="sig"><div>Recibido por${r0.por?' · '+esc(r0.por):''}</div><div>Firma del cliente · Cédula</div></div>
+  ${(()=>{const u=consultaUrl(b);const q=u&&qrData(u,150);return q?`<div style="display:flex;gap:14px;align-items:center;border:1px dashed #9ca3af;border-radius:10px;padding:10px;margin-top:10px"><img src="${q}" style="width:96px;height:96px"><div><b>🔎 Consulte el estado de su máquina</b><br><span style="font-size:11px">Escanee este código con la cámara de su teléfono para ver en qué va la reparación, sin llamar.</span></div></div>`:''})()}
   <div class="ft">Presente esta boleta para retirar su equipo · ${esc(CFG.nombre)}${CFG.telefono?' · Tel. '+esc(CFG.telefono):''}</div>`;
 }
 function tallerBody(b){
@@ -2532,6 +2675,17 @@ const A={
  moreOpen:()=>$('#more').classList.add('open'),moreClose:()=>{},
  scan:()=>scanQR(),
  mantOk:async d=>{const b=S.boletas[d.id];if(!b)return;if(await put('boletas',{...b,mantAvisado:Date.now(),mantPor:quien()})){toast('Listo, recordatorio cerrado');render()}},
+ consulta:d=>consultaModal(d.id),
+ cntStep:d=>{const r=rep(d.id);if(!r)return;const c=CNT[d.id];const cur=c==null||c===''?(+d.d>0?0:num(r.stock)):num(c);CNT[d.id]=String(Math.max(0,cur+num(d.d)));cntSave();cntRow(d.id)},
+ cntReset:()=>confirmBox('¿Borrar lo contado y empezar de nuevo?',()=>{CNT={};cntSave();closeModal();render()},'Empezar de nuevo'),
+ cntScan:()=>scanCode({title:'📋 Contar escaneando',hint:'Cada vez que escanee un repuesto se suma 1 al conteo.',keep:true,manual:'…o escriba el código',onCode:t=>{const n=norm(t);const r=arr(S.repuestos).find(r=>[r.codBarras,r.sku,r.codProv].some(x=>x&&norm(x)===n));if(!r){chime([220]);return '❓ Código '+t+' no está en el inventario'}const c=CNT[r.id];CNT[r.id]=String((c==null||c===''?0:num(c))+1);cntSave();cntRow(r.id);return `✔ ${r.nombre}: ${CNT[r.id]} contado${CNT[r.id]==='1'?'':'s'}`}}),
+ cntApply:adminOnly(()=>{const df=cntDiffs();if(!df.length)return;confirmBox(`¿Ajustar el stock de <b>${df.length}</b> repuesto${df.length!==1?'s':''} según el conteo?<div class="small muted" style="margin-top:8px;max-height:200px;overflow:auto">${df.map(r=>`${esc(r.nombre)}: ${num(r.stock)} → <b>${num(CNT[r.id])}</b>`).join('<br>')}</div>`,async()=>{
+   for(const r of df){const nv=num(CNT[r.id]),diff=nv-num(r.stock);await put('movimientos',{id:uid(),repuestoId:r.id,tipo:'ajuste',cant:diff,fecha:Date.now(),por:quien(),nota:'Conteo de inventario'});await put('repuestos',{...r,stock:nv,omitPed:null})}
+   CNT={};cntSave();closeModal();render();toast(`📋 Inventario ajustado: ${df.length} repuesto${df.length!==1?'s':''}`)},'Ajustar')}),
+ mic:(d,el)=>micToggle(d.t,el),
+ rfScan:()=>scanCode({title:'▥ Código de barras del repuesto',hint:'Apunte al código de barras del repuesto o de su empaque.',onCode:t=>{RF.codBarras=t;const e=$('#rf_codBarras');if(e)e.value=t;const dup=arr(S.repuestos).find(r=>r.codBarras===t&&r.id!==RF.id);toast(dup?'⚠️ Ese código ya lo tiene: '+dup.nombre:'▥ Código leído')}}),
+ rpScan:()=>scanCode({title:'📷 Buscar repuesto',hint:'Apunte al código de barras del repuesto.',onCode:t=>{const e=$('#rpq');if(e){e.value=t;e.dispatchEvent(new Event('input',{bubbles:true}));e.focus()}}}),
+ cnsCopy:async()=>{try{await navigator.clipboard.writeText($('#cnsUrl').value);toast('Enlace copiado')}catch(e){$('#cnsUrl').select();toast('Seleccionado: cópielo')}},
  theme:()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'),
  mSearch:()=>{$('#tsearch').classList.add('open');$('#qGlobal').focus()},
  clearQ:()=>{UI.q='';$('#qGlobal').value='';$('#tsearch').classList.remove('open');render()},
@@ -2685,6 +2839,7 @@ document.addEventListener('input',e=>{
   if(t.dataset.wq!=null&&W){W.qc=t.value;const q=norm(W.qc);const rs=q?arr(S.clientes).filter(c=>norm([c.nombre,c.telefono,c.telefono2,c.cedula].join(' ')).includes(q)).slice(0,12):arr(S.clientes).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).slice(0,6);$('#wqRes').innerHTML=wCliRes(rs,q);return}
   if(t.dataset.w&&W){const [o,k]=t.dataset.w.split('.');(o==='d'?W.d:W[o])[k]=t.value;return}
   if(t.dataset.tr&&TR){TR[t.dataset.tr]=t.value;dirtyTrab();return}
+  if(t.dataset.cnt){CNT[t.dataset.cnt]=t.value===''?'':String(Math.max(0,num(t.value)));if(CNT[t.dataset.cnt]==='')delete CNT[t.dataset.cnt];cntSave();cntRow(t.dataset.cnt);return}
   if(t.dataset.ef&&EF){EF[t.dataset.ef]=t.value;return}
   if(t.dataset.rf&&RF){RF[t.dataset.rf]=t.value;return}
   if(t.dataset.nf&&RP&&RP.nf){RP.nf[t.dataset.nf]=t.value;if(t.dataset.nf==='nombre')RP.nf._t=true;if(['entra','usa'].includes(t.dataset.nf)){const i=$('#nfInfo');if(i)i.innerHTML=nfInfo()}return}
