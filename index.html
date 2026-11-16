@@ -656,11 +656,15 @@ html[data-theme=dark] .sent-msg{color:#5eead4}
 .m3m{all:unset;cursor:pointer;padding:7px 12px;border-radius:12px;font-size:13px;font-weight:700;border:1.5px solid var(--line);background:var(--field);touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .m3m.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--ink);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 18%,transparent)}
 .m3wrap{position:relative;border-radius:18px;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,color-mix(in srgb,#14b8a6 10%,var(--surface-hi)),color-mix(in srgb,#8b5cf6 8%,var(--soft)));border:1px solid var(--line)}
-#m3c{display:block;width:100%;height:min(52vh,380px);touch-action:none;cursor:grab}
+#m3c{display:block;width:100%;height:min(58vh,440px);touch-action:none;cursor:grab}
 .m3tip{position:absolute;left:10px;right:56px;bottom:10px;padding:7px 11px;border-radius:12px;font-size:12.5px;background:color-mix(in srgb,var(--surface-hi) 88%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);pointer-events:none}
 .m3zoom{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:6px}
 .m3zoom button{all:unset;cursor:pointer;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;background:color-mix(in srgb,var(--surface-hi) 90%,transparent);border:1px solid var(--line);touch-action:manipulation}
 .m3p{font-size:12.5px!important}
+
+.m3tools{position:absolute;left:10px;top:10px;display:flex;gap:6px;flex-wrap:wrap}
+.m3t{all:unset;cursor:pointer;padding:6px 10px;border-radius:11px;font-size:12px;font-weight:700;background:color-mix(in srgb,var(--surface-hi) 90%,transparent);border:1px solid var(--line);touch-action:manipulation}
+.m3t.on{background:linear-gradient(135deg,#5eead4,#38bdf8);color:#fff;border-color:transparent}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
 @media (max-width:860px){
   .bnav{left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));padding:6px 6px;border-radius:24px;background:color-mix(in srgb,var(--bg) 60%,transparent);backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);border:1px solid var(--glass-b);box-shadow:var(--sh2)}
@@ -2434,47 +2438,95 @@ function modCard(b){
 /* ================== Vista 3D de la máquina ================== */
 const PZ_ST={cambiado:{l:'Cambiado',c:'#22c55e',em:'🟢'},revisado:{l:'Revisado',c:'#3b82f6',em:'🔵'},dano:{l:'Con daño',c:'#ef4444',em:'🔴'}};
 function m3dKind(t){const n=norm(t);return /motosierra|sierra/.test(n)?'sierra':/desbroz|chapead|guadan|motoguad|bordead|orillad/.test(n)?'desb':/fumig|bomba|aspers|atomiz|espalda/.test(n)?'bomba':/podador|cortacesp|cortacésp|corta ?cesped|zacate/.test(n)?'corta':'motor'}
+/* geometría */
+const G3={
+ box(cx,cy,cz,sx,sy,sz){const hx=sx/2,hy=sy/2,hz=sz/2;const v=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]].map(([a,b,d])=>[cx+a*hx,cy+b*hy,cz+d*hz]);return [[0,1,2,3],[5,4,7,6],[4,0,3,7],[1,5,6,2],[3,2,6,7],[4,5,1,0]].map(f=>f.map(i=>v[i]))},
+ pt(ax,cx,cy,cz,u,w,y){return ax==='y'?[cx+u,cy+y,cz+w]:ax==='x'?[cx+y,cy+u,cz+w]:[cx+u,cy+w,cz+y]},
+ cyl(cx,cy,cz,r,h,ax,seg=16,r2){r2=r2??r;const F=[],t=[],b=[],H=h/2;for(let i=0;i<seg;i++){const a=i/seg*6.2832,a2=(i+1)/seg*6.2832;
+   F.push([G3.pt(ax,cx,cy,cz,Math.cos(a)*r,Math.sin(a)*r,-H),G3.pt(ax,cx,cy,cz,Math.cos(a2)*r,Math.sin(a2)*r,-H),G3.pt(ax,cx,cy,cz,Math.cos(a2)*r2,Math.sin(a2)*r2,H),G3.pt(ax,cx,cy,cz,Math.cos(a)*r2,Math.sin(a)*r2,H)]);
+   t.push(G3.pt(ax,cx,cy,cz,Math.cos(a)*r2,Math.sin(a)*r2,H));b.push(G3.pt(ax,cx,cy,cz,Math.cos(a)*r,Math.sin(a)*r,-H))}F.push(t,b.reverse());return F},
+ torus(cx,cy,cz,R,r,ax,sa=18,sb=6){const F=[];const P=(i,j)=>{const a=i/sa*6.2832,b=j/sb*6.2832;const u=(R+r*Math.cos(b))*Math.cos(a),w=(R+r*Math.cos(b))*Math.sin(a),y=r*Math.sin(b);return G3.pt(ax,cx,cy,cz,u,w,y)};
+   for(let i=0;i<sa;i++)for(let j=0;j<sb;j++)F.push([P(i,j),P(i+1,j),P(i+1,j+1),P(i,j+1)]);return F},
+ bar(a,b,w,h){const d=[b[0]-a[0],b[1]-a[1],b[2]-a[2]];const L=Math.hypot(...d)||1;const n=d.map(x=>x/L);let up=Math.abs(n[1])>.9?[1,0,0]:[0,1,0];
+   const cr=(p,q)=>[p[1]*q[2]-p[2]*q[1],p[2]*q[0]-p[0]*q[2],p[0]*q[1]-p[1]*q[0]];let s1=cr(n,up);const l1=Math.hypot(...s1);s1=s1.map(x=>x/l1*w/2);let s2=cr(n,s1);const l2=Math.hypot(...s2)||1;s2=s2.map(x=>x/l2*h/2);
+   const V=[];[a,b].forEach(o=>[[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([i,j])=>V.push([o[0]+s1[0]*i+s2[0]*j,o[1]+s1[1]*i+s2[1]*j,o[2]+s1[2]*i+s2[2]*j])));
+   return [[0,1,2,3],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]].map(f=>f.map(i=>V[i]))},
+ path(pts,w,h){let F=[];for(let i=0;i<pts.length-1;i++)F=F.concat(G3.bar(pts[i],pts[i+1],w,h));return F},
+ arc(cx,cy,cz,R,a0,a1,n,ax){const P=[];for(let i=0;i<=n;i++){const a=a0+(a1-a0)*i/n;P.push(G3.pt(ax,cx,cy,cz,Math.cos(a)*R,Math.sin(a)*R,0))}return P},
+ fins(cx,cy,cz,r,h,ax,n,rf){let F=G3.cyl(cx,cy,cz,r,h,ax,16);for(let i=0;i<n;i++){const y=-h/2+h*(i+.5)/n;const c=G3.pt(ax,cx,cy,cz,0,0,y);F=F.concat(G3.cyl(c[0],c[1],c[2],rf,h/n*.35,ax,16))}return F},
+ radial(cx,cy,cz,r1,r2,n,th,ax){let F=[];for(let i=0;i<n;i++){const a=i/n*6.2832;F=F.concat(G3.bar(G3.pt(ax,cx,cy,cz,Math.cos(a)*r1,Math.sin(a)*r1,0),G3.pt(ax,cx,cy,cz,Math.cos(a)*r2,Math.sin(a)*r2,0),.05,th))}return F},
+ chain(cx,cy,cz,len,hh,rt){const F=[];const P=[];const n1=26;for(let i=0;i<=n1;i++)P.push([cx-len/2+len*i/n1,cy+hh,cz]);const na=10;for(let i=1;i<na;i++){const a=Math.PI/2-Math.PI*i/na;P.push([cx+len/2+Math.cos(a)*hh,cy+Math.sin(a)*hh,cz])}
+   for(let i=0;i<=n1;i++)P.push([cx+len/2-len*i/n1,cy-hh,cz]);P.forEach((p,i)=>{F.push(...G3.box(p[0],p[1],p[2],.1,.07,i%2?.07:.11).map(v=>({v,c:i%2?'#475569':'#94a3b8'})));if(i%4===0&&p[1]>cy)F.push(...G3.box(p[0],p[1]+.06,p[2],.08,.06,.05).map(v=>({v,c:'#e2e8f0'})))});return F}
+};
 function m3dModel(kind){
-  const P=[];const O='#f97316',D='#374151',G='#9ca3af',S='#cbd5e1',K='#1f2937',W='#f1f5f9',Y='#eab308',B='#0ea5e9';
-  const box=(k,l,c,x,y,z,sx,sy,sz)=>P.push({t:'b',k,l,c,x,y,z,sx,sy,sz});
-  const cyl=(k,l,c,x,y,z,r,h,ax,seg)=>P.push({t:'c',k,l,c,x,y,z,r,h,ax,seg:seg||14});
-  const motor=(x,y,z)=>{box('carcasa','Carcasa del motor',O,x,y,z,1.5,1.0,0.95);cyl('cilindro','Cilindro / pistón',G,x+.15,y+.75,z,.34,.55,'y');cyl('bujia','Bujía',W,x+.15,y+1.18,z,.09,.3,'y',8);
-    box('filtro','Filtro de aire',K,x-.45,y+.62,z+.05,.55,.32,.75);box('carburador','Carburador',S,x-.48,y+.25,z+.55,.4,.3,.25);cyl('arrancador','Arrancador',D,x-.1,y-.05,z-.55,.42,.16,'z');
-    box('silenciador','Silenciador / escape',G,x+.62,y+.35,z+.55,.45,.45,.25);box('tanque','Tanque de combustible','#ea580c',x-.25,y-.62,z,1.2,.35,.9)};
-  if(kind==='sierra'){motor(0,.6,0);box('manija_t','Manija trasera / acelerador',K,-1.25,.62,0,.95,.2,.26);box('manija_t','Manija trasera / acelerador',K,-1.65,.4,0,.18,.6,.26);
-    box('manija_d','Manija delantera',K,.1,1.75,0,.18,.18,1.3);box('manija_d','Manija delantera',K,.1,1.3,.6,.18,.9,.18);box('manija_d','Manija delantera',K,.1,1.3,-.6,.18,.9,.18);
-    box('freno','Freno de cadena',O,.82,1.1,0,.1,.75,.85);cyl('pinon','Piñón y embrague',D,.92,.55,0,.24,.22,'z');
-    box('espada','Espada',S,2.25,.55,0,2.6,.34,.06);box('cadena','Cadena',K,2.25,.76,0,2.75,.07,.1);box('cadena','Cadena',K,2.25,.34,0,2.75,.07,.1);cyl('cadena','Cadena',K,3.6,.55,0,.22,.1,'z',10)}
-  else if(kind==='desb'){motor(-2.4,.55,0);cyl('embrague','Embrague',D,-1.55,.65,0,.3,.3,'x');cyl('eje','Eje / tubo de transmisión',G,.4,.65,0,.1,3.6,'x',10);
-    box('manubrio','Manubrio',K,-.6,1.45,0,.14,.14,2.2);box('manubrio','Manubrio',K,-.6,1.05,0,.12,.8,.12);box('acelerador','Acelerador',O,-.6,1.45,1.05,.24,.24,.3);
-    box('cabezal','Cabezal / caja de engranes',D,2.35,.55,0,.4,.45,.4);cyl('cuchilla','Cuchilla / cabezal de nylon',S,2.4,.22,0,.85,.06,'y',18);box('protector','Protector',O,2.05,.45,0,.35,.08,1.1);box('arnes','Arnés',B,-.3,.68,.0,.5,.25,.5)}
-  else if(kind==='bomba'){box('tanque_q','Tanque del líquido',W,0,1.6,0,1.6,2.0,.9);box('tapa','Tapa del tanque',Y,0,2.7,0,.6,.15,.5);motor(0,-.15,.95);
-    cyl('bomba','Bomba',B,.9,.2,.95,.25,.45,'y');box('correas','Correas / arnés',K,.55,1.6,-.55,.15,1.8,.12);box('correas','Correas / arnés',K,-.55,1.6,-.55,.15,1.8,.12);
-    cyl('manguera','Manguera',K,1.4,.9,.6,.07,1.9,'y',8);cyl('lanza','Lanza / pistola',G,2.0,1.85,.6,.06,1.3,'x',8);box('boquilla','Boquilla',Y,2.75,1.85,.6,.15,.15,.15)}
-  else if(kind==='corta'){box('chasis','Chasis / plato de corte',G,0,.35,0,2.0,.3,1.7);motor(0,1.1,0);cyl('cuchilla','Cuchilla',S,0,.18,0,.8,.05,'y',18);
-    [[.8,.6],[.8,-.6],[-.8,.6],[-.8,-.6]].forEach(([x,z])=>cyl('ruedas','Ruedas',K,x,.2,z*1.35,.28,.16,'z'));box('manubrio','Manubrio',K,-1.6,1.4,0,.12,1.4,1.1);box('bolsa','Bolsa recolectora',B,-1.45,.6,0,.7,.6,1.0)}
-  else{motor(0,.5,0);box('base','Base / chasis',K,0,-.35,0,2.2,.15,1.4);cyl('eje','Eje de salida',G,1.0,.5,0,.12,.6,'x',10)}
+  const P=[];const add=(k,l,c,polys,e)=>P.push({k,l,c,polys,e});
+  const O='#f97316',O2='#ea580c',Hs='#e5e7eb',D='#1f2937',D2='#374151',M='#9ca3af',A='#cbd5e1',W='#f8fafc',Y='#fde68a';
+  if(kind==='sierra'){
+    add('tapa','Tapa superior',O,[...G3.box(.05,1.72,0,1.45,.16,1.0),...G3.box(-.62,1.5,0,.22,.45,1.0),...G3.box(.7,1.5,0,.16,.4,.95)],[0,1.9,0]);
+    add('filtro','Filtro de aire',Y,[...G3.box(-.3,1.28,0,.62,.2,.72).map(v=>({v,c:D})),...[-.2,-.1,0,.1,.2].flatMap(z=>G3.box(-.3,1.4,z*1.4,.56,.08,.06))],[-.9,1.25,0]);
+    add('bujia','Bujía',W,[...G3.cyl(.42,1.3,.32,.05,.32,'y',8),...G3.cyl(.42,1.1,.32,.08,.12,'y',6).map(v=>({v,c:M}))],[1.0,1.0,.6]);
+    add('piston','Pistón y anillos',A,[...G3.cyl(.15,1.45,0,.27,.32,'y',16),...G3.torus(.15,1.52,0,.27,.025,'y',16,4).map(v=>({v,c:D2})),...G3.torus(.15,1.44,0,.27,.025,'y',16,4).map(v=>({v,c:D2})),...G3.cyl(.15,1.35,0,.05,.6,'z',8).map(v=>({v,c:M}))],[0,2.75,0]);
+    add('cilindro','Cilindro',M,G3.fins(.15,1.08,0,.3,.6,'y',6,.42),[0,1.65,0]);
+    add('carter','Cárter / bloque del motor',A,[...G3.box(.15,.55,0,.8,.5,.75),...G3.cyl(.15,.55,0,.33,.95,'z',16).map(v=>({v,c:M}))],[0,0,0]);
+    add('cigueñal','Cigüeñal y biela',D2,[...G3.cyl(.15,.5,0,.07,1.5,'z',10),...G3.cyl(.15,.5,.18,.3,.08,'z',14).map(v=>({v,c:M})),...G3.cyl(.15,.5,-.18,.3,.08,'z',14).map(v=>({v,c:M})),...G3.bar([.15,.55,0],[.15,1.05,0],.1,.06).map(v=>({v,c:'#b45309'}))],[0,-1.25,0]);
+    add('carburador','Carburador',A,[...G3.box(-.5,.85,.38,.32,.3,.3),...G3.cyl(-.5,.85,.62,.09,.2,'z',10).map(v=>({v,c:M})),...G3.box(-.5,1.03,.38,.12,.06,.18).map(v=>({v,c:D}))],[-1.1,.4,1.1]);
+    add('bobina','Bobina de encendido',D,[...G3.box(.62,.95,-.35,.3,.36,.26),...G3.box(.62,.95,-.2,.12,.12,.06).map(v=>({v,c:'#b45309'}))],[.9,.8,-1.0]);
+    add('volante','Volante / magneto',M,[...G3.cyl(.15,.55,-.55,.42,.08,'z',18),...G3.radial(.15,.55,-.6,.14,.42,14,.14,'z')],[0,0,-1.5]);
+    add('arrancador','Arrancador (cuerda)',Hs,[...G3.cyl(.15,.55,-.82,.5,.14,'z',18),...G3.radial(.15,.55,-.9,.08,.46,8,.04,'z').map(v=>({v,c:M})),...G3.box(-.25,1.05,-.92,.34,.1,.1).map(v=>({v,c:D})),...G3.bar([.15,.55,-.9],[-.25,1.02,-.92],.02,.02).map(v=>({v,c:W}))],[0,0,-2.5]);
+    add('embrague','Embrague',M,[...G3.cyl(.15,.55,.55,.28,.1,'z',14),...[0,2.09,4.19].flatMap(a=>G3.box(.15+Math.cos(a)*.2,.55+Math.sin(a)*.2,.55,.16,.1,.12).map(v=>({v,c:D2})))],[0,0,1.25]);
+    add('tambor','Tambor y piñón',A,[...G3.cyl(.15,.55,.75,.34,.18,'z',18),...G3.cyl(.15,.55,.9,.13,.14,'z',8).map(v=>({v,c:D2}))],[0,0,1.95]);
+    add('freno','Freno de cadena',M,[...G3.torus(.15,.55,.78,.38,.03,'z',20,3),...G3.box(.75,1.0,.8,.08,.75,.5).map(v=>({v,c:D}))],[.3,.2,2.6]);
+    add('cubierta','Tapa lateral / cubierta del piñón',Hs,[...G3.box(.6,.55,1.0,1.0,.7,.1),...G3.cyl(.85,.55,1.07,.07,.08,'z',8).map(v=>({v,c:D}))],[.5,0,3.2]);
+    add('silenciador','Silenciador / escape',M,[...G3.box(.82,.8,0,.32,.42,.5),...G3.box(.99,.8,0,.04,.3,.36).map(v=>({v,c:D2}))],[1.3,.6,-.3]);
+    add('carcasa','Carcasa y tanque de combustible',Hs,[...G3.box(-.45,.08,0,1.55,.42,.95),...G3.box(-1.0,.42,0,.5,.3,.9),...G3.cyl(-.75,.33,.35,.09,.12,'y',10).map(v=>({v,c:D})),...G3.cyl(-.25,.33,-.35,.09,.12,'y',10).map(v=>({v,c:O}))],[-.6,-1.0,0]);
+    add('manija_t','Manija trasera / acelerador',Hs,[...G3.path([[-1.25,.3,0],[-2.05,.3,0],[-2.15,.75,0],[-1.25,.85,0]],.16,.22),...G3.box(-1.6,.84,0,.6,.1,.18).map(v=>({v,c:D})),...G3.box(-1.4,.62,0,.12,.18,.08).map(v=>({v,c:O}))],[-1.2,-.3,0]);
+    add('manija_d','Manija delantera',D,G3.path(G3.arc(.3,.9,0,.75,-.25,3.39,12,'x'),.14,.14),[.3,1.0,-.9]);
+    add('espada','Espada',A,[...G3.box(2.2,.5,0,2.6,.36,.06),...G3.cyl(3.5,.5,0,.18,.06,'z',14),...G3.box(1.35,.5,.04,.4,.08,.02).map(v=>({v,c:M}))],[1.2,-.55,.9]);
+    add('cadena','Cadena',D2,G3.chain(2.25,.5,0,2.55,.22,.2),[1.2,-.4,1.8]);
+  }
+  else if(kind==='desb'){
+    add('carcasa','Carcasa y tanque',Hs,G3.box(-2.4,.15,0,1.2,.35,.9));add('cilindro','Cilindro',M,G3.fins(-2.25,.85,0,.28,.55,'y',5,.38));add('bujia','Bujía',W,G3.cyl(-2.25,1.3,0,.05,.3,'y',8));
+    add('filtro','Filtro de aire',Y,G3.box(-2.85,.75,.05,.4,.4,.65));add('carburador','Carburador',A,G3.box(-2.7,.55,.5,.32,.28,.28));add('arrancador','Arrancador',Hs,G3.cyl(-2.4,.55,-.55,.42,.15,'z',16));
+    add('volante','Volante / magneto',M,[...G3.cyl(-2.4,.55,-.4,.36,.07,'z',16),...G3.radial(-2.4,.55,-.45,.12,.36,12,.12,'z')]);add('carter','Bloque del motor',A,G3.box(-2.25,.5,0,.7,.5,.6));
+    add('embrague','Embrague',D2,G3.cyl(-1.65,.6,0,.3,.3,'x',14));add('eje','Eje / tubo de transmisión',M,G3.cyl(.4,.65,0,.09,3.8,'x',10));
+    add('manubrio','Manubrio',D,[...G3.path(G3.arc(-.6,1.15,0,1.05,.35,2.79,10,'x'),.1,.1),...G3.bar([-.6,.68,0],[-.6,1.25,0],.12,.12)]);add('acelerador','Acelerador',O,G3.box(-.6,1.55,-1.0,.22,.26,.32));
+    add('cabezal','Caja de engranes',A,G3.box(2.4,.55,0,.38,.42,.38));add('cuchilla','Cuchilla / cabezal de nylon',M,[...G3.cyl(2.45,.2,0,.85,.05,'y',20),...[0,1.57,3.14,4.71].flatMap(a=>G3.box(2.45+Math.cos(a)*.6,.2,Math.sin(a)*.6,.3,.06,.1).map(v=>({v,c:W})))]);
+    add('protector','Protector',O,G3.path(G3.arc(2.45,.42,0,.75,2.2,4.1,6,'y'),.06,.3));add('arnes','Arnés',D2,G3.box(-.3,.66,0,.45,.25,.45));
+  }
+  else if(kind==='bomba'){
+    add('tanque_q','Tanque del líquido',W,G3.box(0,1.6,0,1.6,2.0,.9));add('tapa','Tapa del tanque',Y,G3.cyl(0,2.68,0,.28,.15,'y',14));
+    add('carcasa','Carcasa del motor',O,G3.box(0,-.15,.95,1.2,.6,.8));add('cilindro','Cilindro',M,G3.fins(.15,.45,.95,.25,.45,'y',4,.34));add('bujia','Bujía',W,G3.cyl(.15,.85,.95,.05,.28,'y',8));
+    add('carburador','Carburador',A,G3.box(-.5,.2,1.35,.3,.28,.26));add('filtro','Filtro de aire',Y,G3.box(-.55,.45,.95,.35,.35,.5));add('arrancador','Arrancador',Hs,G3.cyl(0,-.15,.45,.38,.14,'z',16));
+    add('bomba','Bomba','#0ea5e9',G3.cyl(.9,.2,.95,.25,.45,'y',14));add('correas','Correas / arnés',D,[...G3.box(.55,1.6,-.55,.15,1.8,.12),...G3.box(-.55,1.6,-.55,.15,1.8,.12)]);
+    add('manguera','Manguera',D2,G3.path([[.9,.45,.95],[1.4,.6,.8],[1.6,1.4,.7],[1.9,1.85,.6]],.1,.1));add('lanza','Lanza / pistola',M,G3.cyl(2.5,1.85,.6,.06,1.3,'x',8));add('boquilla','Boquilla',Y,G3.cyl(3.2,1.85,.6,.09,.18,'x',8,.04));
+  }
+  else if(kind==='corta'){
+    add('chasis','Chasis / plato de corte',M,G3.box(0,.35,0,2.0,.3,1.7));add('cuchilla','Cuchilla',A,G3.box(0,.17,0,1.5,.04,.18));add('carcasa','Carcasa del motor',O,G3.box(0,.85,0,1.0,.5,.8));
+    add('cilindro','Cilindro',M,G3.fins(0,1.3,0,.28,.4,'y',4,.36));add('bujia','Bujía',W,G3.cyl(.3,1.3,.3,.05,.25,'y',8));add('filtro','Filtro de aire',Y,G3.box(-.35,1.25,.3,.35,.25,.35));add('carburador','Carburador',A,G3.box(-.4,.95,.5,.25,.22,.2));
+    add('arrancador','Arrancador',Hs,G3.cyl(0,1.55,0,.35,.12,'y',16));[[.8,.6],[.8,-.6],[-.8,.6],[-.8,-.6]].forEach(([x,z],i)=>add('ruedas','Ruedas',D,[...G3.cyl(x,.22,z*1.35,.28,.16,'z',14),...G3.cyl(x,.22,z*1.35+(z>0?.09:-.09),.12,.04,'z',8).map(v=>({v,c:A}))]));
+    add('manubrio','Manubrio',D,G3.path([[-.9,.5,.6],[-1.7,1.6,.6],[-1.7,1.6,-.6],[-.9,.5,-.6]],.09,.09));add('bolsa','Bolsa recolectora','#0ea5e9',G3.box(-1.45,.6,0,.7,.6,1.0));
+  }
+  else{add('carcasa','Carcasa / tanque',O,G3.box(0,.9,0,1.4,.45,.95));add('cilindro','Cilindro',M,G3.fins(.35,.45,0,.3,.55,'x',5,.42));add('bujia','Bujía',W,G3.cyl(.75,.45,0,.05,.28,'x',8));
+    add('carter','Bloque del motor',A,G3.box(-.25,.35,0,.7,.6,.75));add('carburador','Carburador',A,G3.box(-.2,.35,.55,.3,.26,.26));add('filtro','Filtro de aire',Y,G3.box(-.2,.35,.85,.4,.4,.2));
+    add('arrancador','Arrancador',Hs,G3.cyl(-.75,.4,0,.45,.15,'x',16));add('silenciador','Silenciador',M,G3.box(.45,.85,-.55,.5,.3,.25));add('eje','Eje de salida',D2,G3.cyl(.0,.35,-.6,.1,.6,'z',10));add('base','Base / chasis',D,G3.box(0,-.05,0,2.0,.12,1.3))}
+  // despiece automático si no se definió
+  const cen=pp=>{const V=pp.polys.map(x=>x.v||x).flat();return [0,1,2].map(i=>V.reduce((a,v)=>a+v[i],0)/V.length)};
+  const C0=(()=>{const cs=P.map(cen);return [0,1,2].map(i=>cs.reduce((a,c)=>a+c[i],0)/cs.length)})();
+  P.forEach(pp=>{if(!pp.e){const c=cen(pp);const d=[c[0]-C0[0],c[1]-C0[1],c[2]-C0[2]];const l=Math.hypot(...d)||1;pp.e=d.map(x=>x/l*.9)}});
   return P;
 }
-function m3dFaces(P){
-  const F=[];P.forEach(p=>{const c=p.c;
-    if(p.t==='b'){const hx=p.sx/2,hy=p.sy/2,hz=p.sz/2;const v=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]].map(([a,b,d])=>[p.x+a*hx,p.y+b*hy,p.z+d*hz]);
-      [[0,1,2,3],[5,4,7,6],[4,0,3,7],[1,5,6,2],[3,2,6,7],[4,5,1,0]].forEach(f=>F.push({k:p.k,c,v:f.map(i=>v[i])}))}
-    else{const n=p.seg,h=p.h/2,pt=(a,y)=>{const u=Math.cos(a)*p.r,w=Math.sin(a)*p.r;return p.ax==='y'?[p.x+u,p.y+y,p.z+w]:p.ax==='x'?[p.x+y,p.y+u,p.z+w]:[p.x+u,p.y+w,p.z+y]};
-      const top=[],bot=[];for(let i=0;i<n;i++){const a=i/n*Math.PI*2,a2=(i+1)/n*Math.PI*2;F.push({k:p.k,c,v:[pt(a,-h),pt(a2,-h),pt(a2,h),pt(a,h)]});top.push(pt(a,h));bot.push(pt(a,-h))}
-      F.push({k:p.k,c,v:top});F.push({k:p.k,c,v:bot.reverse()})}});
-  return F;
-}
+function m3dFaces(P){const F=[];P.forEach(p=>p.polys.forEach(x=>F.push({k:p.k,c:x.c||p.c,v:x.v||x,e:p.e})));return F}
 let M3=null;
 function m3dOpen(id){
   const b=S.boletas[id];if(!b)return;const e=eq(b.equipoId)||{};const kind=m3dKind(e.tipo);const P=m3dModel(kind);
   const parts=[];P.forEach(p=>{if(!parts.some(x=>x.k===p.k))parts.push({k:p.k,l:p.l})});
   const can=esTaller()&&!bloqueado(b)&&(isOpen(b)||isAdmin());
-  const F=m3dFaces(P),V=F.flatMap(f=>f.v);const mn=[0,1,2].map(i=>Math.min(...V.map(v=>v[i]))),mx=[0,1,2].map(i=>Math.max(...V.map(v=>v[i])));const C=mn.map((v,i)=>(v+mx[i])/2);const RR=Math.max(...V.map(v=>Math.hypot(v[0]-C[0],v[1]-C[1],v[2]-C[2])));
-  M3={id,kind,P,F,C,RR,parts,mark:{...(b.partes||{})},mode:'cambiado',yaw:-.6,pitch:.42,zoom:1,auto:true,sel:'',can,hover:''};
+  const F=m3dFaces(P);const fit=V=>{const mn=[0,1,2].map(i=>Math.min(...V.map(v=>v[i]))),mx=[0,1,2].map(i=>Math.max(...V.map(v=>v[i])));const C=mn.map((v,i)=>(v+mx[i])/2);return {C,R:Math.max(...V.map(v=>Math.hypot(v[0]-C[0],v[1]-C[1],v[2]-C[2])))}};
+  const fa=fit(F.flatMap(f=>f.v)),fe=fit(F.flatMap(f=>f.v.map(v=>[v[0]+f.e[0],v[1]+f.e[1],v[2]+f.e[2]])));const C=fa.C,RR=fa.R;
+  M3={id,kind,P,F,C,RR,fa,fe,parts,mark:{...(b.partes||{})},mode:'cambiado',yaw:-.75,pitch:.45,zoom:1,auto:true,sel:'',can,hover:'',ex:kind==='sierra'?1:0,exT:kind==='sierra'?1:0,names:innerWidth>700};
   openModal(`🧩 Vista 3D · ${esc(eqShort(e)||e.tipo||'Máquina')}`,`
    ${can?`<div class="m3modes">${Object.entries(PZ_ST).map(([k,v])=>`<button type="button" class="m3m ${k==='cambiado'?'on':''}" data-m3="${k}" style="--c:${v.c}">${v.em} ${v.l}</button>`).join('')}<button type="button" class="m3m" data-m3="" style="--c:#94a3b8">⚪ Quitar</button></div>`:''}
-   <div class="m3wrap"><canvas id="m3c"></canvas><div class="m3tip" id="m3tip">${can?'👆 Toque una pieza para marcarla · arrastre para girar':'Arrastre para girar · solo lectura'}</div><div class="m3zoom"><button type="button" data-m3z="1.15">＋</button><button type="button" data-m3z="0.87">－</button><button type="button" data-m3z="0">⟲</button></div></div>
+   <div class="m3wrap"><canvas id="m3c"></canvas><div class="m3tip" id="m3tip">${can?'👆 Toque una pieza para marcarla · arrastre para girar':'Arrastre para girar · solo lectura'}</div><div class="m3tools"><button type="button" class="m3t ${kind==='sierra'?'on':''}" data-m3x="1">💥 Despiece</button><button type="button" class="m3t ${innerWidth>700?'on':''}" data-m3n="1">🏷️ Nombres</button></div><div class="m3zoom"><button type="button" data-m3z="1.15">＋</button><button type="button" data-m3z="0.87">－</button><button type="button" data-m3z="0">⟲</button></div></div>
    <div class="lbl" style="margin-top:12px">Piezas</div><div class="cp" id="m3list"></div>`,
    `<span class="small muted" id="m3cnt"></span><span class="sp"></span><button class="btn" data-act="close">${can?'Cancelar':'Cerrar'}</button>${can?`<button class="btn p" data-act="m3save">${ic('check')} Guardar</button>`:''}`,'lg');
   m3dList();m3dBind();
@@ -2486,8 +2538,8 @@ function m3dMark(k){if(!M3||!M3.can)return;const pl=(M3.parts.find(p=>p.k===k)||
   if(!M3.mode||M3.mark[k]===M3.mode)delete M3.mark[k];else M3.mark[k]=M3.mode;M3.sel=k;
   const st=PZ_ST[M3.mark[k]];const t=$('#m3tip');if(t)t.innerHTML=`<b>${esc(pl)}</b> → ${st?st.em+' '+st.l:'sin marcar'}`;try{navigator.vibrate&&navigator.vibrate(25)}catch(e){}m3dList();m3dDraw()}
 function m3dProj(){const W=M3.W,H=M3.H,cy=Math.cos(M3.yaw),sy=Math.sin(M3.yaw),cp=Math.cos(M3.pitch),sp=Math.sin(M3.pitch);
-  const sc=Math.min(W*.5,H*.62)/M3.RR*M3.zoom;const dist=M3.RR*3.2;const C=M3.C;
-  return v=>{let x=v[0]-C[0],y=v[1]-C[1],z=v[2]-C[2];let x1=x*cy-z*sy,z1=x*sy+z*cy;let y2=y*cp-z1*sp,z2=y*sp+z1*cp;const f=dist/(dist+z2);return [W/2+x1*sc*f,H*.47-y2*sc*f,z2,x1,y2]}}
+  const t0=M3.ex,RR=M3.fa.R+(M3.fe.R-M3.fa.R)*t0,C=[0,1,2].map(i=>M3.fa.C[i]+(M3.fe.C[i]-M3.fa.C[i])*t0);const sc=Math.min(W*(W<500?.58:.5),H*.6)/RR*M3.zoom*(1+.18*t0);const dist=RR*3.2;
+  return (v,e)=>{const t=e?M3.ex:0;let x=v[0]+(e?e[0]*t:0)-C[0],y=v[1]+(e?e[1]*t:0)-C[1],z=v[2]+(e?e[2]*t:0)-C[2];let x1=x*cy-z*sy,z1=x*sy+z*cy;let y2=y*cp-z1*sp,z2=y*sp+z1*cp;const f=dist/(dist+z2);return [W/2+x1*sc*f,H*.47-y2*sc*f,z2,x1,y2]}}
 function shade(hex,k){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;r=Math.min(255,r*k);g=Math.min(255,g*k);b=Math.min(255,b*k);return `rgb(${r|0},${g|0},${b|0})`}
 function m3dDraw(){
   if(!M3)return;const cv=$('#m3c');if(!cv)return;const ctx=cv.getContext('2d');const dpr=window.devicePixelRatio||1;const W=cv.clientWidth,H=cv.clientHeight;
@@ -2495,13 +2547,21 @@ function m3dDraw(){
   const pr=m3dProj();
   const g=ctx.createRadialGradient(W/2,H*.86,10,W/2,H*.86,W*.42);g.addColorStop(0,'rgba(0,0,0,.18)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(W/2,H*.86,W*.42,H*.07,0,0,Math.PI*2);ctx.fill();
   const L=[.35,.75,-.55];const ln=Math.hypot(...L);
-  const fs=M3.F.map(f=>{const q=f.v.map(pr);const z=q.reduce((a,p)=>a+p[2],0)/q.length;
+  const fs=M3.F.map(f=>{const q=f.v.map(v=>pr(v,f.e));const z=q.reduce((a,p)=>a+p[2],0)/q.length;
     const a=[q[1][3]-q[0][3],q[1][4]-q[0][4],q[1][2]-q[0][2]],b2=[q[2][3]-q[0][3],q[2][4]-q[0][4],q[2][2]-q[0][2]];const nx=a[1]*b2[2]-a[2]*b2[1],ny=a[2]*b2[0]-a[0]*b2[2],nz=a[0]*b2[1]-a[1]*b2[0];const nl=Math.hypot(nx,ny,nz)||1;
     const li=Math.abs((nx*L[0]+ny*L[1]+nz*L[2])/(nl*ln));return {f,q,z,li}}).sort((a,b)=>b.z-a.z);
   M3.drawn=fs;
   fs.forEach(({f,q,li})=>{const st=PZ_ST[M3.mark[f.k]];const base=st?st.c:f.c;const hov=M3.hover===f.k;
     ctx.beginPath();q.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();
-    ctx.fillStyle=shade(base,(.55+li*.6)*(hov?1.18:1));ctx.fill();ctx.strokeStyle=st?shade(st.c,.6):'rgba(0,0,0,.18)';ctx.lineWidth=st||hov?1.2:.6;ctx.stroke()});
+    ctx.fillStyle=shade(base,(.5+li*.68)*(hov?1.18:1));ctx.fill();ctx.strokeStyle=st?shade(st.c,.55):'rgba(15,23,42,.28)';ctx.lineWidth=st||hov?1.3:.55;ctx.lineJoin='round';ctx.stroke()});
+  if(M3.ex>.6){const seen={};const cen={};fs.forEach(({f,q})=>{const c=cen[f.k]||(cen[f.k]={x:0,y:0,n:0});q.forEach(p=>{c.x+=p[0];c.y+=p[1];c.n++})});
+    ctx.font='600 10.5px "Plus Jakarta Sans",system-ui,sans-serif';ctx.textBaseline='middle';
+    const items=Object.entries(cen).filter(([k])=>M3.names||M3.mark[k]||k===M3.hover||k===M3.sel).map(([k,c])=>({k,x:c.x/c.n,y:c.y/c.n,l:(M3.parts.find(p=>p.k===k)||{}).l||k})).sort((a,b)=>a.y-b.y);const used=[];
+    items.forEach(it=>{let lx=it.x+(it.x>W/2?18:-18),ly=it.y-16;const tw=Math.min(ctx.measureText(it.l).width,110)+10;if(it.x<=W/2)lx-=tw;lx=Math.max(4,Math.min(W-tw-4,lx));ly=Math.max(46,Math.min(H-50,ly));
+      for(let g=0;g<8&&used.some(u=>Math.abs(u.y-ly)<15&&lx<u.x+u.w&&lx+tw>u.x);g++)ly+=15;used.push({x:lx,y:ly,w:tw});
+      const st=PZ_ST[M3.mark[it.k]];ctx.strokeStyle=st?st.c:'rgba(100,116,139,.7)';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(it.x,it.y);ctx.lineTo(it.x>W/2?lx:lx+tw,ly);ctx.stroke();
+      ctx.fillStyle=st?st.c:'rgba(255,255,255,.88)';ctx.beginPath();ctx.roundRect?ctx.roundRect(lx,ly-8,tw,16,6):ctx.rect(lx,ly-8,tw,16);ctx.fill();
+      ctx.fillStyle=st?'#fff':'#1f2937';let t=it.l;while(ctx.measureText(t).width>tw-10&&t.length>4)t=t.slice(0,-2);if(t!==it.l)t=t.slice(0,-1)+'…';ctx.fillText(t,lx+5,ly)});}
 }
 function m3dPick(x,y){if(!M3||!M3.drawn)return '';for(let i=M3.drawn.length-1;i>=0;i--){const q=M3.drawn[i].q;let ins=false;for(let a=0,b=q.length-1;a<q.length;b=a++){const xi=q[a][0],yi=q[a][1],xj=q[b][0],yj=q[b][1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))ins=!ins}if(ins)return M3.drawn[i].f.k}return ''}
 function m3dBind(){
@@ -2518,7 +2578,8 @@ function m3dBind(){
   const box=$('#modal');box.querySelectorAll('[data-m3]').forEach(b=>b.onclick=()=>{M3.mode=b.dataset.m3;box.querySelectorAll('[data-m3]').forEach(x=>x.classList.toggle('on',x===b))});
   box.querySelectorAll('[data-m3z]').forEach(b=>b.onclick=()=>{const z=+b.dataset.m3z;if(z)M3.zoom=Math.max(.5,Math.min(2.6,M3.zoom*z));else{M3.zoom=1;M3.yaw=-.6;M3.pitch=.42}m3dDraw()});
   $('#m3list').addEventListener('click',e=>{const b=e.target.closest('[data-m3p]');if(b)m3dMark(b.dataset.m3p)});
-  const loop=()=>{if(!M3||!document.body.contains(cv))return;if(M3.auto){M3.yaw+=.006;m3dDraw()}requestAnimationFrame(loop)};m3dDraw();requestAnimationFrame(loop);
+  const loop=()=>{if(!M3||!document.body.contains(cv))return;let d=false;if(Math.abs(M3.ex-M3.exT)>.005){M3.ex+=(M3.exT-M3.ex)*.12;d=true}if(M3.auto){M3.yaw+=.004;d=true}if(d)m3dDraw();requestAnimationFrame(loop)};
+  box.querySelectorAll('[data-m3x]').forEach(b=>b.onclick=()=>{M3.exT=M3.exT?0:1;b.classList.toggle('on',!!M3.exT)});box.querySelectorAll('[data-m3n]').forEach(b=>b.onclick=()=>{M3.names=!M3.names;b.classList.toggle('on',M3.names);m3dDraw()});m3dDraw();requestAnimationFrame(loop);
   window.addEventListener('resize',m3dDraw);
 }
 async function m3dSave(){if(!M3)return;const b=S.boletas[M3.id];if(!b)return;const prev=b.partes||{};const mark={...M3.mark};
