@@ -665,6 +665,10 @@ html[data-theme=dark] .sent-msg{color:#5eead4}
 .m3tools{position:absolute;left:10px;top:10px;display:flex;gap:6px;flex-wrap:wrap}
 .m3t{all:unset;cursor:pointer;padding:6px 10px;border-radius:11px;font-size:12px;font-weight:700;background:color-mix(in srgb,var(--surface-hi) 90%,transparent);border:1px solid var(--line);touch-action:manipulation}
 .m3t.on{background:linear-gradient(135deg,#5eead4,#38bdf8);color:#fff;border-color:transparent}
+
+.m3r{font-size:12.5px!important}.m3r .m3rto{opacity:.75;font-weight:600;margin-left:4px}
+.m3r.ok{border-color:color-mix(in srgb,#22c55e 45%,transparent);background:color-mix(in srgb,#22c55e 9%,var(--field))}
+.m3r.link{border-color:#f59e0b;background:color-mix(in srgb,#f59e0b 16%,var(--field));box-shadow:0 0 0 3px rgba(245,158,11,.2);animation:breathe 1.4s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
 @media (max-width:860px){
   .bnav{left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));padding:6px 6px;border-radius:24px;background:color-mix(in srgb,var(--bg) 60%,transparent);backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);border:1px solid var(--glass-b);box-shadow:var(--sh2)}
@@ -2529,7 +2533,9 @@ const PZ_KW=[[/pi[ñn][oó]n|tambor|aguja|catarina|estrella/,'tambor'],[/espada|
 const PZ_ALT={manija_t:['manubrio','acelerador'],manija_d:['manubrio'],arnes:['correas'],correas:['arnes'],chasis:['base'],cubierta:['protector'],cigueñal:['carter'],tambor:['embrague'],cabezal:['eje'],volante:['arrancador'],tapa:['carcasa'],carcasa:['tanque_q'],tanque_q:['carcasa']};
 const _pzKeys={};const pzKeys=kind=>_pzKeys[kind]||(_pzKeys[kind]=m3dModel(kind).reduce((m,p)=>(m[p.k]=p.l,m),{}));
 function pzMatch(name,kind){const n=String(name||'').toLowerCase();const K=pzKeys(kind);for(const [re,k] of PZ_KW){if(re.test(n)){if(K[k])return k;for(const a of PZ_ALT[k]||[])if(K[a])return a}}return ''}
-function pzAuto(b){const e=eq(b.equipoId)||{};const kind=m3dKind(e.tipo);const out={};(b.repuestos||[]).forEach(l=>{const k=pzMatch(l.nombre+' '+(l.sku||''),kind);if(k)(out[k]=out[k]||[]).push(l.nombre)});return out}
+const repKey=l=>l.repuestoId||l.nombre;
+function repPz(b,l,kind){const o=(b.repPz||{})[repKey(l)];if(o!=null)return o;return pzMatch(l.nombre+' '+(l.sku||''),kind)}
+function pzAuto(b,links){const e=eq(b.equipoId)||{};const kind=m3dKind(e.tipo);const out={};const bb=links?{...b,repPz:links}:b;(b.repuestos||[]).forEach(l=>{const k=repPz(bb,l,kind);if(k)(out[k]=out[k]||[]).push(l.nombre+(num(l.cant)>1?' ×'+num(l.cant):''))});return out}
 function pzMarks(b){const a=pzAuto(b);const m={};Object.keys(a).forEach(k=>m[k]='cambiado');Object.entries(b.partes||{}).forEach(([k,v])=>{if(v==='none')delete m[k];else m[k]=v});return m}
 let M3=null;
 function m3dOpen(id){
@@ -2538,18 +2544,29 @@ function m3dOpen(id){
   const can=esTaller()&&!bloqueado(b)&&(isOpen(b)||isAdmin());
   const F=m3dFaces(P);const fit=V=>{const mn=[0,1,2].map(i=>Math.min(...V.map(v=>v[i]))),mx=[0,1,2].map(i=>Math.max(...V.map(v=>v[i])));const C=mn.map((v,i)=>(v+mx[i])/2);return {C,R:Math.max(...V.map(v=>Math.hypot(v[0]-C[0],v[1]-C[1],v[2]-C[2])))}};
   const fa=fit(F.flatMap(f=>f.v)),fe=fit(F.flatMap(f=>f.v.map(v=>[v[0]+f.e[0],v[1]+f.e[1],v[2]+f.e[2]])));const C=fa.C,RR=fa.R;
-  const AUTO=pzAuto(b);M3={id,kind,P,F,C,RR,fa,fe,parts,AUTO,mark:pzMarks(b),mode:'cambiado',yaw:-.75,pitch:.45,zoom:1,auto:true,sel:'',can,hover:'',ex:kind==='sierra'?1:0,exT:kind==='sierra'?1:0,names:innerWidth>700};
+  const AUTO=pzAuto(b);M3={id,kind,P,F,C,RR,fa,fe,parts,AUTO,links:{...(b.repPz||{})},linking:'',mark:pzMarks(b),mode:'cambiado',yaw:-.75,pitch:.45,zoom:1,auto:true,sel:'',can,hover:'',ex:kind==='sierra'?1:0,exT:kind==='sierra'?1:0,names:innerWidth>700};
   openModal(`🧩 Vista 3D · ${esc(eqShort(e)||e.tipo||'Máquina')}`,`
    ${can?`<div class="m3modes">${Object.entries(PZ_ST).map(([k,v])=>`<button type="button" class="m3m ${k==='cambiado'?'on':''}" data-m3="${k}" style="--c:${v.c}">${v.em} ${v.l}</button>`).join('')}<button type="button" class="m3m" data-m3="" style="--c:#94a3b8">⚪ Quitar</button></div>`:''}
    <div class="m3wrap"><canvas id="m3c"></canvas><div class="m3tip" id="m3tip">${can?'👆 Toque una pieza para marcarla · arrastre para girar':'Arrastre para girar · solo lectura'}</div><div class="m3tools"><button type="button" class="m3t ${kind==='sierra'?'on':''}" data-m3x="1">💥 Despiece</button><button type="button" class="m3t ${innerWidth>700?'on':''}" data-m3n="1">🏷️ Nombres</button></div><div class="m3zoom"><button type="button" data-m3z="1.15">＋</button><button type="button" data-m3z="0.87">－</button><button type="button" data-m3z="0">⟲</button></div></div>
+   <div id="m3reps"></div>
    <div class="lbl" style="margin-top:12px">Piezas</div><div class="cp" id="m3list"></div>`,
    `<span class="small muted" id="m3cnt"></span><span class="sp"></span><button class="btn" data-act="close">${can?'Cancelar':'Cerrar'}</button>${can?`<button class="btn p" data-act="m3save">${ic('check')} Guardar</button>`:''}`,'lg');
-  m3dList();m3dBind();
+  m3dList();m3dReps();m3dBind();
+  setTimeout(()=>{const r=$('#m3reps');if(r)r.addEventListener('click',e=>{const x=e.target.closest('[data-m3r]');if(x)m3dLink(x.dataset.m3r)})},0);
 }
 function m3dList(){const L=$('#m3list');if(!L||!M3)return;
   L.innerHTML=M3.parts.map(p=>{const st=PZ_ST[M3.mark[p.k]];const au=M3.AUTO[p.k]&&M3.mark[p.k]==='cambiado';return `<button type="button" class="cpc m3p ${st?'on':''}" data-m3p="${p.k}" title="${au?'Por repuesto: '+esc(M3.AUTO[p.k].join(', ')):''}" style="${st?`background:${st.c};border-color:${st.c};color:#fff`:''}">${st?st.em+' ':''}${esc(p.l)}${au?' · 📦':''}</button>`}).join('');
   const n=Object.keys(M3.mark).length,c=$('#m3cnt');if(c)c.textContent=n?`${n} pieza${n!==1?'s':''} marcada${n!==1?'s':''}`:''}
-function m3dMark(k){if(!M3||!M3.can)return;const pl=(M3.parts.find(p=>p.k===k)||{}).l||k;
+
+function m3dReps(){const box=$('#m3reps');if(!box||!M3)return;const b=S.boletas[M3.id];const L=b.repuestos||[];
+  if(!L.length){box.innerHTML='';return}const bb={...b,repPz:M3.links};
+  box.innerHTML=`<div class="lbl" style="margin-top:12px">📦 Repuestos de esta orden ${M3.can?'<span class="opt" style="text-transform:none;letter-spacing:0">· toque uno y luego la pieza para ubicarlo</span>':''}</div><div class="cp">${L.map(l=>{const k=repPz(bb,l,M3.kind);const pl=k?(M3.parts.find(p=>p.k===k)||{}).l:'';const on=M3.linking===repKey(l);
+   return `<button type="button" class="cpc m3r ${on?'link':''} ${k?'ok':''}" data-m3r="${esc(repKey(l))}">📦 ${esc(l.nombre)}${num(l.cant)>1?' ×'+num(l.cant):''} <span class="m3rto">${on?'👆 toque la pieza…':k?'→ '+esc(pl):'📍 sin ubicar'}</span></button>`}).join('')}</div>`}
+function m3dLink(rk){if(!M3||!M3.can)return;M3.linking=M3.linking===rk?'':rk;const t=$('#m3tip');if(t&&M3.linking)t.innerHTML='👆 Ahora toque la pieza donde va este repuesto';m3dReps()}
+function m3dDoLink(k){const b=S.boletas[M3.id];const rk=M3.linking;M3.linking='';M3.links[rk]=k;M3.AUTO=pzAuto(b,M3.links);
+  Object.keys(M3.mark).forEach(x=>{if(M3.mark[x]==='cambiado'&&!M3.AUTO[x]&&!(b.partes||{})[x])delete M3.mark[x]});Object.keys(M3.AUTO).forEach(x=>{if(!M3.mark[x])M3.mark[x]='cambiado'});
+  const l=(b.repuestos||[]).find(l=>repKey(l)===rk);const t=$('#m3tip');if(t)t.innerHTML=`📦 <b>${esc(l?l.nombre:'')}</b> → ${esc((M3.parts.find(p=>p.k===k)||{}).l||k)}`;m3dReps();m3dList();m3dDraw()}
+function m3dMark(k){if(M3&&M3.linking)return m3dDoLink(k);if(!M3||!M3.can)return;const pl=(M3.parts.find(p=>p.k===k)||{}).l||k;
   if(!M3.mode||M3.mark[k]===M3.mode)delete M3.mark[k];else M3.mark[k]=M3.mode;M3.sel=k;
   const st=PZ_ST[M3.mark[k]];const t=$('#m3tip');if(t)t.innerHTML=`<b>${esc(pl)}</b> → ${st?st.em+' '+st.l:'sin marcar'}${M3.AUTO[k]?` <span class="muted">· repuesto: ${esc(M3.AUTO[k].join(', '))}</span>`:''}`;try{navigator.vibrate&&navigator.vibrate(25)}catch(e){}m3dList();m3dDraw()}
 function m3dProj(){const W=M3.W,H=M3.H,cy=Math.cos(M3.yaw),sy=Math.sin(M3.yaw),cp=Math.cos(M3.pitch),sp=Math.sin(M3.pitch);
@@ -2569,9 +2586,16 @@ function m3dDraw(){
   fs.forEach(({f,q,li})=>{const st=PZ_ST[M3.mark[f.k]];const base=st?st.c:f.c;const hov=M3.hover===f.k;
     ctx.beginPath();q.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();
     ctx.fillStyle=shade(base,(.5+li*.68)*(hov?1.18:1));ctx.fill();ctx.strokeStyle=st?shade(st.c,.55):'rgba(15,23,42,.28)';ctx.lineWidth=st||hov?1.3:.55;ctx.lineJoin='round';ctx.stroke()});
+  {const cen={};fs.forEach(({f,q})=>{if(!M3.AUTO[f.k])return;const c=cen[f.k]||(cen[f.k]={x:0,y:0,n:0,top:1e9});q.forEach(p=>{c.x+=p[0];c.y+=p[1];c.n++;if(p[1]<c.top)c.top=p[1]})});M3.repLbl={};
+    ctx.font='700 11px "Plus Jakarta Sans",system-ui,sans-serif';ctx.textBaseline='middle';const used=M3._used=[];
+    Object.entries(cen).sort((a,b)=>a[1].y/a[1].n-b[1].y/b[1].n).forEach(([k,c])=>{const x=c.x/c.n,y=c.y/c.n;const txt='📦 '+M3.AUTO[k].join(' · ');const tw=Math.min(ctx.measureText(txt).width,W*.55)+14;
+      let lx=x>W/2?Math.min(W-tw-6,x+26):Math.max(6,x-26-tw),ly=Math.max(54,Math.min(H-56,c.top-18));for(let g=0;g<10&&used.some(u=>Math.abs(u.y-ly)<22&&lx<u.x+u.w&&lx+tw>u.x);g++)ly+=22;used.push({x:lx,y:ly,w:tw});M3.repLbl[k]=1;
+      const st=PZ_ST[M3.mark[k]]||PZ_ST.cambiado;ctx.strokeStyle=st.c;ctx.lineWidth=1.4;ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x>W/2?lx:lx+tw,ly);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle=st.c;ctx.beginPath();ctx.arc(x,y,3.5,0,6.3);ctx.fill();ctx.shadowColor='rgba(0,0,0,.18)';ctx.shadowBlur=6;ctx.beginPath();ctx.roundRect?ctx.roundRect(lx,ly-10,tw,20,8):ctx.rect(lx,ly-10,tw,20);ctx.fill();ctx.shadowBlur=0;
+      ctx.fillStyle='#fff';let t=txt;while(ctx.measureText(t).width>tw-14&&t.length>5)t=t.slice(0,-2);if(t!==txt)t=t.slice(0,-1)+'…';ctx.fillText(t,lx+7,ly)})}
   if(M3.ex>.6){const seen={};const cen={};fs.forEach(({f,q})=>{const c=cen[f.k]||(cen[f.k]={x:0,y:0,n:0});q.forEach(p=>{c.x+=p[0];c.y+=p[1];c.n++})});
     ctx.font='600 10.5px "Plus Jakarta Sans",system-ui,sans-serif';ctx.textBaseline='middle';
-    const items=Object.entries(cen).filter(([k])=>M3.names||M3.mark[k]||k===M3.hover||k===M3.sel).map(([k,c])=>({k,x:c.x/c.n,y:c.y/c.n,l:(M3.parts.find(p=>p.k===k)||{}).l||k})).sort((a,b)=>a.y-b.y);const used=[];
+    const items=Object.entries(cen).filter(([k])=>!(M3.repLbl||{})[k]&&(M3.names||M3.mark[k]||k===M3.hover||k===M3.sel)).map(([k,c])=>({k,x:c.x/c.n,y:c.y/c.n,l:(M3.parts.find(p=>p.k===k)||{}).l||k})).sort((a,b)=>a.y-b.y);const used=[...(M3._used||[])];
     items.forEach(it=>{let lx=it.x+(it.x>W/2?18:-18),ly=it.y-16;const tw=Math.min(ctx.measureText(it.l).width,110)+10;if(it.x<=W/2)lx-=tw;lx=Math.max(4,Math.min(W-tw-4,lx));ly=Math.max(46,Math.min(H-50,ly));
       for(let g=0;g<8&&used.some(u=>Math.abs(u.y-ly)<15&&lx<u.x+u.w&&lx+tw>u.x);g++)ly+=15;used.push({x:lx,y:ly,w:tw});
       const st=PZ_ST[M3.mark[it.k]];ctx.strokeStyle=st?st.c:'rgba(100,116,139,.7)';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(it.x,it.y);ctx.lineTo(it.x>W/2?lx:lx+tw,ly);ctx.stroke();
@@ -2597,11 +2621,11 @@ function m3dBind(){
   box.querySelectorAll('[data-m3x]').forEach(b=>b.onclick=()=>{M3.exT=M3.exT?0:1;b.classList.toggle('on',!!M3.exT)});box.querySelectorAll('[data-m3n]').forEach(b=>b.onclick=()=>{M3.names=!M3.names;b.classList.toggle('on',M3.names);m3dDraw()});m3dDraw();requestAnimationFrame(loop);
   window.addEventListener('resize',m3dDraw);
 }
-async function m3dSave(){if(!M3)return;const b=S.boletas[M3.id];if(!b)return;const prevM=pzMarks(b);const prev=prevM;const mark={...M3.mark};const store={};Object.keys(mark).forEach(k=>{if(!(M3.AUTO[k]&&mark[k]==='cambiado'))store[k]=mark[k]});Object.keys(M3.AUTO).forEach(k=>{if(!mark[k])store[k]='none'});
+async function m3dSave(){if(!M3)return;const b=S.boletas[M3.id];if(!b)return;const prevM=pzMarks(b);const prev=prevM;const mark={...M3.mark};const store={};Object.keys(mark).forEach(k=>{if(!(M3.AUTO[k]&&mark[k]==='cambiado'))store[k]=mark[k]});const linksCh=JSON.stringify(M3.links)!==JSON.stringify(b.repPz||{});Object.keys(M3.AUTO).forEach(k=>{if(!mark[k])store[k]='none'});
   const lbl=k=>(M3.parts.find(p=>p.k===k)||{}).l||k;const ch=[...new Set([...Object.keys(mark),...Object.keys(prev)])].filter(k=>prev[k]!==mark[k]);
   const h=[...(b.historial||[])];if(ch.length)h.push({t:Date.now(),estado:b.estado,nota:'Vista 3D: '+ch.map(k=>`${lbl(k)} ${(PZ_ST[mark[k]]||{l:'sin marcar'}).l.toLowerCase()}`).join(', '),por:quien(),dev:DEV});
   const pl={};Object.keys(store).forEach(k=>pl[k]=lbl(k));
-  if(await put('boletas',{...b,partes:store,partesLbl:pl,historial:h})){M3=null;closeModal();render();toast('🧩 Piezas guardadas')}}
+  if(await put('boletas',{...b,partes:store,partesLbl:pl,repPz:M3.links,historial:h})){M3=null;closeModal();render();toast('🧩 Piezas guardadas')}}
 const pzList=b=>{const A=pzAuto(b);const K=pzKeys(m3dKind((eq(b.equipoId)||{}).tipo));return Object.entries(pzMarks(b)).map(([k,v])=>({k,l:(b.partesLbl||{})[k]||K[k]||k,st:v,au:!!A[k]&&v==='cambiado'})).filter(x=>PZ_ST[x.st])};
 function pzCard(b){const L=pzList(b);const can=esTaller()&&!bloqueado(b);
   return `<div class="card"><div class="ch"><h2><span class="hem">🧩</span> Piezas de la máquina ${L.length?`<span class="badge" style="background:var(--pri-l);color:var(--pri)">${L.length}</span>`:''}</h2><button class="btn sm ${can?'p':''}" data-act="m3d" data-id="${b.id}">🧊 Ver en 3D</button></div>
