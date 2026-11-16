@@ -685,7 +685,7 @@ body.tvmode #view{padding:18px 22px!important;max-width:none!important}
 .tvt{font-size:26px;font-weight:800;letter-spacing:-.01em}
 .tvclock{font-size:40px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
 .tvg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-.tvcol{background:var(--surface);border:1px solid var(--glass-b);border-top:5px solid var(--c);border-radius:20px;padding:14px;min-height:60vh;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.tvcol{background:var(--surface);border:1px solid var(--glass-b);border-top:5px solid var(--c);border-radius:20px;padding:14px;min-height:42vh;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .tvh{display:flex;justify-content:space-between;align-items:center;font-size:22px;font-weight:800;margin-bottom:12px}
 .tvh b{background:var(--c);color:#fff;border-radius:14px;padding:2px 14px;font-size:22px}
 .tvc{background:var(--surface-hi);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px;animation:rise .5s both}
@@ -705,6 +705,101 @@ body.tvmode #view{padding:18px 22px!important;max-width:none!important}
 .prb.ok.on{background:#22c55e;color:#fff;border-color:#22c55e}.prb.na.on{background:#94a3b8;color:#fff;border-color:#94a3b8}
 .fkv{display:grid;grid-template-columns:minmax(120px,190px) 1fr;gap:8px 14px;margin:0}.fkv dt{font-weight:700;font-size:13px;color:var(--ink2)}.fkv dd{margin:0;font-size:14px}
 @media (max-width:600px){.fkv{grid-template-columns:1fr;gap:2px}.fkv dd{margin-bottom:8px}}
+.rbslot{position:relative;height:166px;margin:0 0 16px;border-radius:22px;overflow:hidden;background:linear-gradient(180deg,rgba(186,230,253,.45) 0%,rgba(240,253,250,.5) 60%,rgba(220,252,231,.6) 100%);border:1px solid var(--glass-b);box-shadow:var(--sh,0 8px 24px rgba(0,0,0,.05))}
+html.dark .rbslot,body.dark .rbslot,[data-theme=dark] .rbslot{background:linear-gradient(180deg,rgba(30,41,59,.6),rgba(20,83,45,.35))}
+.rbstage{position:absolute;inset:0}
+.rbground{position:absolute;left:0;right:0;bottom:0;height:22px;background:linear-gradient(180deg,#bbf7d0,#86efac);border-top:2px solid #4ade80}
+.rbground::before{content:"";position:absolute;left:0;right:0;top:-7px;height:8px;background:repeating-linear-gradient(90deg,transparent 0 9px,#4ade80 9px 11px,transparent 11px 17px,#22c55e 17px 18px)}
+.rbbush{position:absolute;bottom:16px;width:44px;height:24px;border-radius:24px 24px 6px 6px;background:radial-gradient(circle at 30% 30%,#86efac,#22c55e);opacity:.85}
+.rbbush.s{width:30px;height:18px}
+.rbbot{position:absolute;left:0;bottom:4px;height:128px;width:171px;will-change:transform;cursor:pointer;z-index:2;-webkit-tap-highlight-color:transparent}
+.rbsvg{width:100%;height:100%;overflow:visible;display:block}
+.rbsvg *{transform-box:view-box}
+.rbbub{position:absolute;top:8px;left:0;z-index:3;max-width:78%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid rgba(20,184,166,.35);background:rgba(255,255,255,.95);color:#1e293b;font:700 13px/1.2 inherit;padding:7px 13px;border-radius:14px;box-shadow:0 8px 22px rgba(15,23,42,.12);opacity:0;pointer-events:none;transition:opacity .35s;cursor:pointer}
+.rbbub.on{opacity:1;pointer-events:auto}
+.rbbub.urg{border-color:#fca5a5;background:#fff1f2;color:#9f1239}
+.rbbub b{color:#14b8a6}
+.rbx{position:absolute;top:6px;right:8px;z-index:4;border:0;background:rgba(255,255,255,.6);color:#64748b;border-radius:9px;width:24px;height:24px;font-size:12px;cursor:pointer;opacity:.6}
+.rbx:hover{opacity:1}
+/* herramientas visibles según el trabajo */
+.rbt,.rb-tree{display:none}
+.rbbot[data-act=sierra] .rbt-sierra,.rbbot[data-act=bomba] .rbt-bomba,.rbbot[data-act=guadana] .rbt-guadana,.rbbot[data-act=podadora] .rbt-podadora{display:inline}
+.rbbot[data-act=sierra] .rb-tree{display:inline;opacity:0;transition:opacity .6s}
+.rbbot.cut .rb-tree{opacity:1}
+.rbbot.cut .rb-tree{animation:rbGrow .9s cubic-bezier(.2,1.4,.4,1) both;transform-origin:152px 161px}
+@keyframes rbGrow{from{transform:scaleY(0)}to{transform:none}}
+.rb-treefall{transform-origin:158px 79px;transition:transform 1.5s cubic-bezier(.55,0,.9,.5)}
+.rbbot.fell .rb-treefall{transform:rotate(86deg)}
+/* brazos según la herramienta */
+.rb-af,.rb-ab{transform-origin:62px 66px;transition:transform .5s}
+.rb-lb{transform-origin:57px 102px}.rb-lf{transform-origin:64px 102px}
+.rbbot[data-act=sierra] .rb-af{transform:rotate(-72deg)}.rbbot[data-act=sierra] .rb-ab{transform:rotate(-64deg)}
+.rbbot[data-act=bomba] .rb-af{transform:rotate(-68deg)}
+.rbbot[data-act=bomba] .rb-ab{animation:rbPump 1s ease-in-out infinite}
+@keyframes rbPump{0%,100%{transform:rotate(14deg)}50%{transform:rotate(38deg)}}
+.rbbot[data-act=guadana] .rb-af{animation:rbSwA 1.6s ease-in-out infinite}.rbbot[data-act=guadana] .rb-ab{transform:rotate(-30deg)}
+@keyframes rbSwA{0%,100%{transform:rotate(-44deg)}50%{transform:rotate(-54deg)}}
+.rb-swing{transform-origin:88px 84px;animation:rbSw 1.6s ease-in-out infinite}
+@keyframes rbSw{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+.rbbot[data-act=podadora] .rb-af{transform:rotate(-38deg)}.rbbot[data-act=podadora] .rb-ab{transform:rotate(-33deg)}
+/* caminar */
+.rbbot.walking .rb-lb{animation:rbLeg .62s ease-in-out infinite}
+.rbbot.walking .rb-lf{animation:rbLeg .62s ease-in-out infinite reverse}
+@keyframes rbLeg{0%,100%{transform:rotate(20deg)}50%{transform:rotate(-20deg)}}
+.rbbot.walking .rb-body{animation:rbBob .31s ease-in-out infinite alternate}
+@keyframes rbBob{from{transform:translateY(0)}to{transform:translateY(-3px)}}
+.rbbot[data-act=sierra].walking .rb-af{transform:rotate(-30deg)}.rbbot[data-act=sierra].walking .rb-ab{transform:rotate(-20deg)}
+/* detalles vivos */
+.rb-eyes{transform-origin:69px 34px;animation:rbBlink 4.2s infinite}
+@keyframes rbBlink{0%,92%,100%{transform:none}95%{transform:scaleY(.1)}}
+.rb-ant{animation:rbAnt 1.4s ease-in-out infinite}
+@keyframes rbAnt{50%{fill:#fde047}}
+.rb-core{transform-origin:62px 81px;animation:rbCore 1.8s ease-in-out infinite}
+@keyframes rbCore{50%{transform:scale(1.3);fill:#5eead4}}
+.rb-head{transform-origin:62px 54px;animation:rbHead 5s ease-in-out infinite}
+@keyframes rbHead{0%,100%{transform:rotate(0)}30%{transform:rotate(-4deg)}60%{transform:rotate(3deg)}}
+/* motosierra */
+.rb-chain{animation:rbChain .25s linear infinite}
+@keyframes rbChain{to{stroke-dashoffset:-10.8}}
+.rbbot.cut .rb-vib{animation:rbVib .08s linear infinite}
+@keyframes rbVib{50%{transform:translate(.8px,-.6px)}}
+.rb-dust circle{fill:#d97706;opacity:0}
+.rbbot.cut:not(.fell) .rb-dust circle{animation:rbDust .7s ease-out infinite}
+.rb-dust circle:nth-child(2){animation-delay:.12s!important}.rb-dust circle:nth-child(3){animation-delay:.26s!important}.rb-dust circle:nth-child(4){animation-delay:.38s!important}.rb-dust circle:nth-child(5){animation-delay:.52s!important}
+@keyframes rbDust{0%{opacity:1;transform:translate(0,0)}100%{opacity:0;transform:translate(14px,22px)}}
+/* bomba */
+.rb-mist circle{fill:#7dd3fc;opacity:0}
+.rbbot[data-act=bomba] .rb-mist circle{animation:rbMist 1.1s ease-out infinite}
+.rb-mist circle:nth-child(2){animation-delay:.2s!important}.rb-mist circle:nth-child(3){animation-delay:.42s!important}.rb-mist circle:nth-child(4){animation-delay:.63s!important}.rb-mist circle:nth-child(5){animation-delay:.85s!important}
+@keyframes rbMist{0%{opacity:1;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(26px,18px) scale(2.4)}}
+/* guadaña */
+.rb-spin{animation:rbSpin .12s linear infinite}
+@keyframes rbSpin{0%{transform:scaleX(1)}50%{transform:scaleX(-1)}100%{transform:scaleX(1)}}
+.rb-grass path{stroke:#16a34a;stroke-width:2;stroke-linecap:round;opacity:0}
+.rbbot[data-act=guadana] .rb-grass path{animation:rbGrass .6s ease-out infinite}
+.rb-grass path:nth-child(2){animation-delay:.15s!important}.rb-grass path:nth-child(3){animation-delay:.3s!important}.rb-grass path:nth-child(4){animation-delay:.45s!important}
+@keyframes rbGrass{0%{opacity:1;transform:translate(0,0)}100%{opacity:0;transform:translate(10px,-18px) rotate(90deg)}}
+/* podadora */
+.rbbot.walking .rb-spin2{animation:rbWheel .5s linear infinite}
+.rb-spin2{transform-box:fill-box;transform-origin:center}
+@keyframes rbWheel{to{transform:rotate(360deg)}}
+.rb-clip path{stroke:#22c55e;stroke-width:2;stroke-linecap:round;opacity:0}
+.rbbot[data-act=podadora].walking .rb-clip path{animation:rbGrass .7s ease-out infinite}
+.rb-clip path:nth-child(2){animation-delay:.2s!important}.rb-clip path:nth-child(3){animation-delay:.45s!important}
+/* efectos */
+.rbbot.swap .rbsvg{animation:rbSwap .8s ease}
+@keyframes rbSwap{0%{transform:none;filter:none}40%{transform:translateY(-14px) scale(1.06);filter:brightness(1.4) drop-shadow(0 0 10px #5eead4)}100%{transform:none;filter:none}}
+.rbbot.jump .rbsvg{animation:rbJump .5s ease 3}
+@keyframes rbJump{50%{transform:translateY(-16px)}}
+.rbbot.wave .rb-af{animation:rbWave .35s ease-in-out 4 alternate!important}
+@keyframes rbWave{from{transform:rotate(-150deg)}to{transform:rotate(-178deg)}}
+/* tamaños */
+.tvslot{height:210px;margin-top:16px}
+.tvslot .rbbot{height:180px;width:240px}
+.tvslot .rbbub{font-size:20px;padding:10px 18px;top:10px}
+@media (max-width:860px){.rbslot{height:132px;margin-bottom:12px}.rbbot{height:100px;width:133px}.rbbub{font-size:12px;padding:6px 11px;max-width:86%}}
+@media (prefers-reduced-motion:reduce){.rbbot *{animation-duration:2s!important}}
+
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
 @media (max-width:860px){
   .bnav{left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));padding:6px 6px;border-radius:24px;background:color-mix(in srgb,var(--bg) 60%,transparent);backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);border:1px solid var(--glass-b);box-shadow:var(--sh2)}
@@ -1209,7 +1304,8 @@ function vInicio(){
   const recientes=bs.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,6);
   const h=new Date().getHours();
   return `<div class="card hero"><div class="hero-t"><h1><span class="gt">${h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches'}</span> <span class="wave">👋</span></h1><div class="sub">📅 ${new Date().toLocaleDateString('es-CR',{weekday:'long',day:'numeric',month:'long'})} · 🔧 ${ab.length} equipo${ab.length!==1?'s':''} en el taller</div>
-   <div class="row" style="margin-top:14px"><button class="btn p lg hide-m" data-act="recibir">${ic('plus')} Recibir máquina</button></div></div><div class="hero-saw">${sawSVG()}</div></div>
+   <div class="row" style="margin-top:14px"><button class="btn p lg hide-m" data-act="recibir">${ic('plus')} Recibir máquina</button>${robotOn()?'':'<button class="btn" data-act="rbOn">🤖 Mostrar robot</button>'}</div></div><div class="hero-saw">${sawSVG()}</div></div>
+  ${robotOn()?'<div id="rbSlot" class="rbslot"></div>':''}
   ${bandejas()}
   <div class="grid g4 g5s">
    ${stat('wrench','#ede9fe','#8b5cf6',ab.length,'En el taller','data-act="filtro" data-f="activas"')}
@@ -1795,6 +1891,82 @@ function enviadoTaller(b){
 }
 
 
+/* ================== Robot del taller ================== */
+const robotOn=()=>{try{return localStorage.getItem('tallerRobot')!=='off'}catch(e){return true}};
+const RB_ACTS=['sierra','bomba','guadana','podadora'];
+const RB_TXT={sierra:'¡A cortar ese árbol! 🪚',bomba:'¡Hora de fumigar! 💧',guadana:'¡A chapear el zacate! 🌿',podadora:'¡A cortar el césped! 🚜'};
+function robotSVG(){return `<svg class="rbsvg" viewBox="-60 -10 240 180" overflow="visible" aria-hidden="true">
+<defs><linearGradient id="rbB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#99f6e4"/><stop offset="1" stop-color="#14b8a6"/></linearGradient>
+<linearGradient id="rbH" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#cbd5e1"/></linearGradient>
+<linearGradient id="rbT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#86efac"/><stop offset="1" stop-color="#16a34a"/></linearGradient></defs>
+<ellipse cx="62" cy="161" rx="34" ry="5" fill="rgba(0,0,0,.12)"/>
+<!-- árbol (motosierra) -->
+<g class="rb-tree"><rect class="rb-stump" x="146" y="78" width="12" height="83" rx="3" fill="#a16207"/><path d="M146 150l-8 8M158 152l8 6" stroke="#a16207" stroke-width="4" stroke-linecap="round"/><g class="rb-treefall"><rect x="146" y="36" width="12" height="44" rx="3" fill="#b45309"/><path d="M146 66l-12-12M158 58l12-12" stroke="#a16207" stroke-width="5" stroke-linecap="round"/><circle cx="152" cy="22" r="26" fill="url(#rbT)"/><circle cx="131" cy="40" r="17" fill="#4ade80"/><circle cx="173" cy="38" r="18" fill="#22c55e"/><circle cx="152" cy="2" r="15" fill="#86efac"/></g></g>
+<!-- mochila (bomba) -->
+<g class="rbt rbt-bomba"><path d="M40 64 L30 70" stroke="#475569" stroke-width="3"/><rect x="18" y="58" width="24" height="44" rx="9" fill="#fde047" stroke="#ca8a04" stroke-width="2"/><rect x="22" y="54" width="12" height="7" rx="3" fill="#ca8a04"/><path d="M24 100 C30 120 70 112 96 82" fill="none" stroke="#334155" stroke-width="2.5"/></g>
+<!-- pierna de atrás -->
+<g class="rb-lb"><rect x="51" y="100" width="12" height="48" rx="6" fill="#94a3b8"/><rect x="48" y="146" width="22" height="11" rx="5" fill="#475569"/></g>
+<!-- brazo de atrás -->
+<g class="rb-ab"><rect x="57" y="64" width="10" height="36" rx="5" fill="#64748b"/><circle cx="62" cy="100" r="5.5" fill="#475569"/></g>
+<!-- cuerpo -->
+<g class="rb-body"><rect x="38" y="58" width="48" height="50" rx="15" fill="url(#rbB)" stroke="#0d9488" stroke-width="1.5"/><rect x="47" y="70" width="30" height="22" rx="7" fill="rgba(255,255,255,.55)"/><circle class="rb-core" cx="62" cy="81" r="6" fill="#fde047"/><rect x="44" y="100" width="36" height="6" rx="3" fill="#0d9488" opacity=".35"/>
+ <g class="rb-head"><rect x="56" y="50" width="12" height="10" rx="3" fill="#94a3b8"/><rect x="38" y="16" width="48" height="38" rx="13" fill="url(#rbH)" stroke="#94a3b8" stroke-width="1.5"/><rect x="46" y="25" width="38" height="18" rx="9" fill="#0f172a"/><g class="rb-eyes"><circle cx="62" cy="34" r="3.4" fill="#5eead4"/><circle cx="76" cy="34" r="3.4" fill="#5eead4"/></g><path class="rb-mouth" d="M64 47 q6 4 12 0" stroke="#64748b" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="58" y1="16" x2="58" y2="5" stroke="#94a3b8" stroke-width="2.5"/><circle class="rb-ant" cx="58" cy="4" r="4" fill="#fb7185"/><rect x="34" y="28" width="5" height="12" rx="2" fill="#cbd5e1"/></g></g>
+<!-- pierna de adelante -->
+<g class="rb-lf"><rect x="58" y="100" width="12" height="48" rx="6" fill="#cbd5e1"/><rect x="56" y="146" width="22" height="11" rx="5" fill="#64748b"/></g>
+<!-- herramientas -->
+<g class="rbt rbt-sierra"><g class="rb-vib"><path d="M84 66 h10 v-6 h8 v6" fill="none" stroke="#334155" stroke-width="3" stroke-linejoin="round"/><rect x="82" y="66" width="30" height="20" rx="6" fill="#fb923c" stroke="#c2410c" stroke-width="1.5"/><rect x="86" y="70" width="10" height="6" rx="2" fill="#fff7ed"/><rect x="110" y="72" width="50" height="8" rx="4" fill="#e2e8f0" stroke="#64748b" stroke-width="1"/><rect class="rb-chain" x="109" y="71" width="52" height="10" rx="5" fill="none" stroke="#334155" stroke-width="1.6" stroke-dasharray="3 2.4"/></g>
+ <g class="rb-dust"><circle cx="152" cy="84" r="1.8"/><circle cx="150" cy="86" r="1.4"/><circle cx="154" cy="83" r="1.6"/><circle cx="149" cy="85" r="1.2"/><circle cx="153" cy="87" r="1.5"/></g></g>
+<g class="rbt rbt-bomba"><line x1="94" y1="80" x2="142" y2="70" stroke="#475569" stroke-width="3" stroke-linecap="round"/><rect x="139" y="66" width="8" height="7" rx="2" fill="#334155"/>
+ <g class="rb-mist"><circle cx="150" cy="70" r="4"/><circle cx="150" cy="70" r="5"/><circle cx="150" cy="70" r="3.5"/><circle cx="150" cy="70" r="4.5"/><circle cx="150" cy="70" r="3"/></g></g>
+<g class="rbt rbt-guadana"><g class="rb-swing"><line x1="58" y1="56" x2="148" y2="152" stroke="#64748b" stroke-width="4" stroke-linecap="round"/><rect x="46" y="44" width="20" height="16" rx="5" fill="#fb923c" stroke="#c2410c" stroke-width="1.5" transform="rotate(43 56 52)"/><path d="M88 84 l14 -14 M88 84 l-4 12" stroke="#334155" stroke-width="3" stroke-linecap="round"/><g transform="translate(148 153)"><ellipse rx="16" ry="3.5" fill="#cbd5e1" stroke="#64748b"/><g class="rb-spin"><line x1="-18" y1="0" x2="18" y2="0" stroke="#f97316" stroke-width="2"/></g></g>
+ <g class="rb-grass"><path d="M150 150 l3 -6" /><path d="M146 151 l-2 -7"/><path d="M155 150 l5 -5"/><path d="M142 150 l-4 -4"/></g></g></g>
+<g class="rbt rbt-podadora"><line x1="86" y1="92" x2="112" y2="132" stroke="#475569" stroke-width="3.5" stroke-linecap="round"/><line x1="82" y1="90" x2="90" y2="94" stroke="#334155" stroke-width="5" stroke-linecap="round"/>
+ <g class="rb-wh2"><circle cx="122" cy="149" r="7" fill="#64748b"/><circle cx="164" cy="149" r="7" fill="#64748b"/></g>
+ <path d="M104 132 q2 -10 14 -10 h40 q10 0 12 10 v12 h-66z" fill="#4ade80" stroke="#15803d" stroke-width="1.5"/><rect x="124" y="110" width="26" height="14" rx="5" fill="#f97316" stroke="#c2410c"/><rect x="128" y="106" width="8" height="6" rx="2" fill="#334155"/><rect x="104" y="138" width="16" height="10" rx="3" fill="#15803d" opacity=".6"/>
+ <g class="rb-wh" transform="translate(114 152)"><circle r="9" fill="#1e293b"/><circle r="4" fill="#cbd5e1"/><g class="rb-spin2"><line x1="-4" y1="0" x2="4" y2="0" stroke="#475569" stroke-width="2"/></g></g>
+ <g class="rb-wh" transform="translate(158 152)"><circle r="9" fill="#1e293b"/><circle r="4" fill="#cbd5e1"/><g class="rb-spin2"><line x1="-4" y1="0" x2="4" y2="0" stroke="#475569" stroke-width="2"/></g></g>
+ <g class="rb-clip"><path d="M100 150 l-4 -5"/><path d="M98 152 l-6 -2"/><path d="M102 151 l-3 -7"/></g></g>
+<!-- brazo de adelante -->
+<g class="rb-af"><rect x="57" y="64" width="11" height="37" rx="5.5" fill="#cbd5e1" stroke="#94a3b8"/><circle cx="62.5" cy="101" r="6" fill="#94a3b8"/></g>
+</svg>`}
+let RB=null;
+function rbBuild(){const st=document.createElement('div');st.id='rbStage';st.className='rbstage';
+  st.innerHTML=`<div class="rbground"></div><div class="rbbush" style="left:12%"></div><div class="rbbush" style="left:58%"></div><div class="rbbush s" style="left:83%"></div><div class="rbbot" id="rbBot">${robotSVG()}</div><button class="rbbub" id="rbBub" type="button"></button><button class="rbx" id="rbX" type="button" title="Ocultar el robot">✕</button>`;
+  RB={st,bot:st.querySelector('#rbBot'),bub:st.querySelector('#rbBub'),x:40,dir:1,act:RB_ACTS[Math.floor(Math.random()*4)],ph:'walk',tg:200,tAct:Date.now()+rbDur(),tPh:0,last:0,msgI:0,tMsg:Date.now()+3500,bubOn:false,alert:null};
+  RB.bot.onclick=()=>{RB.bot.classList.remove('wave');void RB.bot.offsetWidth;RB.bot.classList.add('wave');RB.tMsg=0};
+  RB.bub.onclick=()=>{const a=RB.alert;if(a&&a.go)go(a.go);else RB.tMsg=0};
+  st.querySelector('#rbX').onclick=()=>{try{localStorage.setItem('tallerRobot','off')}catch(e){}st.remove();RB=null;render();toast('🤖 Robot oculto. Para verlo de nuevo, toque «🤖 Mostrar robot» en Inicio.')};
+  rbSetAct(RB.act,true);requestAnimationFrame(rbLoop);return st}
+const rbDur=()=>60e3+Math.random()*60e3;
+function rbSetAct(a,silent){RB.act=a;RB.bot.dataset.act=a;RB.ph='walk';RB.tg=rbTarget();RB.bot.classList.remove('cut','fell');
+  if(!silent){RB.bot.classList.remove('swap');void RB.bot.offsetWidth;RB.bot.classList.add('swap');rbSay({t:RB_TXT[a]},4500)}}
+function rbW(){return RB.st.clientWidth||600}
+function rbBotW(){return RB.bot.clientWidth||160}
+function rbTarget(){const W=rbW(),bw=rbBotW();const lo=bw*0.25,hi=Math.max(lo+10,W-bw*(RB.act==='sierra'?1.25:0.95));let t;do{t=lo+Math.random()*(hi-lo)}while(Math.abs(t-RB.x)<W*0.18&&W>300);return t}
+function rbSay(m,ms){RB.alert=m;RB.bub.innerHTML=esc(m.t)+(m.go?' <b>›</b>':'');RB.bub.className='rbbub on'+(m.sev==='r'?' urg':'');RB.bubOn=true;RB.tHide=Date.now()+(ms||8000);if(m.sev==='r'){RB.bot.classList.remove('jump');void RB.bot.offsetWidth;RB.bot.classList.add('jump')}}
+function rbMsgs(){const L=[];try{alertas().filter(a=>a.sev!=='b').slice(0,6).forEach(a=>{const m=/data-page="([^"]+)"(?:\s+data-id="([^"]*)")?/.exec(a.act||'');L.push({t:String(a.title).replace(/<[^>]+>/g,'')+(a.detail?' · '+String(a.detail).split(' · ')[0]:''),sev:a.sev,go:m?{page:m[1],id:m[2]||undefined}:{page:'alertas'}})})}catch(e){}
+  if(!L.length){const ab=arr(S.boletas).filter(isOpen).length,hoy=arr(S.boletas).filter(b=>b.fechaIngreso===today()).length;L.push({t:'¡Todo al día! 💪'},{t:`${ab} máquina${ab!==1?'s':''} en el taller 🔧`});if(hoy)L.push({t:`Hoy entraron ${hoy} 📥`})}
+  return L}
+function rbLoop(ts){if(!RB)return;requestAnimationFrame(rbLoop);if(!RB.st.isConnected||document.hidden){RB.last=ts;return}
+  const dt=Math.min(.05,(ts-(RB.last||ts))/1000);RB.last=ts;const now=Date.now();const W=rbW(),bw=rbBotW(),k=bw/160;
+  if(now>RB.tAct&&RB.ph!=='work'){let n;do{n=RB_ACTS[Math.floor(Math.random()*4)]}while(n===RB.act);rbSetAct(n);RB.tAct=now+rbDur()}
+  const slow=RB.act!=='sierra';
+  if(RB.ph==='walk'||RB.ph==='walkw'){const sp=(slow?28:62)*k*(RB.ph==='walkw'?1:1);const d=RB.tg-RB.x;RB.dir=d>=0?1:-1;
+    if(Math.abs(d)<2){if(RB.act==='sierra'){RB.ph='work';RB.tPh=now;RB.bot.classList.add('cut');RB.bot.classList.remove('fell')}else{RB.ph='pause';RB.tPh=now}}
+    else RB.x+=Math.sign(d)*Math.min(Math.abs(d),sp*dt)}
+  else if(RB.ph==='pause'){if(now-RB.tPh>1600){RB.tg=rbTarget();RB.ph='walk'}}
+  else if(RB.ph==='work'){const e=now-RB.tPh;if(e>6500&&!RB.bot.classList.contains('fell'))RB.bot.classList.add('fell');if(e>11000){RB.bot.classList.remove('cut');const bt=RB.bot;setTimeout(()=>bt.classList.remove('fell'),800);RB.tg=rbTarget();RB.ph='walk'}}
+  if(RB.tg>W-bw*.9)RB.tg=rbTarget();RB.x=Math.max(-bw*.1,Math.min(W-bw*.9,RB.x));
+  RB.bot.classList.toggle('walking',RB.ph==='walk');RB.bot.classList.toggle('working',RB.ph==='work'||slow);
+  RB.bot.style.transform=`translateX(${RB.x}px) scaleX(${RB.dir})`;
+  const bx=Math.max(6,Math.min(W-(RB.bub.offsetWidth||200)-6,RB.x+bw*.5-(RB.bub.offsetWidth||200)/2));RB.bub.style.transform=`translateX(${bx}px)`;
+  if(RB.bubOn&&now>RB.tHide){RB.bub.className='rbbub';RB.bubOn=false;RB.tMsg=now+5000}
+  if(!RB.bubOn&&now>RB.tMsg){const L=rbMsgs();rbSay(L[RB.msgI++%L.length])}}
+function rbPlace(){const slot=$('#rbSlot');
+  if(!slot||!robotOn()){if(RB&&RB.st.isConnected)RB.st.remove();return}
+  if(!RB)rbBuild();if(RB.st.parentNode!==slot){slot.appendChild(RB.st);RB.x=Math.min(RB.x,rbW()*.5);RB.tMsg=Date.now()+2500}}
+setInterval(rbPlace,400);
+
 /* ================== Cronómetro de trabajo ================== */
 const cronoMs=c=>c?num(c.acc)+(c.t0?Date.now()-num(c.t0):0):0;
 const fmtDur=ms=>{const t=Math.floor(ms/1000),h=Math.floor(t/3600),m=Math.floor(t%3600/60),x=t%60;return `${h}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`};
@@ -1993,7 +2165,7 @@ function vPantalla(){
   const by=f=>B.filter(f).sort((a,z)=>String(a.fechaIngreso).localeCompare(String(z.fechaIngreso))||a.numero-z.numero);
   return `<div class="tv"><div class="tvtop"><div class="row" style="gap:14px"><div class="logo" style="width:56px;height:56px;border-radius:16px">${logoHTML()}</div><div><div class="tvt">${esc(CFG.nombre||'Taller')}</div><div class="bsig" style="font-size:18px">ForBillyComputer</div></div></div>
    <div class="row" style="gap:10px"><div style="text-align:right"><div class="tvclock" id="tvClock">${new Date().toLocaleTimeString('es-CR',{hour:'numeric',minute:'2-digit'})}</div><div class="small muted">${new Date().toLocaleDateString('es-CR',{weekday:'long',day:'numeric',month:'long'})}</div></div><button class="btn" data-act="tvFull" title="Pantalla completa">⛶</button><button class="btn" data-act="tvExit">Salir</button></div></div>
-   <div class="tvg">${col('En fila','📥','#0ea5e9',by(b=>['Recibido','En diagnóstico','Esperando aprobación','Esperando repuestos'].includes(b.estado)))}${col('En reparación','🔧','#8b5cf6',by(b=>['En reparación','Control de calidad'].includes(b.estado)))}${col('Listas para entregar','✅','#22c55e',by(b=>b.estado==='Listo para entregar'))}</div></div>`;
+   <div class="tvg">${col('En fila','📥','#0ea5e9',by(b=>['Recibido','En diagnóstico','Esperando aprobación','Esperando repuestos'].includes(b.estado)))}${col('En reparación','🔧','#8b5cf6',by(b=>['En reparación','Control de calidad'].includes(b.estado)))}${col('Listas para entregar','✅','#22c55e',by(b=>b.estado==='Listo para entregar'))}</div>${robotOn()?'<div id="rbSlot" class="rbslot tvslot"></div>':''}</div>`;
 }
 setInterval(()=>{const c=$('#tvClock');if(c)c.textContent=new Date().toLocaleTimeString('es-CR',{hour:'numeric',minute:'2-digit'})},20000);
 
@@ -3207,6 +3379,7 @@ const A={
  mantOk:async d=>{const b=S.boletas[d.id];if(!b)return;if(await put('boletas',{...b,mantAvisado:Date.now(),mantPor:quien()})){toast('Listo, recordatorio cerrado');render()}},
  consulta:d=>consultaModal(d.id),
  etiquetas:d=>etiquetasModal(d.id?[d.id]:[]),
+ rbOn:()=>{try{localStorage.removeItem('tallerRobot')}catch(e){}render();toast('🤖 ¡Hola de nuevo!')},
  crGo:sinBloq(d=>crGo(d.id)),crPause:d=>crPause(d.id),crStop:d=>crStop(d.id),
  crC:d=>{CR.h=$('#crH').value;CR.nota=$('#crN').value;CR.c=d.c;crRender()},
  crSave:()=>crSave(),
