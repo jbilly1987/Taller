@@ -705,16 +705,21 @@ body.tvmode #view{padding:18px 22px!important;max-width:none!important}
 .prb.ok.on{background:#22c55e;color:#fff;border-color:#22c55e}.prb.na.on{background:#94a3b8;color:#fff;border-color:#94a3b8}
 .fkv{display:grid;grid-template-columns:minmax(120px,190px) 1fr;gap:8px 14px;margin:0}.fkv dt{font-weight:700;font-size:13px;color:var(--ink2)}.fkv dd{margin:0;font-size:14px}
 @media (max-width:600px){.fkv{grid-template-columns:1fr;gap:2px}.fkv dd{margin-bottom:8px}}
+
+.rbwho{align-self:flex-end;font-size:11px;font-weight:700;color:var(--muted);margin:2px 6px -4px 0}
+.rbrec{font-size:12.5px;font-weight:700;margin-top:8px}
+.rbtab{display:flex;flex-direction:column;gap:4px;margin-top:4px}.rbtab div{display:flex;flex-direction:column;padding:6px 9px;border-radius:10px;background:var(--surface-hi,#fff);border:1px solid var(--line2)}.rbtab span{font-size:12px;color:var(--muted)}
+.rb-base{transform-origin:62px 120px}
 #rbFloat{position:fixed;inset:0;pointer-events:none;z-index:55;transition:opacity .3s}
 #rbFloat.away{opacity:0}
-.rbbot{position:absolute;left:0;top:0;height:130px;width:169px;will-change:transform;pointer-events:none}
+.rbbot{position:absolute;left:0;top:0;height:112px;width:145px;will-change:transform;pointer-events:none}
 .rbtilt{width:100%;height:100%;transition:transform .5s}
 .rbbob{width:100%;height:100%;animation:rbFloatY 2.6s ease-in-out infinite}
 @keyframes rbFloatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 .rbbot.fly .rbtilt{transform:rotate(7deg)}
 .rbsvg{width:100%;height:100%;overflow:visible;display:block;pointer-events:none;filter:drop-shadow(0 10px 14px rgba(15,23,42,.18))}
 .rbsvg *{transform-box:view-box}
-.rbsvg .rb-body,.rbsvg .rb-body *,.rbsvg .rb-lf *,.rbsvg .rb-af *{pointer-events:auto;cursor:pointer}
+.rbsvg .rb-body,.rbsvg .rb-body *,.rbsvg .rb-af *{pointer-events:auto;cursor:pointer}
 .rbbub{position:absolute;left:0;top:0;transform-origin:center bottom;margin-top:-34px;max-width:min(320px,80vw);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid rgba(59,130,246,.3);background:rgba(255,255,255,.96);color:#1e293b;font:700 13px/1.2 inherit;padding:7px 13px;border-radius:14px 14px 14px 4px;box-shadow:0 8px 22px rgba(15,23,42,.14);opacity:0;pointer-events:none;transition:opacity .35s;cursor:pointer}
 .rbbub.on{opacity:1;pointer-events:auto}
 .rbbub.urg{border-color:#fca5a5;background:#fff1f2;color:#9f1239}
@@ -723,9 +728,9 @@ body.tvmode #view{padding:18px 22px!important;max-width:none!important}
 .rbt,.rb-tree{display:none}
 .rb-isl{opacity:0;transform-origin:104px 165px;transform:scale(.4);transition:opacity .4s,transform .4s}
 .rbbot.working .rb-isl{opacity:1;transform:none}
-.rb-jet{opacity:0;transition:opacity .2s}
+.rb-jet{opacity:.55;transition:opacity .3s}
 .rbbot.fly .rb-jet,.rbbot.talk .rb-jet{opacity:1;animation:rbJet .12s linear infinite alternate}
-.rb-jet{transform-origin:63px 156px}
+.rb-jet{transform-origin:62px 146px}
 @keyframes rbJet{from{transform:scaleY(.8)}to{transform:scaleY(1.15)}}
 .rbbot[data-act=sierra] .rbt-sierra,.rbbot[data-act=bomba] .rbt-bomba,.rbbot[data-act=guadana] .rbt-guadana,.rbbot[data-act=podadora] .rbt-podadora{display:inline}
 .rbbot.talk .rbt{display:none!important}
@@ -818,9 +823,9 @@ body.tvmode #view{padding:18px 22px!important;max-width:none!important}
 .rbc{flex-shrink:0;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:6px 11px;font:600 12.5px/1.2 inherit;cursor:pointer;white-space:nowrap}
 .rbin{display:flex;gap:8px;padding:10px 12px 12px}
 .rbin input{flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;padding:9px 12px;font:inherit;font-size:14px;background:var(--surface,#fff);color:inherit}
-body.tvmode .rbbot{height:180px;width:234px}
+body.tvmode .rbbot{height:150px;width:195px}
 body.tvmode .rbbub{font-size:19px;padding:10px 18px;margin-top:-48px}
-@media (max-width:860px){.rbbot{height:96px;width:125px}.rbbub{font-size:12px;padding:6px 11px;margin-top:-30px}
+@media (max-width:860px){.rbbot{height:86px;width:112px}.rbbub{font-size:12px;padding:6px 11px;margin-top:-30px}
  #rbChat{left:8px;right:8px;width:auto;bottom:calc(84px + env(safe-area-inset-bottom));max-height:62vh}}
 
 
@@ -1922,24 +1927,19 @@ function robotSVG(){return `<svg class="rbsvg" viewBox="-60 -10 240 185" overflo
 <defs><linearGradient id="rbW" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dbe4f0"/></linearGradient>
 <linearGradient id="rbBl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7dd3fc"/><stop offset="1" stop-color="#2563eb"/></linearGradient>
 <linearGradient id="rbT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#86efac"/><stop offset="1" stop-color="#16a34a"/></linearGradient>
-<radialGradient id="rbJ"><stop offset="0" stop-color="#fef08a"/><stop offset=".5" stop-color="#fb923c"/><stop offset="1" stop-color="rgba(251,146,60,0)"/></radialGradient></defs>
+<radialGradient id="rbJ"><stop offset="0" stop-color="#e0f2fe"/><stop offset=".5" stop-color="#60a5fa"/><stop offset="1" stop-color="rgba(96,165,250,0)"/></radialGradient></defs>
 <!-- islita flotante -->
 <g class="rb-isl"><path d="M26 162 q78 -12 156 0 q-6 16 -40 20 q-38 6 -76 0 q-34 -6 -40 -20z" fill="#a16207" opacity=".85"/><ellipse cx="104" cy="161" rx="79" ry="7" fill="#4ade80"/><path d="M34 158l2-6 2 6M60 156l2-7 2 7M150 156l2-7 2 7M176 158l2-6 2 6M90 155l2-6 2 6" stroke="#16a34a" stroke-width="1.6" fill="none"/></g>
 <!-- árbol -->
 <g class="rb-tree"><rect x="146" y="78" width="12" height="83" rx="3" fill="#a16207"/><path d="M146 150l-8 8M158 152l8 6" stroke="#a16207" stroke-width="4" stroke-linecap="round"/><g class="rb-treefall"><rect x="146" y="36" width="12" height="44" rx="3" fill="#b45309"/><path d="M146 66l-12-12M158 58l12-12" stroke="#a16207" stroke-width="5" stroke-linecap="round"/><circle cx="152" cy="22" r="26" fill="url(#rbT)"/><circle cx="131" cy="40" r="17" fill="#4ade80"/><circle cx="173" cy="38" r="18" fill="#22c55e"/><circle cx="152" cy="2" r="15" fill="#86efac"/></g></g>
 <!-- mochila de la bomba -->
 <g class="rbt rbt-bomba"><path d="M40 66 L30 72" stroke="#475569" stroke-width="3"/><rect x="16" y="60" width="24" height="44" rx="9" fill="#fde047" stroke="#ca8a04" stroke-width="2"/><rect x="20" y="56" width="12" height="7" rx="3" fill="#ca8a04"/><path d="M22 102 C30 122 70 114 96 84" fill="none" stroke="#334155" stroke-width="2.5"/></g>
-<!-- propulsores -->
-<g class="rb-jet"><ellipse cx="58" cy="166" rx="6" ry="13" fill="url(#rbJ)"/><ellipse cx="68" cy="166" rx="6" ry="13" fill="url(#rbJ)"/></g>
-<!-- pierna atrás -->
-<g class="rb-lb"><rect x="51" y="104" width="12" height="42" rx="6" fill="#cbd5e1"/><rect x="47" y="144" width="22" height="12" rx="6" fill="url(#rbBl)"/></g>
+<!-- brillo flotante --><g class="rb-jet"><ellipse cx="62" cy="146" rx="15" ry="5" fill="#93c5fd" opacity=".55"/><ellipse cx="62" cy="152" rx="8" ry="14" fill="url(#rbJ)"/></g>
 <!-- brazo atrás -->
 <g class="rb-ab"><rect x="57" y="68" width="10" height="34" rx="5" fill="#cbd5e1"/><circle cx="62" cy="68" r="6" fill="url(#rbBl)"/><circle cx="62" cy="102" r="6" fill="#e2e8f0" stroke="#94a3b8"/></g>
 <!-- cuerpo y cabeza -->
-<g class="rb-body"><rect x="40" y="62" width="44" height="46" rx="16" fill="url(#rbW)" stroke="#94a3b8" stroke-width="1.5"/><circle class="rb-core" cx="62" cy="83" r="9" fill="url(#rbBl)" stroke="#1d4ed8" stroke-width="1.2"/><circle cx="59" cy="80" r="2.5" fill="#fff" opacity=".8"/><rect x="48" y="100" width="28" height="9" rx="4" fill="#334155"/>
+<g class="rb-body"><rect x="40" y="62" width="44" height="46" rx="16" fill="url(#rbW)" stroke="#94a3b8" stroke-width="1.5"/><circle class="rb-core" cx="62" cy="83" r="9" fill="url(#rbBl)" stroke="#1d4ed8" stroke-width="1.2"/><circle cx="59" cy="80" r="2.5" fill="#fff" opacity=".8"/><g class="rb-base"><rect x="49" y="102" width="26" height="6" rx="3" fill="#334155"/><rect x="51" y="108" width="22" height="5" rx="2.5" fill="#1e293b"/><rect x="49" y="113" width="26" height="5" rx="2.5" fill="#334155"/><path d="M44 120 h36 q-2 16 -18 18 q-16 -2 -18 -18z" fill="url(#rbW)" stroke="#94a3b8" stroke-width="1.5"/><path d="M50 124 h24" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round"/></g>
  <g class="rb-head"><rect x="55" y="52" width="14" height="12" rx="4" fill="#475569"/><circle cx="62" cy="32" r="26" fill="url(#rbW)" stroke="#94a3b8" stroke-width="1.5"/><path d="M40 30 q22 -4 44 0" stroke="#e2e8f0" stroke-width="2" fill="none"/><rect x="44" y="20" width="40" height="24" rx="11" fill="#0f172a"/><g class="rb-eyes"><ellipse cx="60" cy="31" rx="3.6" ry="4.6" fill="#67e8f9"/><ellipse cx="75" cy="31" rx="3.6" ry="4.6" fill="#67e8f9"/><circle cx="61" cy="29.5" r="1.2" fill="#fff"/><circle cx="76" cy="29.5" r="1.2" fill="#fff"/></g><path class="rb-mouth" d="M62 49 q7 5 14 0" stroke="#475569" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="38" cy="33" r="8" fill="url(#rbBl)" stroke="#1d4ed8" stroke-width="1.2"/><circle cx="38" cy="33" r="3.5" fill="#bfdbfe"/><line x1="48" y1="10" x2="45" y2="0" stroke="#64748b" stroke-width="2.5"/><circle class="rb-ant" cx="45" cy="-1" r="3.5" fill="#60a5fa"/><line x1="72" y1="8" x2="74" y2="-2" stroke="#64748b" stroke-width="2.5"/><circle class="rb-ant b" cx="74" cy="-3" r="3.5" fill="#60a5fa"/></g></g>
-<!-- pierna adelante -->
-<g class="rb-lf"><rect x="59" y="104" width="12" height="42" rx="6" fill="#e2e8f0" stroke="#cbd5e1"/><rect x="56" y="144" width="23" height="12" rx="6" fill="url(#rbBl)"/></g>
 <!-- herramientas -->
 <g class="rbt rbt-sierra"><g class="rb-vib"><path d="M84 68 h10 v-6 h8 v6" fill="none" stroke="#334155" stroke-width="3" stroke-linejoin="round"/><rect x="82" y="68" width="30" height="20" rx="6" fill="#fb923c" stroke="#c2410c" stroke-width="1.5"/><rect x="86" y="72" width="10" height="6" rx="2" fill="#fff7ed"/><rect x="110" y="74" width="50" height="8" rx="4" fill="#e2e8f0" stroke="#64748b" stroke-width="1"/><rect class="rb-chain" x="109" y="73" width="52" height="10" rx="5" fill="none" stroke="#334155" stroke-width="1.6" stroke-dasharray="3 2.4"/></g>
  <g class="rb-dust"><circle cx="152" cy="86" r="1.8"/><circle cx="150" cy="88" r="1.4"/><circle cx="154" cy="85" r="1.6"/><circle cx="149" cy="87" r="1.2"/><circle cx="153" cy="89" r="1.5"/></g></g>
@@ -1967,7 +1967,7 @@ function rbBuild(){const f=document.createElement('div');f.id='rbFloat';
   RB.bub.onclick=e=>{e.stopPropagation();const a=RB.alert;if(a&&a.go){go(a.go);rbHideBub()}else rbChat(true)};
   addEventListener('resize',()=>{if(!RB)return;rbPick();const {w,h}=rbSize();if(RB.x>innerWidth-w*.5||RB.y>innerHeight-h*.5||RB.x<-w*.5){RB.x=RB.tx;RB.y=RB.ty}});
   requestAnimationFrame(rbLoop)}
-function rbSize(){return {w:RB.bot.offsetWidth||170,h:RB.bot.offsetHeight||130}}
+function rbSize(){return {w:RB.bot.offsetWidth||145,h:RB.bot.offsetHeight||112}}
 function rbPick(){const W=innerWidth,H=innerHeight,ph=W<=860,{w,h}=rbSize();
   if(RB.chat){const p=$('#rbChat');const r=p?p.getBoundingClientRect():{left:W-380,top:H-400};
     if(ph){RB.tx=W-w*.95;RB.ty=r.top-h*.92}else{RB.tx=r.left-w*.88;RB.ty=Math.max(70,Math.min(H-h-10,r.top+40))}RB.dirLock=ph?-1:1;return}
@@ -1981,11 +1981,12 @@ function rbSay(m,ms){if(RB.chat)return;RB.alert=m;RB.bub.innerHTML=esc(m.t)+(m.g
 function rbMsgs(){const L=[];try{alertas().filter(a=>a.sev!=='b').slice(0,6).forEach(a=>{const m=/data-page="([^"]+)"(?:\s+data-id="([^"]*)")?/.exec(a.act||'');L.push({t:String(a.title).replace(/<[^>]+>/g,'')+(a.detail?' · '+String(a.detail).split(' · ')[0]:''),sev:a.sev,go:m?{page:m[1],id:m[2]||undefined}:{page:'alertas'}})})}catch(e){}
   if(!L.length){const ab=arr(S.boletas).filter(isOpen).length;L.push({t:'¡Todo al día! 💪 Tóqueme si necesita algo'},{t:`${ab} máquina${ab!==1?'s':''} en el taller 🔧`})}
   else L.push({t:'¿Le ayudo? Tóqueme y pregúnteme 🙂'});
+  try{const nm=yoNombre();rbRecs().slice(0,3).forEach(x=>L.splice(1,0,{t:`${nm?nm+', ':''}${x.em} ${x.txt}${x.b?' '+nb(x.b.numero):''}`,sev:x.pr<=2?'a':'',go:x.b?{page:'orden',id:x.b.id}:x.go}))}catch(e){}
   return L}
 function rbLoop(ts){if(!RB)return;requestAnimationFrame(rbLoop);if(document.hidden){RB.last=ts;return}
-  const dt=Math.min(.05,(ts-(RB.last||ts))/1000);RB.last=ts;const now=Date.now();const {w,h}=rbSize();const k=w/170;
+  const dt=Math.min(.05,(ts-(RB.last||ts))/1000);RB.last=ts;const now=Date.now();const {w,h}=rbSize();const k=w/145;
   const hideM=!!document.querySelector('#modal:not(.hidden)');RB.f.classList.toggle('away',hideM);
-  if(RB.ph==='fly'){const dx=RB.tx-RB.x,dy=RB.ty-RB.y,d=Math.hypot(dx,dy);const sp=(RB.chat?260:85)*k;
+  if(RB.ph==='fly'){const dx=RB.tx-RB.x,dy=RB.ty-RB.y,d=Math.hypot(dx,dy);const sp=(RB.chat?200:52)*k;
     if(Math.abs(dx)>3)RB.dir=RB.dirLock||(dx>0?1:-1);
     if(d<3){RB.ph=RB.chat?'chat':'work';RB.tPh=now;if(RB.act==='sierra'&&!RB.chat)RB.bot.classList.add('cut')}
     else{const s=Math.min(d,sp*dt);RB.x+=dx/d*s;RB.y+=dy/d*s}}
@@ -2008,7 +2009,7 @@ setInterval(rbPlace,800);
 /* ---------- conversación con el robot ---------- */
 const rbOL=(b,extra)=>{const e=eq(b.equipoId)||{},c=cli(b.clienteId)||{};return `<a class="rbl" data-act="open" data-page="orden" data-id="${b.id}"><b>${nb(b.numero)}</b> ${tipoEm(e.tipo)} ${esc(eqShort(e))} · ${esc(String(c.nombre||'').split(/\s+/).slice(0,2).join(' '))}${extra?` <span>${extra}</span>`:''}</a>`};
 const rbList=(L,f,max=6)=>L.slice(0,max).map(b=>rbOL(b,f?f(b):'')).join('')+(L.length>max?`<div class="small muted">…y ${L.length-max} más</div>`:'');
-const RB_CHIPS=[['pend','📋 ¿Qué está pendiente?'],['mio','🔧 ¿Qué me toca?'],['atras','⏰ Atrasadas'],['deten','⏳ Detenidas'],['rep','📦 Repuestos que faltan'],['listas','✅ Listas para entregar'],['hoy','📊 Resumen de hoy'],['ayuda','❓ ¿Cómo se hace…?']];
+const RB_CHIPS=[['recs','💡 ¿Qué me recomienda?'],['pend','📋 ¿Qué está pendiente?'],['mio','🔧 ¿Qué me toca?'],['atras','⏰ Atrasadas'],['deten','⏳ Detenidas'],['rep','📦 Repuestos que faltan'],['listas','✅ Listas para entregar'],['hoy','📊 Resumen de hoy'],['ayuda','❓ ¿Cómo se hace…?']];
 function rbData(){const B=arr(S.boletas).filter(isOpen),t=today();
   const atr=B.filter(b=>b.fechaEstimada&&b.fechaEstimada<t&&b.estado!=='Listo para entregar').sort((a,z)=>a.fechaEstimada.localeCompare(z.fechaEstimada));
   const det=B.filter(b=>!['Listo para entregar','Esperando aprobación','Esperando repuestos'].includes(b.estado)&&daysSince(lastChange(b))>=num(CFG.diasSinMov)&&!(b.crono&&b.crono.t0)).sort((a,z)=>lastChange(a).localeCompare(lastChange(z)));
@@ -2062,8 +2063,12 @@ function rbAnswer(key,q){const D=rbData();const me=norm(yoNombre()),pu=puestoAct
     return `<div class="rbsum"><div>📥 Entraron <b>${en.length}</b></div><div>✅ Quedaron listas <b>${lis.length}</b></div><div>🤝 Se entregaron <b>${ent.length}</b></div><div>🔧 En el taller <b>${D.B.length}</b></div></div>${sec('📥 Entraron hoy',en)}`}
   case 'ayuda':return `Pregúnteme cómo se hace algo, por ejemplo <i>"¿cómo recibo una máquina?"</i>, <i>"¿cómo imprimo etiquetas?"</i> o <i>"¿cómo uso el cronómetro?"</i>.<div class="rbchips">${['recibir','entregar','plantilla','etiquetas','cronómetro','respaldo','encuesta','3D','fichas','pedidos'].map(x=>`<button type="button" class="rbc" data-rbq="¿cómo ${x}?">${x}</button>`).join('')}</div>`;
   }
+  if(key==='recs')return rbRecsHTML(8)||'Todo está al día. ¡Buen trabajo! 💪';
   // texto libre
-  const n=norm(q||'');if(!n)return '';
+  const n=norm(q||'').replace(/[¿?¡!.,;:]/g,' ').replace(/\s+/g,' ').trim();if(!n)return '';
+  const nom=esc(yoNombre()||'');
+  if(/recomiend|suger|que hago|que sigue|que debo|que ocupo|que necesito|ayudame|ayudeme|por donde empiezo|que me falta|en que trabajo/.test(n))return rbRecsHTML(8)||`Todo está al día${nom?', '+nom:''}. ¡Buen trabajo! 💪`;
+  {const x=rbSmart(n,D);if(x)return x}
   if(/^(hola|buen|hey|que tal)/.test(n))return `¡Hola${yoNombre()?' '+esc(yoNombre()):''}! 👋 Soy el asistente del taller. Pregúnteme lo que está pendiente o cómo se hace algo.`;
   if(/gracias/.test(n))return '¡Con mucho gusto! 🤖💚';
   if(/^(como|donde|ayuda|que hago|como se)/.test(n)||/\bcomo\b/.test(n)){const h=RB_HELP.find(([re])=>re.test(n));if(h)return h[1];return rbAnswer('ayuda')}
@@ -2082,7 +2087,71 @@ function rbAnswer(key,q){const D=rbData();const me=norm(yoNombre()),pu=puestoAct
    const O=arr(S.boletas).filter(b=>C.some(c=>c.id===b.clienteId)||E.some(e=>e.id===b.equipoId)).sort((a,z)=>(isOpen(z)?1:0)-(isOpen(a)?1:0)||String(z.fechaIngreso).localeCompare(String(a.fechaIngreso)));
    if(O.length)return `Encontré esto:${rbList(O,b=>b.estado,8)}`;
    if(h)return h[1]}
-  return `No le entendí bien 🤔. Puedo decirle lo pendiente, lo atrasado, los repuestos que faltan, buscar una orden por número o un cliente por nombre, o explicarle cómo se hace algo.`}
+  const rc=rbRecsHTML(4);
+  return `No estoy seguro de qué busca${yoNombre()?', '+esc(yoNombre()):''} 🤔. Pruebe con un número de orden, un cliente, un repuesto o <i>"¿cómo…?"</i>.${rc?`<div class="rbh" style="margin-top:8px">Mientras tanto, esto es lo que yo haría:</div>${rc}`:''}`}
+
+/* ---------- recomendaciones e inteligencia del asistente ---------- */
+function rbRecs(){const D=rbData(),me=norm(yoNombre()),pu=puestoActual(),adm=adminReal()||pu==='ambos';const T=pu!=='recepcion'||adm,Rc=pu!=='taller'||adm;const R=[];const t=today();
+  const add=(pr,em,txt,b,go)=>R.push({pr,em,txt,b,go});
+  if(T){const mias=D.B.filter(b=>norm(b.tecnico)===me&&b.estado!=='Listo para entregar');
+    D.esp.filter(b=>norm(b.tecnico)===me||adm).forEach(b=>{const h=b.historial||[];const iE=h.map(x=>x.estado).lastIndexOf('Esperando repuestos');if(h.slice(Math.max(0,iE)).some(x=>/^Llegó repuesto/.test(x.nota||''))&&!arr(S.porpedir).some(x=>x.boletaId===b.id))add(1,'📦','Ya llegó el repuesto: siga con',b)});
+    mias.filter(b=>b.prioridad==='Urgente').forEach(b=>add(2,'🔥','Urgente: trabaje en',b));
+    mias.filter(b=>b.fechaEstimada&&b.fechaEstimada<=t).forEach(b=>add(2,'⏰',b.fechaEstimada<t?'Atrasada, prometida '+fdate(b.fechaEstimada)+':':'Se prometió para hoy:',b));
+    D.sinR.slice(0,2).forEach(b=>add(3,'📥','Reciba en el taller la nueva',b));
+    D.det.filter(b=>norm(b.tecnico)===me||(!b.tecnico&&T)).slice(0,2).forEach(b=>add(4,'⏳',`Lleva ${daysSince(lastChange(b))} días sin avanzar:`,b));
+    D.B.filter(b=>b.crono&&b.crono.t0&&Date.now()-num(b.crono.t0)>8*36e5).forEach(b=>add(3,'⏱️','¿Se le olvidó el cronómetro? Sigue corriendo en',b));
+    if(!mias.length&&D.sinT.length)add(5,'👤','Tome una sin técnico:',D.sinT[0])}
+  if(Rc){D.lis.filter(b=>!b.recepRecibio).slice(0,2).forEach(b=>add(2,'📥','Reciba del taller la que está lista:',b));
+    D.lis.filter(b=>b.recepRecibio&&daysSince(lastChange(b))>=num(CFG.diasRetiro)).slice(0,2).forEach(b=>add(daysSince(lastChange(b))>=(num(CFG.diasAbandono)||30)?2:4,'💬',`Recuérdele al cliente (lleva ${daysSince(lastChange(b))} días lista):`,b));
+    D.apr.filter(b=>daysSince(lastChange(b))>=num(CFG.diasAprob)).slice(0,2).forEach(b=>add(3,'☎️','Llame al cliente para la aprobación de',b));
+    const pp=arr(S.porpedir).length;if(pp)add(4,'🛒',`Hay ${pp} repuesto${pp!==1?'s':''} por pedir al proveedor`,null,{page:'pedidos'});
+    arr(S.boletas).filter(b=>b.estado!=='Entregado'&&b.estado!=='Cancelado'&&b.fechaEstimada===t&&b.estado==='Listo para entregar').slice(0,2).forEach(b=>add(3,'📆','Se prometió para hoy y ya está lista, avise:',b))}
+  if(adm){try{if(respaldoPend())add(4,'💾','Toca hacer el respaldo',null,{page:'respaldo'})}catch(e){}
+    const low=arr(S.repuestos).filter(r=>stockSt(r).k==='out').length;if(low)add(6,'📉',`${low} repuesto${low!==1?'s':''} agotado${low!==1?'s':''}`,null,{page:'repuestos'});
+    arr(S.boletas).filter(b=>{const e=encDe(b);return e&&num(e.s)<=2&&Date.now()-num(e.t)<14*864e5}).slice(0,2).forEach(b=>add(3,'⭐','Cliente poco satisfecho, llámelo:',b))}
+  const seen=new Set();return R.filter(x=>{const k=x.b?x.b.id:x.txt;if(seen.has(k))return false;seen.add(k);return true}).sort((a,z)=>a.pr-z.pr)}
+function rbRecsHTML(max,intro){const L=rbRecs().slice(0,max||6);if(!L.length)return '';
+  return `${intro?'<div class="rbh" style="margin-top:6px">💡 Le recomiendo:</div>':''}${L.map(x=>x.b?`<div class="rbrec">${x.em} ${esc(x.txt)}</div>${rbOL(x.b)}`:`<a class="rbl" data-act="nav" data-page="${x.go.page}">${x.em} ${esc(x.txt)} <span>›</span></a>`).join('')}`}
+const RB_STOP=new Set('el la los las un una unos unas de del al a en y o que hay tengo tiene tenemos quedan queda cuanto cuantos cuantas cuanta me mi mis su sus por para con sin es son esta estan cual cuales donde como se lo le les hay ya stock existencia inventario repuesto repuestos busca buscar quiero saber dime digame favor porfa porfavor'.split(' '));
+const rbWords=n=>n.split(' ').filter(w=>w.length>2&&!RB_STOP.has(w));
+function rbSmart(n,D){const sec=(t,L,f,max)=>L.length?`<div class="rbsec"><div class="rbh">${t} <span>${L.length}</span></div>${rbList(L,f,max)}</div>`:'';
+  const W=rbWords(n);const has=re=>re.test(n);const t=today();const man=iso(new Date(Date.now()+864e5));
+  // entregas prometidas
+  if(has(/(entrega|promet|prometi|sale|salen).*(hoy|manana|semana)|(hoy|manana|semana).*(entrega|promet)/)){const d=has(/manana/)?man:t;
+    let L=arr(S.boletas).filter(b=>isOpen(b)&&b.fechaEstimada);if(has(/semana/)){const e=iso(new Date(Date.now()+7*864e5));L=L.filter(b=>b.fechaEstimada>=t&&b.fechaEstimada<=e)}else L=L.filter(b=>b.fechaEstimada===d);
+    return L.length?sec(`📆 Prometidas para ${has(/semana/)?'esta semana':has(/manana/)?'mañana':'hoy'}`,L.sort((a,z)=>a.fechaEstimada.localeCompare(z.fechaEstimada)),b=>b.estado+' · '+fdate(b.fechaEstimada),10):`No hay entregas prometidas para ${has(/semana/)?'esta semana':has(/manana/)?'mañana':'hoy'}.`}
+  // técnicos / carga
+  if(has(/tecnic|mecanic|quien tiene|carga|trabajo tiene|cuantas hizo|cuantas lleva|rendimiento|productiv/)){const ym=t.slice(0,7);const M={};
+    arr(S.boletas).forEach(b=>{const k=b.tecnico||'Sin asignar';const o=M[k]||(M[k]={a:0,e:0,h:0});if(isOpen(b)&&b.estado!=='Listo para entregar')o.a++;if(b.estado==='Entregado'&&String(b.fechaEntrega||'').slice(0,7)===ym)o.e++;(b.manoObra||[]).forEach(m=>{if(iso(new Date(num(m.t)||Date.now())).slice(0,7)===ym)o.h+=num(m.h)})});
+    const L=Object.entries(M).filter(([k,o])=>o.a||o.e||o.h).sort((a,z)=>z[1].a-a[1].a);if(!L.length)return 'Todavía no hay trabajos asignados.';
+    return `<div class="rbh">🔧 Técnicos</div><div class="rbtab">${L.map(([k,o])=>`<div><b>${esc(k)}</b><span>${o.a} en proceso · ${o.e} entregadas este mes · ${fh(o.h)}</span></div>`).join('')}</div>`}
+  // calificaciones
+  if(has(/calific|encuest|satisf|estrella|opinion|reseña|resena/)){const E=Object.values(S.encuestas||{});if(!E.length)return 'Todavía no hay calificaciones de clientes. Llegan cuando se entrega una máquina y el cliente abre el enlace.';
+    const avg=(E.reduce((a,e)=>a+num(e.s),0)/E.length).toFixed(1);const last=E.sort((a,z)=>num(z.t)-num(a.t)).slice(0,4);
+    return `⭐ Promedio <b>${avg}</b> de 5 con <b>${E.length}</b> calificaci${E.length!==1?'ones':'ón'}.${last.map(e=>`<div class="rbl" style="white-space:normal">${estrellas(num(e.s))} <span>${esc(e.n||'')}</span>${e.c?`<div style="margin-top:2px">“${esc(e.c)}”</div>`:''}</div>`).join('')}`}
+  // mes
+  if(has(/(como va|como vamos|resumen|numeros|estadistic).*(mes|semana)|\bmes\b/)){const ym=t.slice(0,7),A=arr(S.boletas);const en=A.filter(b=>String(b.fechaIngreso).slice(0,7)===ym),ent=A.filter(b=>b.estado==='Entregado'&&String(b.fechaEntrega||'').slice(0,7)===ym);
+    const dd=ent.map(b=>daysBetween?daysBetween(b.fechaIngreso,String(b.fechaEntrega).slice(0,10)):0).filter(x=>x>=0);const prom=dd.length?(dd.reduce((a,b)=>a+b,0)/dd.length).toFixed(1):'—';
+    return `📅 <b>Este mes</b><div class="rbsum"><div>📥 Entraron <b>${en.length}</b></div><div>🤝 Entregadas <b>${ent.length}</b></div><div>🔧 En el taller <b>${D.B.length}</b></div><div>⏱️ Promedio <b>${prom}</b> días</div></div>`}
+  // proveedores
+  if(has(/proveedor|distribuidor/)){const P=(CAT().proveedores||[]).filter(p=>!W.filter(w=>!/proveedor|distribuidor|telefono|numero|contacto/.test(w)).length||W.some(w=>norm(p.n).includes(w)));
+    if(!(CAT().proveedores||[]).length)return 'Todavía no hay proveedores registrados. Se agregan en el menú <b>Proveedores</b>.<a class="rbl" data-act="nav" data-page="proveedores">Ir a Proveedores ›</a>';return P.length?`<div class="rbh">🏭 Proveedores</div>${P.slice(0,6).map(p=>`<a class="rbl" data-act="nav" data-page="proveedores">${esc(p.n)} <span>${esc(p.tel||'')}${p.contacto?' · '+esc(p.contacto):''}</span></a>`).join('')}`:'No encontré ese proveedor.'}
+  // respaldo
+  if(has(/respald|copia|backup/)&&!has(/como/)){const u=num(CFG.ultimoRespaldo);const nb2=(NUBE||[])[0];return `💾 Último respaldo descargado: <b>${u?new Date(u).toLocaleDateString('es-CR',{weekday:'long',day:'numeric',month:'short'}):'nunca'}</b>.${nb2?`<br>☁️ Última copia en la nube: <b>${new Date(num(nb2.t)).toLocaleDateString('es-CR',{weekday:'long',day:'numeric',month:'short'})}</b>.`:''}${respaldoPend()?'<br>⚠️ Toca hacer el respaldo.':''}<a class="rbl" data-act="nav" data-page="respaldo">Ir a Respaldo ›</a>`}
+  // por estado / cuántas
+  if(has(/cuant.*(maquina|equipo|orden)|por estado|en que estado/)){const C={};D.B.forEach(b=>C[b.estado]=(C[b.estado]||0)+1);return `Hay <b>${D.B.length}</b> en el taller:<div class="rbsum">${Object.entries(C).map(([k,v])=>`<div>${est(k).em||'•'} ${esc(k)} <b>${v}</b></div>`).join('')}</div>`}
+  // clientes
+  if(has(/telefono|numero de|celular|contacto|whatsapp de|cliente/)){const w=W.filter(x=>!/telefono|numero|celular|contacto|whatsapp|cliente|clientes/.test(x));
+    if(!w.length&&has(/cuant/)){return `Tiene <b>${arr(S.clientes).length}</b> clientes registrados.`}
+    const C=arr(S.clientes).filter(c=>w.every(x=>norm(c.nombre).includes(x))).slice(0,4);
+    if(C.length)return C.map(c=>{const O=arr(S.boletas).filter(b=>b.clienteId===c.id&&isOpen(b));const wl=c.telefono?waLink(c.telefono,''):'';return `<a class="rbl" data-act="open" data-page="cliente" data-id="${c.id}">👤 <b style="font-family:inherit;color:inherit">${esc(c.nombre)}</b> <span>${esc(c.telefono||'sin teléfono')}</span></a>${wl?`<a class="rbl" href="${esc(wl)}" target="_blank" rel="noopener">💬 WhatsApp <span>${esc(c.telefono)}</span></a>`:''}${O.map(b=>rbOL(b,b.estado)).join('')}`}).join('')}
+  // repuestos por nombre (¿hay bujías?, ¿cuántas cadenas quedan?)
+  if(W.length&&(has(/^hay |quedan|queda|stock|existencia|tenemos|cuant|donde esta|ubicacion|repuesto/)||true)){
+    const sing=w=>w.replace(/(es|s)$/,'');const ws=W.map(sing).filter(w=>w.length>2);
+    const L=arr(S.repuestos).filter(r=>{const h=norm([r.nombre,r.sku,r.codProv,r.codBarras].join(' '));return ws.length&&ws.every(w=>h.includes(w))}).slice(0,8);
+    if(L.length&&(has(/^hay |quedan|queda|stock|existencia|tenemos|cuant|donde esta|ubicacion|repuesto/)||!arr(S.clientes).some(c=>ws.some(w=>norm(c.nombre).includes(w))))){
+      return `<div class="rbh">📦 Repuestos</div>${L.map(r=>{const st=stockSt(r);return `<a class="rbl" data-act="open" data-page="repuesto" data-id="${r.id}">${esc(r.nombre)} <span style="color:${st.k==='ok'?'#16a34a':st.k==='low'?'#d97706':'#e11d48'}">quedan ${num(r.stock)}</span>${r.ubicacion?` <span>📍 ${esc(r.ubicacion)}</span>`:''}</a>`}).join('')}`}}
+  return null}
 let RBM=[];
 function rbChat(open){if(!RB)return;RB.chat=open;let p=$('#rbChat');
   if(!open){if(p)p.classList.remove('on');RB.ph='fly';rbPick();return}
@@ -2096,11 +2165,11 @@ function rbChat(open){if(!RB)return;RB.chat=open;let p=$('#rbChat');
       if(k){e.stopPropagation();rbAsk(k.textContent,k.dataset.rbk)}else if(q){e.stopPropagation();rbAsk(q.dataset.rbq,null,q.dataset.rbq)}
       else if(e.target.closest('.rbl')&&innerWidth<=860)setTimeout(()=>rbChat(false),60)});
     p.querySelector('#rbForm').onsubmit=e=>{e.preventDefault();const i=$('#rbIn');const v=i.value.trim();if(!v)return;i.value='';rbAsk(v,null,v)}}
-  if(!RBM.length){const D=rbData();const h=new Date().getHours();RBM.push({me:0,h:`${h<12?'¡Buenos días':h<19?'¡Buenas tardes':'¡Buenas noches'}${yoNombre()?', '+esc(yoNombre()):''}! 👋 ${D.B.length?`Hay <b>${D.B.length}</b> máquina${D.B.length!==1?'s':''} en el taller${D.atr.length?`, <b style="color:#e11d48">${D.atr.length} atrasada${D.atr.length!==1?'s':''}</b>`:''}${D.det.length?`, <b style="color:#ea580c">${D.det.length} detenida${D.det.length!==1?'s':''}</b>`:''}.`:'No hay máquinas en el taller.'} ¿En qué le ayudo?`})}
+  if(!RBM.length){const D=rbData();const h=new Date().getHours();RBM.push({me:0,h:`${h<12?'¡Buenos días':h<19?'¡Buenas tardes':'¡Buenas noches'}${yoNombre()?', '+esc(yoNombre()):''}! 👋 ${D.B.length?`Hay <b>${D.B.length}</b> máquina${D.B.length!==1?'s':''} en el taller${D.atr.length?`, <b style="color:#e11d48">${D.atr.length} atrasada${D.atr.length!==1?'s':''}</b>`:''}${D.det.length?`, <b style="color:#ea580c">${D.det.length} detenida${D.det.length!==1?'s':''}</b>`:''}.`:'No hay máquinas en el taller.'} ${rbRecsHTML(3,true)}¿En qué le ayudo?`})}
   rbDraw();p.classList.add('on');rbHideBub();RB.ph='fly';setTimeout(()=>{if(RB&&RB.chat)rbPick()},60)}
-function rbAsk(label,key,q){RBM.push({me:1,h:esc(label)});RBM.push({me:0,h:rbAnswer(key,q)||'…'});RBM=RBM.slice(-30);rbDraw();
+function rbAsk(label,key,q){RBM.push({me:1,n:yoNombre()||quien()||'Usted',h:esc(label)});RBM.push({me:0,h:rbAnswer(key,q)||'…'});RBM=RBM.slice(-30);rbDraw();
   if(RB){RB.bot.classList.remove('wave');void RB.bot.offsetWidth;RB.bot.classList.add('wave')}}
-function rbDraw(){const m=$('#rbMsgs');if(!m)return;m.innerHTML=RBM.map(x=>`<div class="rbm ${x.me?'me':''}">${x.h}</div>`).join('');m.scrollTop=m.scrollHeight}
+function rbDraw(){const m=$('#rbMsgs');if(!m)return;m.innerHTML=RBM.map(x=>x.me?`<div class="rbwho">${esc(x.n||'')}</div><div class="rbm me">${x.h}</div>`:`<div class="rbm">${x.h}</div>`).join('');m.scrollTop=m.scrollHeight}
 
 /* ================== Cronómetro de trabajo ================== */
 const cronoMs=c=>c?num(c.acc)+(c.t0?Date.now()-num(c.t0):0):0;
