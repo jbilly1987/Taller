@@ -3,6 +3,7 @@ rules_version = '2';
 // - Todo el sistema: solo el correo del taller puede leer y escribir.
 // - "estado": la página de consulta del cliente (QR) solo puede LEER el estado
 //   de una orden si conoce su código secreto; no puede listar ni cambiar nada.
+// - "encuestas": el cliente solo puede CREAR su calificación una vez (1 a 5 estrellas).
 service cloud.firestore {
   match /databases/{database}/documents {
     match /{document=**} {
@@ -13,6 +14,13 @@ service cloud.firestore {
     }
     match /estado/{token} {
       allow get: if true;
+    }
+    match /encuestas/{t} {
+      allow create: if request.resource.data.keys().hasOnly(['s','c','n','t'])
+        && request.resource.data.s is int
+        && request.resource.data.s >= 1 && request.resource.data.s <= 5
+        && (!('c' in request.resource.data) || (request.resource.data.c is string && request.resource.data.c.size() <= 500))
+        && exists(/databases/$(database)/documents/estado/$(t));
     }
   }
 }

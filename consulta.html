@@ -73,6 +73,13 @@ h2{font-size:15px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
 .foot{text-align:center;font-size:12px;color:var(--muted);margin-top:18px}
 .sig{font-family:"Dancing Script",cursive;font-weight:700}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+.stars{display:flex;gap:6px;justify-content:center}
+.stars button{font-size:40px;line-height:1;background:none;border:0;cursor:pointer;color:#d8d4de;transition:transform .15s,color .15s;padding:2px}
+.stars button.on{color:#f59e0b;text-shadow:0 4px 14px rgba(245,158,11,.35)}
+.stars button:active{transform:scale(1.25)}
+.stt{text-align:center;font-weight:700;margin:6px 0 10px;min-height:20px}
+.enc textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:14px;padding:10px 12px;font:inherit;font-size:14px;background:#fff;resize:vertical}
+.sendb{width:100%;margin-top:10px;justify-content:center}
 </style>
 </head>
 <body>
@@ -114,6 +121,7 @@ function view(d){
    ${d.fe&&!['Entregado','Listo para entregar','Cancelado'].includes(d.est)?`<p class="small" style="margin:12px 0 0">📅 Entrega aproximada: <b>${esc(fd(d.fe))}</b></p>`:''}
    ${d.est==='Entregado'&&d.garantia?`<p class="small" style="margin:12px 0 0">🛡️ Garantía de <b>${d.garantia} días</b> desde la entrega${d.ent?' ('+esc(fd(d.ent))+')':''}.</p>`:''}
   </div>
+  ${d.est==='Entregado'?'<div class="card enc" id="enc"></div>':''}
   ${hechos||(d.fallas||[]).length?`<div class="card"><h2>🛠️ Lo que se le ha hecho</h2>
    ${(d.fallas||[]).length?`<div class="lbl">Lo que usted reportó</div><div class="chips">${d.fallas.map(x=>`<span class="chip f">${esc(x)}</span>`).join('')}</div>`:''}
    ${d.diag?`<div class="lbl">Diagnóstico del mecánico</div><p style="margin:0;font-size:14px;line-height:1.5">${esc(d.diag)}</p>`:''}
@@ -126,13 +134,31 @@ function view(d){
    <div class="btns">${wa?`<a class="btn" href="${wa}" target="_blank" rel="noopener">💬 WhatsApp</a>`:''}${tl?`<a class="btn t" href="tel:+${tl}">📞 Llamar</a>`:''}</div></div>
   <div class="foot">Se actualiza solo · ${esc(ft(d.up))}</div>`;
   document.title=`${e.em} ${d.est} · Orden ${d.n}`;
+  ENC.n=d.n;encDraw();
 }
+let DB=null,TOK='';const ENC={s:0,c:'',done:false,busy:false,n:''};
+try{if(localStorage.getItem('enc_'+new URLSearchParams(location.search).get('t')))ENC.done=true}catch(e){}
+const TXT=['','Muy mal 😞','Mal 😕','Regular 😐','Bien 🙂','¡Excelente! 🤩'];
+function encDraw(){const el=$('#enc');if(!el)return;
+  if(ENC.done){el.innerHTML=`<div class="ctr"><div style="font-size:42px">💚</div><h2 style="margin:6px 0 4px">¡Gracias por su opinión!</h2><p class="small muted" style="margin:0">Nos ayuda a darle un mejor servicio.</p></div>`;return}
+  el.innerHTML=`<h2>⭐ ¿Cómo le atendimos?</h2><p class="small muted" style="margin:0 0 10px">Califique nuestro servicio. Toma 10 segundos.</p>
+   <div class="stars">${[1,2,3,4,5].map(i=>`<button type="button" data-s="${i}" class="${i<=ENC.s?'on':''}" aria-label="${i} estrellas">★</button>`).join('')}</div>
+   <div class="stt">${TXT[ENC.s]||'&nbsp;'}</div>
+   ${ENC.s?`<textarea id="encC" maxlength="500" rows="3" placeholder="¿Algo que quiera contarnos? (opcional)">${esc(ENC.c)}</textarea><button class="btn sendb" id="encOk" ${ENC.busy?'disabled':''}>${ENC.busy?'Enviando…':'Enviar calificación'}</button>`:''}`;
+  el.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{ENC.s=+b.dataset.s;encDraw()});
+  const c=$('#encC');if(c)c.oninput=e=>ENC.c=e.target.value;
+  const ok=$('#encOk');if(ok)ok.onclick=encSend;
+}
+async function encSend(){if(!ENC.s||ENC.busy||!DB)return;ENC.busy=true;encDraw();
+  const o={s:ENC.s,n:String(ENC.n||''),t:Date.now()};const c=String(ENC.c||'').trim().slice(0,500);if(c)o.c=c;
+  try{await DB.collection('encuestas').doc(TOK).set(o);}catch(e){/* ya existía o sin permiso */}
+  ENC.done=true;ENC.busy=false;try{localStorage.setItem('enc_'+TOK,'1')}catch(e){}encDraw()}
 (function(){
   const t=new URLSearchParams(location.search).get('t');
   if(!t||t.length<10)return err('El enlace no es válido');
   if(!window.FIREBASE_CONFIG||!window.firebase)return err('No se pudo conectar. Revise su internet y recargue.');
   try{firebase.initializeApp(window.FIREBASE_CONFIG)}catch(e){}
-  const db=firebase.firestore();
+  const db=firebase.firestore();DB=db;TOK=t;
   db.collection('estado').doc(t).onSnapshot(s=>{if(!s.exists)return err('No encontramos esa orden');view(s.data())},
    e=>err(e&&e.code==='permission-denied'?'La consulta en línea todavía no está activada en el taller':'No se pudo conectar. Revise su internet y recargue.'));
 })();

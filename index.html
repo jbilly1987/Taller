@@ -669,6 +669,30 @@ html[data-theme=dark] .sent-msg{color:#5eead4}
 .m3r{font-size:12.5px!important}.m3r .m3rto{opacity:.75;font-weight:600;margin-left:4px}
 .m3r.ok{border-color:color-mix(in srgb,#22c55e 45%,transparent);background:color-mix(in srgb,#22c55e 9%,var(--field))}
 .m3r.link{border-color:#f59e0b;background:color-mix(in srgb,#f59e0b 16%,var(--field));box-shadow:0 0 0 3px rgba(245,158,11,.2);animation:breathe 1.4s ease-in-out infinite}
+
+.calg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+.cald{background:var(--surface);border:1px solid var(--glass-b);border-radius:16px;padding:10px;min-height:150px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.cald.hoy{border-color:var(--pri);box-shadow:0 0 0 3px rgba(34,197,94,.15)}.cald.pas{opacity:.72}
+.caldh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:12.5px;text-transform:capitalize}
+.calc{cursor:pointer;background:var(--surface-hi);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:11px;padding:7px 9px;margin-bottom:6px;transition:transform .15s}
+.calc:hover{transform:translateY(-2px)}.calc.mini{opacity:.65;padding:5px 8px}
+.calrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+@media (max-width:860px){.calg{grid-template-columns:1fr}.cald{min-height:0}}
+body.tvmode .side,body.tvmode .top,body.tvmode .bnav{display:none!important}
+body.tvmode .main{margin:0!important;padding:0!important;max-width:none!important}
+body.tvmode #view{padding:18px 22px!important;max-width:none!important}
+.tvtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:12px;flex-wrap:wrap}
+.tvt{font-size:26px;font-weight:800;letter-spacing:-.01em}
+.tvclock{font-size:40px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.tvg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.tvcol{background:var(--surface);border:1px solid var(--glass-b);border-top:5px solid var(--c);border-radius:20px;padding:14px;min-height:60vh;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.tvh{display:flex;justify-content:space-between;align-items:center;font-size:22px;font-weight:800;margin-bottom:12px}
+.tvh b{background:var(--c);color:#fff;border-radius:14px;padding:2px 14px;font-size:22px}
+.tvc{background:var(--surface-hi);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px;animation:rise .5s both}
+.tvn{font-size:16px;color:var(--c)}.tvm{font-size:21px;font-weight:800;margin:4px 0 2px;line-height:1.2}.tvs{font-size:15px;color:var(--ink2)}
+.tvb{font-size:12.5px;font-weight:800;padding:3px 9px;border-radius:10px;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+.tvempty{text-align:center;color:var(--muted);padding:30px;font-size:28px}
+@media (max-width:860px){.tvg{grid-template-columns:1fr}.tvcol{min-height:0}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
 @media (max-width:860px){
   .bnav{left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));padding:6px 6px;border-radius:24px;background:color-mix(in srgb,var(--bg) 60%,transparent);backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);border:1px solid var(--glass-b);box-shadow:var(--sh2)}
@@ -761,7 +785,7 @@ const IC={
 };
 const ic=(n,cls='')=>`<svg class="i ${cls}" viewBox="0 0 24 24">${IC[n]||''}</svg>`;
 /* ---------- emojis y motosierra ---------- */
-const EMO={save:'💾',factory:'🏭',home:'🏠',bell:'🔔',clip:'📋',users:'👥',user:'👤',tractor:'🚜',box:'📦',cart:'🛒',tag:'🏷️',chart:'📊',gear:'⚙️',inbox:'📥',wrench:'🔧',check:'✅',clock:'⏳',truck:'🚚',lock:'🔐',dl:'💾',search:'🔍',alert:'⚠️',msg:'💬',print:'🖨️',file:'📄',activity:'📈',qr:'🔳',kanban:'🗂️',list:'📝',repeat:'🔁',shield:'🛡️',pin:'📍',phone:'📞'};
+const EMO={cal:'📆',tv:'📺',star:'⭐',save:'💾',factory:'🏭',home:'🏠',bell:'🔔',clip:'📋',users:'👥',user:'👤',tractor:'🚜',box:'📦',cart:'🛒',tag:'🏷️',chart:'📊',gear:'⚙️',inbox:'📥',wrench:'🔧',check:'✅',clock:'⏳',truck:'🚚',lock:'🔐',dl:'💾',search:'🔍',alert:'⚠️',msg:'💬',print:'🖨️',file:'📄',activity:'📈',qr:'🔳',kanban:'🗂️',list:'📝',repeat:'🔁',shield:'🛡️',pin:'📍',phone:'📞'};
 const hic=n=>EMO[n]?`<span class="hem">${EMO[n]}</span>`:ic(n);
 const nem=n=>EMO[n]?`<span class="nem">${EMO[n]}</span>`:ic(n);
 function sawSVG(cls=''){return `<svg class="saw ${cls}" viewBox="0 0 250 110" aria-hidden="true"><defs><linearGradient id="sgB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdba74"/><stop offset=".45" stop-color="#f97316"/><stop offset="1" stop-color="#c2410c"/></linearGradient><linearGradient id="sgBar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1f5f9"/><stop offset="1" stop-color="#94a3b8"/></linearGradient></defs>
@@ -829,7 +853,7 @@ const DEF_CAT={
   'General':['Bujía','Filtro de aire','Carburador','Compresión','Arrancador','Mangueras de combustible','Limpieza general']
  }
 };
-const COLS=['clientes','equipos','repuestos','boletas','movimientos','pedidos','porpedir'];
+const COLS=['clientes','equipos','repuestos','boletas','movimientos','pedidos','porpedir','encuestas'];
 const LSKEY='tallerAgricola_v1';
 
 /* ================== Estado ================== */
@@ -1088,8 +1112,8 @@ async function initStore(){
 }
 
 /* ================== Shell / render ================== */
-const NAV=[['inicio','home','Inicio'],['alertas','bell','Alertas'],['ordenes','clip','Órdenes'],['clientes','users','Clientes'],['equipos','tractor','Equipos'],['repuestos','box','Repuestos'],['pedidos','cart','Pedidos'],['proveedores','factory','Proveedores'],['respaldo','save','Respaldo'],['catalogo','tag','Catálogo'],['reportes','chart','Reportes'],['ajustes','gear','Configuración']];
-const TITLES={conteo:'Conteo de inventario',respaldo:'Respaldo',proveedores:'Proveedores',proveedor:'Proveedor',alertas:'Alertas',pedidos:'Pedidos',inicio:'Inicio',ordenes:'Órdenes de servicio',orden:'Orden de servicio',clientes:'Clientes',cliente:'Cliente',equipos:'Equipos',equipo:'Equipo',repuestos:'Repuestos',repuesto:'Repuesto',catalogo:'Catálogo',reportes:'Reportes',ajustes:'Configuración'};
+const NAV=[['inicio','home','Inicio'],['alertas','bell','Alertas'],['ordenes','clip','Órdenes'],['clientes','users','Clientes'],['equipos','tractor','Equipos'],['repuestos','box','Repuestos'],['pedidos','cart','Pedidos'],['proveedores','factory','Proveedores'],['calendario','cal','Calendario'],['pantalla','tv','Pantalla del taller'],['respaldo','save','Respaldo'],['catalogo','tag','Catálogo'],['reportes','chart','Reportes'],['ajustes','gear','Configuración']];
+const TITLES={calendario:'Calendario de entregas',pantalla:'Pantalla del taller',conteo:'Conteo de inventario',respaldo:'Respaldo',proveedores:'Proveedores',proveedor:'Proveedor',alertas:'Alertas',pedidos:'Pedidos',inicio:'Inicio',ordenes:'Órdenes de servicio',orden:'Orden de servicio',clientes:'Clientes',cliente:'Cliente',equipos:'Equipos',equipo:'Equipo',repuestos:'Repuestos',repuesto:'Repuesto',catalogo:'Catálogo',reportes:'Reportes',ajustes:'Configuración'};
 const PARENT={conteo:'repuestos',proveedor:'proveedores',orden:'ordenes',cliente:'clientes',equipo:'equipos',repuesto:'repuestos'};
 const setH=(el,h)=>{if(el&&el._h!==h){el.innerHTML=h;el._h=h}};
 function shell(){
@@ -1117,7 +1141,8 @@ function render(){
   if(fid){try{ss=ae.selectionStart;se=ae.selectionEnd}catch(e){}}
   tryPend();
   const p=view.page;const q=UI.q.trim();
-  const F={conteo:vConteo,respaldo:vRespaldo,proveedores:vProveedores,proveedor:()=>vProveedor(view.id),alertas:vAlertas,pedidos:vPedidos,inicio:vInicio,ordenes:vOrdenes,orden:()=>vOrden(view.id),clientes:vClientes,cliente:()=>vCliente(view.id),equipos:vEquipos,equipo:()=>vEquipo(view.id),repuestos:vRepuestos,repuesto:()=>vRepuesto(view.id),catalogo:vCatalogo,reportes:vReportes,ajustes:vAjustes};
+  const F={calendario:vCalendario,pantalla:vPantalla,conteo:vConteo,respaldo:vRespaldo,proveedores:vProveedores,proveedor:()=>vProveedor(view.id),alertas:vAlertas,pedidos:vPedidos,inicio:vInicio,ordenes:vOrdenes,orden:()=>vOrden(view.id),clientes:vClientes,cliente:()=>vCliente(view.id),equipos:vEquipos,equipo:()=>vEquipo(view.id),repuestos:vRepuestos,repuesto:()=>vRepuesto(view.id),catalogo:vCatalogo,reportes:vReportes,ajustes:vAjustes};
+  document.body.classList.toggle('tvmode',p==='pantalla'&&!q);
   const html=q?vBuscar(q):(F[p]||vInicio)();const key0=q?'q':p+(view.id||'');const same=html===v._h&&key0===render._k;
   if(!same){v.innerHTML=html;v._h=html}
   {const key=q?'q':p+(view.id||'');if(key!==render._k){render._k=key;v.classList.remove('enter');void v.offsetWidth;v.classList.add('enter');clearTimeout(render._t);render._t=setTimeout(()=>v.classList.remove('enter'),900)}}
@@ -1156,6 +1181,7 @@ function resumenMes(){
   const trp=Object.entries(rp).sort((a,b)=>b[1]-a[1]).slice(0,3);
   return `<div class="card" style="margin-top:16px"><div class="ch"><h2><span class="hem">📅</span> Resumen de ${esc(mes)}</h2><button class="btn sm" data-act="nav" data-page="reportes">${ic('chart')} Reportes</button></div><div class="cp-in">
    <div class="mes"><div><b>${inn.length}</b><span>📥 Entraron</span></div><div><b>${entr.length}</b><span>🤝 Entregadas</span></div><div><b>${nrp}</b><span>🔩 Repuestos instalados</span></div><div><b class="ell" style="font-size:${top?'16px':'22px'};padding:${top?'3px 0':'0'}">${top?esc(top[0]):'—'}</b><span>🏆 Técnico del mes${top?` · ${top[1]}`:''}</span></div></div>
+   ${(()=>{const E=arr(S.boletas).filter(b=>encDe(b)&&String(new Date(num(encDe(b).t)).toISOString()).slice(0,7)===ym).map(encDe);return E.length?`<div class="small" style="margin-top:10px">⭐ Satisfacción del mes: <b style="color:#f59e0b">${(E.reduce((a,e)=>a+num(e.s),0)/E.length).toFixed(1)} ★</b> <span class="muted">(${E.length} calificaci${E.length!==1?'ones':'ón'})</span></div>`:''})()}
    ${trp.length?`<div class="small muted" style="margin-top:10px">Más usados: ${trp.map(([k,v])=>`<b style="color:var(--ink2)">${esc(k)}</b> (${v})`).join(' · ')}</div>`:''}</div></div>`;
 }
 function vInicio(){
@@ -1235,7 +1261,7 @@ function waMsg(b){
   let m=`Hola ${c.nombre||''}, le saluda ${CFG.nombre}. Su equipo ${eqShort(e)} (orden ${nb(b.numero)}) está: *${b.estado}*.`;
   if(b.estado==='Listo para entregar')m+='\nPuede pasar a retirarlo presentando su comprobante. ¡Gracias!';
   else if(b.diagnostico)m+='\nDiagnóstico: '+b.diagnostico;
-  {const u=consultaUrl(b);if(u)m+='\n\n🔎 Vea cómo va su equipo aquí: '+u}
+  {const u=consultaUrl(b);if(u)m+=b.estado==='Entregado'?'\n\n⭐ ¿Cómo le atendimos? Califique nuestro servicio aquí (toma 10 segundos): '+u:'\n\n🔎 Vea cómo va su equipo aquí: '+u}
   return m;
 }
 
@@ -1337,6 +1363,7 @@ function vOrden(id){
     <div class="card ${LK?'lk':''}"><div class="ch"><h2>${hic('box')} Repuestos utilizados</h2><button class="btn sm" data-act="ppAdd" data-id="${b.id}" title="Pedir un repuesto que no hay">${ic('cart')} Falta</button><button class="btn sm p" data-act="addRep" data-id="${b.id}">${ic('plus')} Agregar</button></div>
      ${lines.length?`<div class="lines">${lines.map((l,i)=>`<div class="ln"><div style="flex:1;min-width:0"><div style="font-weight:600" class="ell">${esc(l.nombre)}</div><div class="small muted"><span class="mono">${esc(l.sku||'Sin código')}</span> · <span class="tag ${l.condicion==='Usado'?'u':'n'}">${esc(condLbl(l.condicion))}</span></div></div><div class="qty"><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="-1">${ic('minus')}</button><span>${num(l.cant)}</span><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="1">${ic('plus')}</button></div><button class="ib" data-act="rmLine" data-id="${b.id}" data-i="${i}" title="Quitar">${ic('trash')}</button></div>`).join('')}</div>`:emptyBox('box','Sin repuestos','Agregue los repuestos nuevos o de segunda que se instalen; se descuentan del inventario.')}</div>
     ${moCard(b)}
+    ${encCard(b)}
     ${pzCard(b)}
     ${esTaller()&&isOpen(b)?modCard(b):''}
     <div class="card"><div class="ch"><h2>${hic('clock')} Historial</h2><button class="btn sm" data-act="nota" data-id="${b.id}">${ic('plus')} Nota</button></div>
@@ -1746,6 +1773,100 @@ function enviadoTaller(b){
   const close=()=>{o.classList.add('out');setTimeout(()=>o.remove(),350)};
   o.onclick=ev=>{const k=ev.target.closest('[data-sv]')?.dataset.sv;if(!k&&ev.target!==o)return;close();if(k==='print')printMenu(b.id,'recepcion');else if(k==='otra')A.recibir({})}
 }
+
+/* ================== Código de barras (Code 128-B) ================== */
+const C128=['212222','222122','222221','121223','121322','131222','122213','122312','132212','221213','221312','231212','112232','122132','122231','113222','123122','123221','223211','221132','221231','213212','223112','312131','311222','321122','321221','312212','322112','322211','212123','212321','232121','111323','131123','131321','112313','132113','132311','211313','231113','231311','112133','112331','132131','113123','113321','133121','313121','211331','231131','213113','213311','213131','311123','311321','331121','312113','312311','332111','314111','221411','431111','111224','111422','121124','121421','141122','141221','112214','112412','122114','122411','142112','142211','241211','221114','413111','241112','134111','111242','121142','121241','114212','124112','124211','411212','421112','421211','212141','214121','412121','111143','111341','131141','114113','114311','411113','411311','113141','114131','311141','411131','211412','211214','211232','2331112'];
+function code128svg(txt,h=40){txt=String(txt).replace(/[^\x20-\x7e]/g,'');const v=[104];for(const ch of txt)v.push(ch.charCodeAt(0)-32);let ck=104;v.slice(1).forEach((x,i)=>ck+=x*(i+1));v.push(ck%103,106);
+  let x=10,bars='';v.forEach(c=>{const p=C128[c];for(let i=0;i<p.length;i++){const w=+p[i];if(i%2===0)bars+=`<rect x="${x}" y="0" width="${w}" height="${h}"/>`;x+=w}});const W=x+10;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${h}" preserveAspectRatio="none" style="width:100%;height:${h}px;display:block"><rect width="${W}" height="${h}" fill="#fff"/><g fill="#000">${bars}</g></svg>`}
+function codGen(){const used=new Set(arr(S.repuestos).map(r=>r.codBarras).filter(Boolean));let c;do{c='TL'+String(Date.now()).slice(-7)+String(Math.floor(Math.random()*90+10))}while(used.has(c));return c}
+let ETQ=null;
+function etiquetasModal(ids){
+  const all=arr(S.repuestos).sort((a,b)=>norm(a.nombre).localeCompare(norm(b.nombre)));
+  ETQ={sel:Object.fromEntries((ids||[]).map(id=>[id,1])),q:'',size:ETQ?.size||'m'};etqRender(all);
+}
+function etqRender(all){all=all||arr(S.repuestos).sort((a,b)=>norm(a.nombre).localeCompare(norm(b.nombre)));const q=norm(ETQ.q);const L=all.filter(r=>!q||norm([r.nombre,r.sku,r.codBarras,r.codProv].join(' ')).includes(q)).slice(0,200);
+  const n=Object.values(ETQ.sel).reduce((a,b)=>a+num(b),0);
+  openModal('🏷️ Etiquetas de repuestos',`<p class="small muted" style="margin-top:0">Elija los repuestos y cuántas etiquetas de cada uno. Los que no tienen código de barras reciben uno nuevo automáticamente (queda guardado en el repuesto).</p>
+   <div class="row" style="gap:8px;margin-bottom:10px;flex-wrap:wrap"><input class="inp" id="etqQ" placeholder="Buscar…" value="${esc(ETQ.q)}" style="flex:1;min-width:140px"><button class="btn sm" data-act="etqAll">Todos</button><button class="btn sm" data-act="etqSin">Sin código</button><button class="btn sm" data-act="etqNone">Ninguno</button></div>
+   <div class="seg" style="margin-bottom:10px"><button class="${ETQ.size==='s'?'on':''}" data-act="etqSize" data-v="s">Pequeña 50×25 mm</button><button class="${ETQ.size==='m'?'on':''}" data-act="etqSize" data-v="m">Mediana 63×38 mm</button></div>
+   <div class="rows" style="max-height:44vh;overflow:auto;border:1px solid var(--line2);border-radius:12px">${L.map(r=>{const c=num(ETQ.sel[r.id]);return `<div class="rw" style="cursor:default;padding:8px 12px"><div class="mn"><div class="t ell">${esc(r.nombre)}</div><div class="s ell">${r.codBarras?`▥ <span class="mono">${esc(r.codBarras)}</span>`:'<span style="color:var(--warn)">sin código de barras</span>'}${r.sku?' · '+esc(r.sku):''}</div></div><div class="cntin"><button class="cntb" data-act="etqQ" data-id="${r.id}" data-d="-1">−</button><b style="min-width:26px;text-align:center">${c||'·'}</b><button class="cntb" data-act="etqQ" data-id="${r.id}" data-d="1">+</button></div></div>`}).join('')||'<p class="muted" style="padding:14px">Sin repuestos.</p>'}</div>`,
+   `<span class="small muted">${n} etiqueta${n!==1?'s':''}</span><span class="sp"></span><button class="btn" data-act="close">Cerrar</button><button class="btn p" data-act="etqPrint" ${n?'':'disabled'}>${ic('print')} Imprimir</button>`,'lg');
+  const i=$('#etqQ');if(i)i.oninput=e=>{ETQ.q=e.target.value;const p=e.target.selectionStart;etqRender();const k=$('#etqQ');k.focus();try{k.setSelectionRange(p,p)}catch(x){}};
+}
+async function etqPrint(){const ids=Object.keys(ETQ.sel).filter(id=>num(ETQ.sel[id])>0&&S.repuestos[id]);if(!ids.length)return;
+  for(const id of ids){const r=S.repuestos[id];if(!r.codBarras)await put('repuestos',{...r,codBarras:codGen()})}
+  const sm=ETQ.size==='s';const W=sm?50:63,H=sm?25:38;
+  const labs=ids.flatMap(id=>{const r=S.repuestos[id];return Array(num(ETQ.sel[id])).fill(r)}).map(r=>`<div class="lb"><div class="nm">${esc(r.nombre)}</div>${code128svg(r.codBarras,sm?30:44)}<div class="cd">${esc(r.codBarras)}</div>${!sm?`<div class="ex">${[r.sku,r.ubicacion?'📍 '+r.ubicacion:'',r.condicion==='Usado'?'Segunda':''].filter(Boolean).map(esc).join(' · ')}</div>`:''}</div>`).join('');
+  const html=`<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Etiquetas</title><style>@page{size:letter;margin:8mm}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif}.g{display:flex;flex-wrap:wrap;gap:2mm}.lb{width:${W}mm;height:${H}mm;border:1px dashed #bbb;border-radius:2mm;padding:1.6mm 2.4mm;overflow:hidden;display:flex;flex-direction:column;justify-content:center;page-break-inside:avoid}.nm{font-weight:700;font-size:${sm?7.5:9.5}pt;line-height:1.1;max-height:2.3em;overflow:hidden;margin-bottom:1mm}.cd{font-family:monospace;font-size:${sm?7:8.5}pt;text-align:center;letter-spacing:.06em;margin-top:.6mm}.ex{font-size:7pt;color:#444;text-align:center;margin-top:.6mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@media print{.lb{border-color:#eee}}</style></head><body><div class="g">${labs}</div><script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>`;
+  closeModal();openDoc('Etiquetas_repuestos.html',html);toast('🏷️ Etiquetas listas para imprimir');render()}
+
+/* ================== Plantillas de trabajo ================== */
+const plantillas=()=>CAT().plantillas||[];
+let PL=null;
+function plEditor(base){
+  PL=base?clone(base):{id:uid(),n:'',tipo:'',mo:[],rep:[],tr:[]};PL.q='';plRender();
+}
+function plRender(){const c=CAT();const q=norm(PL.q);
+  const reps=q?arr(S.repuestos).filter(r=>norm([r.nombre,r.sku,r.codBarras,r.codProv].join(' ')).includes(q)).slice(0,8):[];
+  openModal('📝 Plantilla de trabajo',`<div class="fr"><div class="f" style="grid-column:span 2"><label>Nombre</label><input id="plN" value="${esc(PL.n)}" placeholder="Ej.: Mantenimiento GX160" autocomplete="off"></div><div class="f"><label>Para el tipo</label><select id="plT"><option value="">Cualquiera</option>${catTipos().map(t=>`<option ${t===PL.tipo?'selected':''}>${esc(t)}</option>`).join('')}</select></div></div>
+   <div class="sect"><span class="fl">🛠️ Mano de obra <span class="opt">(toque para agregar o quitar)</span></span><div class="cp">${c.manoObra.map(x=>{const on=PL.mo.find(m=>m.c===x.c);return `<button type="button" class="cpc ${on?'on':''}" data-act="plMo" data-c="${esc(x.c)}">${moEm(x.d)} ${esc(x.d)}${on?` · ${fh(on.h)}`:''}</button>`}).join('')}</div>
+    ${PL.mo.length?`<div class="lines" style="margin-top:8px">${PL.mo.map((m,i)=>`<div class="ln"><div style="flex:1"><b class="mono" style="color:var(--pri)">${esc(m.c)}</b> ${esc(m.d)}</div><div class="qty"><button type="button" data-act="plMoH" data-i="${i}" data-d="-0.25">${ic('minus')}</button><span style="min-width:50px">${fh(m.h)}</span><button type="button" data-act="plMoH" data-i="${i}" data-d="0.25">${ic('plus')}</button></div></div>`).join('')}</div>`:''}</div>
+   <div class="sect"><span class="fl">📦 Repuestos</span><input class="inp" id="plQ" placeholder="Buscar repuesto para agregar…" value="${esc(PL.q)}" style="width:100%">
+    ${reps.length?`<div class="rows" style="border:1px solid var(--line2);border-radius:12px;margin-top:6px">${reps.map(r=>`<div class="rw" data-act="plRepAdd" data-id="${r.id}"><div class="mn"><div class="t ell">${esc(r.nombre)}</div><div class="s">${esc(r.sku||'')} · stock ${num(r.stock)}</div></div>${ic('plus')}</div>`).join('')}</div>`:''}
+    ${PL.rep.length?`<div class="lines" style="margin-top:8px">${PL.rep.map((x,i)=>{const r=S.repuestos[x.id];return `<div class="ln"><div style="flex:1;min-width:0" class="ell">${esc(r?r.nombre:x.nombre||'(repuesto borrado)')}</div><div class="qty"><button type="button" data-act="plRepQ" data-i="${i}" data-d="-1">${ic('minus')}</button><span>${x.cant}</span><button type="button" data-act="plRepQ" data-i="${i}" data-d="1">${ic('plus')}</button></div></div>`}).join('')}</div>`:''}</div>
+   <div class="sect"><span class="fl">✅ Trabajos realizados</span><div class="cp">${c.trabajos.map(t=>`<button type="button" class="cpc ${PL.tr.includes(t)?'on':''}" data-act="plTr" data-v="${esc(t)}">${esc(t)}</button>`).join('')}</div></div>`,
+   `${plantillas().some(x=>x.id===PL.id)?`<button class="btn d" data-act="plDel" data-id="${PL.id}">${ic('trash')} Eliminar</button>`:''}<span class="sp"></span><button class="btn" data-act="close">Cancelar</button><button class="btn p" data-act="plSave">${ic('check')} Guardar</button>`,'lg');
+  const sync=()=>{const n=$('#plN'),t=$('#plT');if(n)PL.n=n.value;if(t)PL.tipo=t.value};$('#plN').oninput=sync;$('#plT').onchange=sync;
+  const i=$('#plQ');if(i)i.oninput=e=>{sync();PL.q=e.target.value;const p=e.target.selectionStart;plRender();const k=$('#plQ');k.focus();try{k.setSelectionRange(p,p)}catch(x){}};
+}
+const plSync=()=>{const n=$('#plN'),t=$('#plT');if(n)PL.n=n.value.trim();if(t)PL.tipo=t.value};
+function plDesc(p){return [p.mo.length?`🛠️ ${p.mo.length} trabajo${p.mo.length!==1?'s':''} (${fh(p.mo.reduce((a,m)=>a+num(m.h),0))})`:'',p.rep.length?`📦 ${p.rep.reduce((a,x)=>a+num(x.cant),0)} repuesto${p.rep.length!==1?'s':''}`:'',p.tr.length?`✅ ${p.tr.length}`:''].filter(Boolean).join(' · ')||'Vacía'}
+function plAplicarModal(id){const b=S.boletas[id];if(!b)return;const e=eq(b.equipoId)||{};const L=plantillas().slice().sort((a,z)=>(z.tipo&&norm(z.tipo)===norm(e.tipo)?1:0)-(a.tipo&&norm(a.tipo)===norm(e.tipo)?1:0));
+  openModal('📝 Aplicar plantilla',`${L.length?`<div class="picks">${L.map(p=>`<button class="pick" data-act="plApply" data-id="${id}" data-p="${p.id}"><div class="ticon" style="width:40px;height:40px;font-size:20px">📝</div><div style="flex:1;min-width:0"><div style="font-weight:700" class="ell">${esc(p.n||'Sin nombre')}${p.tipo&&norm(p.tipo)===norm(e.tipo)?' <span class="badge" style="background:var(--pri-l);color:var(--pri)">recomendada</span>':''}</div><div class="small muted ell">${p.tipo?esc(p.tipo)+' · ':''}${plDesc(p)}</div></div></button>`).join('')}</div>`:emptyBox('📝','Todavía no hay plantillas','Cree una con lo que lleva esta orden, o en Catálogo → Plantillas.')}`,
+   `<button class="btn" data-act="plFromOrder" data-id="${id}">💾 Crear plantilla con esta orden</button><span class="sp"></span><button class="btn" data-act="close">Cerrar</button>`,'sm');}
+async function plApply(bid,pid){const p=plantillas().find(x=>x.id===pid);let b=S.boletas[bid];if(!p||!b)return;
+  const me=yo();const tec=b.tecnico||(me&&me.puesto!=='recepcion'?me.n:'');
+  const mo=[...(b.manoObra||[]),...p.mo.map(m=>({id:uid(),c:m.c,d:m.d,h:num(m.h),tec,nota:'Plantilla: '+p.n,por:quien(),t:Date.now()}))];
+  const tr=uniq([...(b.trabajos||[]),...p.tr]);
+  b={...b,manoObra:mo,trabajos:tr,historial:[...(b.historial||[]),{t:Date.now(),estado:b.estado,nota:'Aplicó plantilla «'+p.n+'»',por:quien(),dev:DEV}]};
+  if(!await put('boletas',b))return;let falt=[];
+  for(const x of p.rep){const r=S.repuestos[x.id];if(!r){falt.push(x.nombre||'?');continue}await addLine(bid,r,num(x.cant)||1)}
+  if(TR&&TR.id===bid)TR=null;closeModal();render();toast(`📝 Plantilla «${p.n}» aplicada${falt.length?' · faltan en inventario: '+falt.join(', '):''}`)}
+
+/* ================== Calendario de entregas ================== */
+if(UI.calW==null)UI.calW=0;
+function vCalendario(){
+  const hoy=today();const d0=new Date();const dow=(d0.getDay()+6)%7;const mon=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()-dow+UI.calW*7);
+  const days=Array.from({length:7},(_,i)=>{const d=new Date(mon.getFullYear(),mon.getMonth(),mon.getDate()+i);return iso(d)});
+  const B=arr(S.boletas).filter(b=>b.estado!=='Cancelado');
+  const late=B.filter(b=>isOpen(b)&&b.estado!=='Listo para entregar'&&b.fechaEstimada&&b.fechaEstimada<hoy).sort((a,z)=>a.fechaEstimada.localeCompare(z.fechaEstimada));
+  const sinF=B.filter(b=>isOpen(b)&&!b.fechaEstimada).length;
+  const card=(b,mini)=>{const e=eq(b.equipoId)||{},c=cli(b.clienteId)||{};const es=est(b.estado);return `<div class="calc ${mini?'mini':''}" data-act="open" data-page="orden" data-id="${b.id}" style="--c:${es.c}"><div class="row" style="justify-content:space-between;gap:6px"><b class="mono" style="font-size:11.5px;color:var(--pri)">${nb(b.numero)}</b><span style="font-size:13px">${es.em||''}</span></div><div class="ell" style="font-weight:700;font-size:13px">${tipoEm(e.tipo)} ${esc(eqShort(e))}</div><div class="ell small muted">${esc(c.nombre||'')}${b.tecnico?' · 🔧 '+esc(b.tecnico):''}</div></div>`};
+  const lbl=d=>new Date(d+'T12:00:00').toLocaleDateString('es-CR',{weekday:'short',day:'numeric',month:'short'});
+  return `<div class="ph"><div><h1>Calendario 📆</h1><div class="sub">Máquinas prometidas para cada día · ${lbl(days[0])} al ${lbl(days[6])}</div></div><div class="row"><button class="btn" data-act="calW" data-d="-1">‹</button><button class="btn ${UI.calW?'':'p'}" data-act="calW" data-d="0">Hoy</button><button class="btn" data-act="calW" data-d="1">›</button></div></div>
+  ${late.length?`<div class="card" style="margin-bottom:14px;border-color:color-mix(in srgb,var(--red) 40%,transparent)"><div class="ch"><h2><span class="hem">⏰</span> Atrasadas <span class="badge" style="background:var(--red-l);color:var(--red)">${late.length}</span></h2></div><div class="cp-in"><div class="calrow">${late.map(b=>`<div><div class="small" style="color:var(--red);font-weight:700;margin-bottom:4px">Prometida ${esc(lbl(b.fechaEstimada))}</div>${card(b)}</div>`).join('')}</div></div></div>`:''}
+  <div class="calg">${days.map(d=>{const L=B.filter(b=>b.fechaEstimada===d&&b.estado!=='Entregado');const E=B.filter(b=>b.estado==='Entregado'&&String(b.fechaEntrega||'').slice(0,10)===d);
+   return `<div class="cald ${d===hoy?'hoy':''} ${d<hoy?'pas':''}"><div class="caldh"><b>${esc(lbl(d))}</b>${L.length?`<span class="badge" style="background:var(--pri-l);color:var(--pri)">${L.length}</span>`:''}</div>${L.map(b=>card(b)).join('')||'<div class="small muted" style="padding:6px 2px">—</div>'}${E.length?`<div class="small muted" style="margin:8px 0 4px">🤝 Entregadas</div>${E.map(b=>card(b,1)).join('')}`:''}</div>`}).join('')}</div>
+  ${sinF?`<p class="small muted" style="margin-top:12px">📌 ${sinF} orden${sinF!==1?'es':''} abierta${sinF!==1?'s':''} sin fecha de entrega prometida. Se pone en cada orden, en el trabajo del taller (“Entrega prometida”).</p>`:''}`;
+}
+
+/* ================== Pantalla del taller (TV) ================== */
+function vPantalla(){
+  const B=arr(S.boletas).filter(isOpen);const lim=num(CFG.diasTaller)||15;
+  const col=(t,em,c,L)=>`<div class="tvcol" style="--c:${c}"><div class="tvh"><span>${em} ${t}</span><b>${L.length}</b></div><div class="tvl">${L.map(b=>{const e=eq(b.equipoId)||{},cl=cli(b.clienteId)||{};const dd=daysSince(b.fechaIngreso);const es=est(b.estado);
+    return `<div class="tvc"><div class="row" style="justify-content:space-between"><b class="mono tvn">${nb(b.numero)}</b>${b.estado!=='En reparación'&&b.estado!=='Listo para entregar'&&b.estado!=='Recibido'?`<span class="tvb" style="--c:${es.c}">${es.em||''} ${esc(b.estado)}</span>`:''}</div><div class="tvm">${tipoEm(e.tipo)} ${esc(eqShort(e))}</div><div class="tvs">👤 ${esc(String(cl.nombre||'').split(/\s+/).slice(0,2).join(' '))}${b.tecnico?' · 🔧 '+esc(b.tecnico):''} · <span style="${dd>=lim?'color:#ef4444;font-weight:800':''}">${dd} d</span></div></div>`}).join('')||'<div class="tvempty">—</div>'}</div></div>`;
+  const by=f=>B.filter(f).sort((a,z)=>String(a.fechaIngreso).localeCompare(String(z.fechaIngreso))||a.numero-z.numero);
+  return `<div class="tv"><div class="tvtop"><div class="row" style="gap:14px"><div class="logo" style="width:56px;height:56px;border-radius:16px">${logoHTML()}</div><div><div class="tvt">${esc(CFG.nombre||'Taller')}</div><div class="bsig" style="font-size:18px">ForBillyComputer</div></div></div>
+   <div class="row" style="gap:10px"><div style="text-align:right"><div class="tvclock" id="tvClock">${new Date().toLocaleTimeString('es-CR',{hour:'numeric',minute:'2-digit'})}</div><div class="small muted">${new Date().toLocaleDateString('es-CR',{weekday:'long',day:'numeric',month:'long'})}</div></div><button class="btn" data-act="tvFull" title="Pantalla completa">⛶</button><button class="btn" data-act="tvExit">Salir</button></div></div>
+   <div class="tvg">${col('En fila','📥','#0ea5e9',by(b=>['Recibido','En diagnóstico','Esperando aprobación','Esperando repuestos'].includes(b.estado)))}${col('En reparación','🔧','#8b5cf6',by(b=>['En reparación','Control de calidad'].includes(b.estado)))}${col('Listas para entregar','✅','#22c55e',by(b=>b.estado==='Listo para entregar'))}</div></div>`;
+}
+setInterval(()=>{const c=$('#tvClock');if(c)c.textContent=new Date().toLocaleTimeString('es-CR',{hour:'numeric',minute:'2-digit'})},20000);
+
+/* ================== Encuestas de satisfacción ================== */
+const encDe=b=>b&&b.tok&&S.encuestas?S.encuestas[b.tok]:null;
+const estrellas=n=>'★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n);
+function encCard(b){const e=encDe(b);if(!e)return '';return `<div class="card" style="border-color:color-mix(in srgb,#f59e0b 40%,transparent)"><div class="ch"><h2><span class="hem">⭐</span> Calificación del cliente</h2><span class="small muted">${fts(e.t)}</span></div><div class="cp-in"><div style="font-size:26px;color:#f59e0b;letter-spacing:2px">${estrellas(num(e.s))}</div>${e.c?`<p style="margin:8px 0 0">“${esc(e.c)}”</p>`:''}</div></div>`}
 function vProveedores(){
   const q=norm(UI.prq);const L=porPedir();
   let ps=provs().map((p,i)=>({...p,i}));if(q)ps=ps.filter(p=>norm([p.n,p.tel,p.contacto,p.correo,p.dir,p.notas].join(' ')).includes(q));
@@ -1915,7 +2036,7 @@ function vRepuestos(){
   if(UI.rStock)rs=rs.filter(r=>UI.rStock==='low'?stockSt(r).k!=='ok':stockSt(r).k===UI.rStock);
   if(q)rs=rs.filter(r=>norm([r.sku,r.codProv,r.codBarras,r.nombre,r.marca,r.compatible,r.categoria,r.descripcion,r.ubicacion,r.proveedor].join(' ')).includes(q));
   rs.sort((a,b)=>String(a.sku).localeCompare(String(b.sku)));const all=arr(S.repuestos);
-  return `<div class="ph"><div><h1>Repuestos</h1><div class="sub">${all.length} artículos · ${all.filter(r=>r.condicion==='Usado').length} de segunda · ${all.filter(r=>stockSt(r).k!=='ok').length} por reponer</div></div><div class="row"><button class="btn" data-act="nav" data-page="conteo">📋 Conteo</button><button class="btn p" data-act="repForm">${ic('plus')} Nuevo repuesto</button></div></div>
+  return `<div class="ph"><div><h1>Repuestos</h1><div class="sub">${all.length} artículos · ${all.filter(r=>r.condicion==='Usado').length} de segunda · ${all.filter(r=>stockSt(r).k!=='ok').length} por reponer</div></div><div class="row"><button class="btn" data-act="etiquetas">🏷️ Etiquetas</button><button class="btn" data-act="nav" data-page="conteo">📋 Conteo</button><button class="btn p" data-act="repForm">${ic('plus')} Nuevo repuesto</button></div></div>
   <div class="fbar"><input id="rq" class="inp" data-ui="rq" placeholder="Buscar por código, nombre, modelo compatible o ubicación…" value="${esc(UI.rq)}">
    <select class="sel" id="rCond" data-ui="rCond"><option value="">Nuevos y de segunda</option><option ${UI.rCond==='Nuevo'?'selected':''} value="Nuevo">Solo nuevos</option><option ${UI.rCond==='Usado'?'selected':''} value="Usado">Solo de segunda</option></select>
    <select class="sel" id="rStock" data-ui="rStock"><option value="">Todo el stock</option><option value="ok" ${UI.rStock==='ok'?'selected':''}>Disponibles</option><option value="low" ${UI.rStock==='low'?'selected':''}>Por reponer</option><option value="out" ${UI.rStock==='out'?'selected':''}>Agotados</option></select></div>
@@ -1928,7 +2049,7 @@ function vRepuesto(id){
   const ms=arr(S.movimientos).filter(x=>x.repuestoId===id).sort((a,b)=>b.fecha-a.fecha);
   return `${backBtn()}<div class="card"><div class="ohead"><div class="ticon" style="width:56px;height:56px;border-radius:14px">${ic('box')}</div>
    <div style="flex:1;min-width:220px"><div class="row" style="gap:8px"><span class="onum">${esc(r.sku)}</span><span class="tag ${r.condicion==='Usado'?'u':'n'}">${esc(condLbl(r.condicion))}</span><span class="badge ${s.c}">${s.l}</span></div><div class="otitle">${esc(r.nombre)}</div><div class="muted small">${esc([r.categoria,r.marca].filter(Boolean).join(' · '))}</div>${r.proveedor||r.codProv?`<div class="small" style="margin-top:4px">🏭 ${r.proveedor?`<a href="#" data-act="provOpen" data-n="${esc(r.proveedor)}">${esc(r.proveedor)}</a>`:'Proveedor'}${r.codProv?` · cód. proveedor <b class="mono">${esc(r.codProv)}</b>`:''}</div>`:''}</div>
-   <div class="row"><button class="btn p" data-act="entrada" data-id="${id}">${ic('dl')} Entrada</button>${A?`<button class="btn" data-act="ajuste" data-id="${id}">Ajustar</button><button class="btn" data-act="repForm" data-id="${id}">${ic('edit')} Editar</button>`:''}</div></div>
+   <div class="row"><button class="btn p" data-act="entrada" data-id="${id}">${ic('dl')} Entrada</button>${A?`<button class="btn" data-act="ajuste" data-id="${id}">Ajustar</button><button class="btn" data-act="etiquetas" data-id="${id}">🏷️ Etiqueta</button><button class="btn" data-act="repForm" data-id="${id}">${ic('edit')} Editar</button>`:''}</div></div>
    <div class="grid g4" style="padding:0 20px 18px;gap:10px">${[['Disponible',num(r.stock)],['Mínimo',num(r.stockMin)],['Entró',m.ing],['Usado',m.usa]].map(([l,n])=>`<div style="background:var(--soft);border-radius:10px;padding:10px 12px"><div style="font-weight:800;font-size:20px">${n}</div><div class="small muted">${l}</div></div>`).join('')}</div></div>
   <div class="grid g2" style="margin-top:16px;align-items:start">
    <div class="card"><div class="ch"><h2>Detalles</h2></div><div class="cp-in"><dl class="kv"><dt>Compatible con</dt><dd>${esc(r.compatible||'—')}</dd><dt>Detalles</dt><dd style="white-space:pre-wrap">${esc(r.descripcion||'—')}</dd><dt>Ubicación</dt><dd>${esc(r.ubicacion||'—')}</dd><dt>Proveedor</dt><dd>${esc(r.proveedor||'—')}</dd></dl></div></div>
@@ -1971,6 +2092,8 @@ function vCatalogo(){
      <div class="row" style="margin-bottom:12px"><select class="sel" id="revT" data-ui="revT">${uniq([...ks,...catTipos()]).map(k=>`<option ${k===t?'selected':''}>${esc(k)}</option>`).join('')}</select>${r[t]?'':'<span class="small muted">Usa la lista General hasta que le agregue un punto.</span>'}</div>
      <div class="cp">${(r[t]||r['General']||[]).map(v=>`<span class="cpc catc">${esc(v)}${r[t]?`<button class="cpx" data-act="revDel" data-t="${esc(t)}" data-v="${esc(v)}">×</button>`:''}</span>`).join('')}
      <span class="cpadd"><input id="revNew" placeholder="Agregar punto…"><button class="btn sm p" data-act="revAdd" data-t="${esc(t)}">${ic('plus')}</button></span></div></div></div>`})()}
+   <div class="card"><div class="ch"><h2>📝 Plantillas de trabajo <span class="muted" style="font-weight:500">${plantillas().length}</span></h2><button class="btn sm p" data-act="plNew">${ic('plus')} Nueva</button></div><div class="cp-in"><p class="small muted" style="margin-top:0">Un toque en la orden agrega la mano de obra, los repuestos y los trabajos de siempre.</p>
+    ${plantillas().length?`<div class="picks">${plantillas().map(p=>`<button class="pick" data-act="plEdit" data-id="${p.id}"><div class="ticon" style="width:38px;height:38px;font-size:19px">📝</div><div style="flex:1;min-width:0"><div style="font-weight:700" class="ell">${esc(p.n)}</div><div class="small muted ell">${p.tipo?esc(p.tipo)+' · ':''}${plDesc(p)}</div></div>${ic('edit')}</button>`).join('')}</div>`:'<p class="small muted">Todavía no hay. Cree la primera con <b>Nueva</b>, o desde una orden con <b>📝 Plantilla → Crear plantilla con esta orden</b>.</p>'}</div></div>
    <div class="card"><div class="ch"><h2>🛠️ Mano de obra <span class="muted" style="font-weight:500">${(c.manoObra||[]).length}</span></h2></div><div class="cp-in"><p class="small muted" style="margin-top:0">Trabajos con su código, para anotar la mano de obra en las órdenes.</p>
     <div class="cp">${(c.manoObra||[]).map(x=>`<span class="cpc catc" data-act="moCatEdit" data-c="${esc(x.c)}"><span class="mono" style="font-size:11.5px;opacity:.75">${esc(x.c)}</span> ${esc(x.d)}<button class="cpx" data-act="moCatDel" data-c="${esc(x.c)}" title="Eliminar">×</button></span>`).join('')}
     <span class="cpadd"><input id="moCatNew" placeholder="Nuevo trabajo…"><button class="btn sm p" data-act="moCatAdd">${ic('plus')}</button></span></div></div></div>
@@ -1985,6 +2108,10 @@ const REPORTS={
  recibidos:{t:'Equipos recibidos',i:'inbox',d:'Todas las órdenes del período con cliente, equipo, falla, técnico y estado.',build(){
    const bs=arr(S.boletas).filter(b=>inRange(b.fechaIngreso)).sort((a,b)=>num(a.numero)-num(b.numero));
    return [{head:['Orden','Fecha','Cliente','Teléfono','Tipo','Marca','Modelo','Serie','Falla','Técnico','Estado','Días'],num:[11],rows:bs.map(b=>{const c=cli(b.clienteId)||{},e=eq(b.equipoId)||{};return [nb(b.numero),fdate(b.fechaIngreso),c.nombre||'',c.telefono||'',e.tipo||'',e.marca||'',e.modelo||'',e.serie||'',fallaTxt(b),b.tecnico||'',b.estado,daysBetween(b.fechaIngreso,b.fechaEntrega||today())]})}]}},
+ satisf:{t:'Satisfacción de clientes',i:'star',d:'Calificaciones que dejaron los clientes al recibir su máquina.',build(){
+   const L=arr(S.boletas).filter(b=>encDe(b)&&inRange(b.fechaIngreso)).map(b=>({b,e:encDe(b)}));const n=L.length,avg=n?Math.round(L.reduce((a,x)=>a+num(x.e.s),0)/n*10)/10:0;
+   const tc={};L.forEach(({b,e})=>{const k=b.tecnico||'Sin asignar';const o=tc[k]||(tc[k]=[0,0]);o[0]++;o[1]+=num(e.s)});
+   return [{title:`Promedio: ${n?avg+' ★':'—'} · ${n} calificaci${n!==1?'ones':'ón'}`,head:['Estrellas','Cantidad'],num:[1],rows:[5,4,3,2,1].map(s=>[estrellas(s),L.filter(x=>num(x.e.s)===s).length])},{title:'Por técnico',head:['Técnico','Calificaciones','Promedio'],num:[1,2],rows:Object.entries(tc).map(([k,[c,sum]])=>[k,c,Math.round(sum/c*10)/10])},{title:'Detalle',head:['Fecha','Orden','Cliente','Técnico','Estrellas','Comentario'],num:[],rows:L.sort((a,z)=>num(z.e.t)-num(a.e.t)).map(({b,e})=>[fdate(iso(new Date(num(e.t)))),nb(b.numero),cli(b.clienteId)?.nombre||'',b.tecnico||'',estrellas(num(e.s)),e.c||''])}]}},
  modelos:{t:'Fallas por marca y modelo',i:'tractor',d:'Qué falla más en cada marca y modelo, y qué repuestos y trabajos se usan.',build(){
    const g={};arr(S.boletas).filter(b=>b.estado!=='Cancelado'&&inRange(b.fechaIngreso)).forEach(b=>{const e=eq(b.equipoId);if(!e||!e.marca)return;const k=modKey(e);const o=g[k]||(g[k]={nm:[e.marca,e.modelo].filter(Boolean).join(' '),tipo:e.tipo||'',bs:[]});o.bs.push(b)});
    const top=L=>{const m={};L.forEach(x=>{if(x)m[x]=(m[x]||0)+1});const t=Object.entries(m).sort((a,b)=>b[1]-a[1]);return t.slice(0,3).map(([k,v])=>`${k} (${v})`).join(', ')};
@@ -2674,7 +2801,7 @@ function pzCard(b){const L=pzList(b);const can=esTaller()&&!bloqueado(b);
 function pbPZ(b){const L=pzList(b);if(!L.length)return '';return `<h4>Piezas</h4><p>${L.map(x=>`${PZ_ST[x.st].l}: <b>${esc(x.l)}</b>`).join(' · ')}</p>`}
 function moCard(b){
   const L=b.manoObra||[];const can=moPuede(b);
-  return `<div class="card"><div class="ch"><h2><span class="hem">🛠️</span> Mano de obra ${L.length?`<span class="badge" style="background:var(--pri-l);color:var(--pri)">⏱️ ${fh(moH(b))}</span>`:''}</h2>${can?`<button class="btn sm p" data-act="moAdd" data-id="${b.id}">${ic('plus')} Agregar</button>`:''}</div>
+  return `<div class="card"><div class="ch"><h2><span class="hem">🛠️</span> Mano de obra ${L.length?`<span class="badge" style="background:var(--pri-l);color:var(--pri)">⏱️ ${fh(moH(b))}</span>`:''}</h2>${can?`<div class="row" style="gap:6px"><button class="btn sm" data-act="plAplicar" data-id="${b.id}">📝 Plantilla</button><button class="btn sm p" data-act="moAdd" data-id="${b.id}">${ic('plus')} Agregar</button></div>`:''}</div>
    ${L.length?`<div class="lines">${L.map((l,i)=>`<div class="ln"><div class="ticon" style="width:40px;height:40px;font-size:20px">${moEm(l.d)}</div><div style="flex:1;min-width:0"><div style="font-weight:600;line-height:1.3"><span class="mono" style="color:var(--pri)">${esc(l.c||'—')}</span> · ${esc(l.d)}</div><div class="small muted">${l.tec?'🔧 '+esc(l.tec):''}${l.nota?' · '+esc(l.nota):''}${l.por&&l.por!==l.tec?` · anotó ${esc(l.por)}`:''}${l.rec?' · <span style="color:var(--warn)">agregada en recepción</span>':''}</div></div>${can?`<div class="qty"><button data-act="moH" data-id="${b.id}" data-i="${i}" data-d="-0.5">${ic('minus')}</button><span style="min-width:58px">⏱️ ${fh(l.h)}</span><button data-act="moH" data-id="${b.id}" data-i="${i}" data-d="0.5">${ic('plus')}</button></div><button class="ib" data-act="moRm" data-id="${b.id}" data-i="${i}" title="Quitar">${ic('trash')}</button>`:`<b>⏱️ ${fh(l.h)}</b>`}</div>`).join('')}</div>`:emptyBox('👨‍🔧','Sin mano de obra','Anote el trabajo hecho con su código y las horas utilizadas.'+(esTaller()?'':' Si el taller lo olvidó, puede agregarlo aquí.'))}</div>`;
 }
 let MO=null;
@@ -2931,6 +3058,28 @@ const A={
  scan:()=>scanQR(),
  mantOk:async d=>{const b=S.boletas[d.id];if(!b)return;if(await put('boletas',{...b,mantAvisado:Date.now(),mantPor:quien()})){toast('Listo, recordatorio cerrado');render()}},
  consulta:d=>consultaModal(d.id),
+ etiquetas:d=>etiquetasModal(d.id?[d.id]:[]),
+ etqQ:d=>{ETQ.sel[d.id]=Math.max(0,num(ETQ.sel[d.id])+num(d.d));etqRender()},
+ etqAll:()=>{const q=norm(ETQ.q);arr(S.repuestos).filter(r=>!q||norm([r.nombre,r.sku,r.codBarras].join(' ')).includes(q)).forEach(r=>{if(!ETQ.sel[r.id])ETQ.sel[r.id]=1});etqRender()},
+ etqSin:()=>{arr(S.repuestos).filter(r=>!r.codBarras).forEach(r=>{if(!ETQ.sel[r.id])ETQ.sel[r.id]=1});etqRender()},
+ etqNone:()=>{ETQ.sel={};etqRender()},
+ etqSize:d=>{ETQ.size=d.v;etqRender()},
+ etqPrint:()=>etqPrint(),
+ plNew:()=>plEditor(),
+ plEdit:d=>{const p=plantillas().find(x=>x.id===d.id);if(p)plEditor(p)},
+ plMo:d=>{plSync();const i=PL.mo.findIndex(m=>m.c===d.c);if(i>=0)PL.mo.splice(i,1);else{const x=CAT().manoObra.find(x=>x.c===d.c);if(x)PL.mo.push({c:x.c,d:x.d,h:1})}plRender()},
+ plMoH:d=>{plSync();const m=PL.mo[+d.i];if(m)m.h=Math.max(0,Math.round((num(m.h)+num(d.d))*100)/100);plRender()},
+ plRepAdd:d=>{plSync();const r=S.repuestos[d.id];if(!r)return;const x=PL.rep.find(x=>x.id===d.id);if(x)x.cant++;else PL.rep.push({id:r.id,nombre:r.nombre,cant:1});PL.q='';plRender()},
+ plRepQ:d=>{plSync();const x=PL.rep[+d.i];if(!x)return;x.cant+=num(d.d);if(x.cant<=0)PL.rep.splice(+d.i,1);plRender()},
+ plTr:d=>{plSync();PL.tr=PL.tr.includes(d.v)?PL.tr.filter(t=>t!==d.v):[...PL.tr,d.v];plRender()},
+ plSave:async()=>{plSync();if(!PL.n)return toast('Póngale un nombre');if(!PL.mo.length&&!PL.rep.length&&!PL.tr.length)return toast('Agregue al menos un trabajo o repuesto');const c=CAT();const {q,...pl}=PL;const L=(c.plantillas||[]).filter(x=>x.id!==pl.id);c.plantillas=[...L,pl].sort((a,b)=>norm(a.n).localeCompare(norm(b.n)));if(await saveCat(c)){closeModal();render();toast('📝 Plantilla guardada')}},
+ plDel:adminOnly(d=>{const p=plantillas().find(x=>x.id===d.id);if(!p)return;confirmBox(`¿Eliminar la plantilla <b>${esc(p.n)}</b>?`,async()=>{const c=CAT();c.plantillas=(c.plantillas||[]).filter(x=>x.id!==d.id);if(await saveCat(c)){closeModal();render();toast('🗑️ Plantilla eliminada')}},'Eliminar')}),
+ plAplicar:d=>{const b=S.boletas[d.id];if(bloqueado(b))return avisoBloq(b);plAplicarModal(d.id)},
+ plApply:d=>{const p=plantillas().find(x=>x.id===d.p);if(!p)return;confirmBox(`¿Aplicar <b>${esc(p.n)}</b> a esta orden?<br><span class="small muted">${esc(plDesc(p))}. Los repuestos se descuentan del inventario.</span>`,()=>plApply(d.id,d.p),'Aplicar')},
+ plFromOrder:d=>{const b=S.boletas[d.id];if(!b)return;const e=eq(b.equipoId)||{};plEditor({id:uid(),n:'',tipo:catTipos().find(t=>norm(t)===norm(e.tipo))||'',mo:(b.manoObra||[]).map(m=>({c:m.c,d:m.d,h:num(m.h)})),rep:(b.repuestos||[]).filter(l=>l.repuestoId).map(l=>({id:l.repuestoId,nombre:l.nombre,cant:num(l.cant)||1})),tr:[...(b.trabajos||[])]});setTimeout(()=>$('#plN')?.focus(),60)},
+ calW:d=>{UI.calW=+d.d===0?0:UI.calW+(+d.d);render()},
+ tvExit:()=>{try{document.fullscreenElement&&document.exitFullscreen()}catch(e){}go({page:'inicio'})},
+ tvFull:()=>{try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}catch(e){}},
  m3d:d=>m3dOpen(d.id),
  m3save:()=>m3dSave(),
  cntStep:d=>{const r=rep(d.id);if(!r)return;const c=CNT[d.id];const cur=c==null||c===''?(+d.d>0?0:num(r.stock)):num(c);CNT[d.id]=String(Math.max(0,cur+num(d.d)));cntSave();cntRow(d.id)},
