@@ -685,7 +685,7 @@ body.tvmode #view{padding:18px 22px!important;max-width:none!important}
 .tvt{font-size:26px;font-weight:800;letter-spacing:-.01em}
 .tvclock{font-size:40px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
 .tvg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-.tvcol{background:var(--surface);border:1px solid var(--glass-b);border-top:5px solid var(--c);border-radius:20px;padding:14px;min-height:42vh;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.tvcol{background:var(--surface);border:1px solid var(--glass-b);border-top:5px solid var(--c);border-radius:20px;padding:14px;min-height:60vh;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .tvh{display:flex;justify-content:space-between;align-items:center;font-size:22px;font-weight:800;margin-bottom:12px}
 .tvh b{background:var(--c);color:#fff;border-radius:14px;padding:2px 14px;font-size:22px}
 .tvc{background:var(--surface-hi);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px;animation:rise .5s both}
@@ -705,59 +705,66 @@ body.tvmode #view{padding:18px 22px!important;max-width:none!important}
 .prb.ok.on{background:#22c55e;color:#fff;border-color:#22c55e}.prb.na.on{background:#94a3b8;color:#fff;border-color:#94a3b8}
 .fkv{display:grid;grid-template-columns:minmax(120px,190px) 1fr;gap:8px 14px;margin:0}.fkv dt{font-weight:700;font-size:13px;color:var(--ink2)}.fkv dd{margin:0;font-size:14px}
 @media (max-width:600px){.fkv{grid-template-columns:1fr;gap:2px}.fkv dd{margin-bottom:8px}}
-.rbslot{position:relative;height:166px;margin:0 0 16px;border-radius:22px;overflow:hidden;background:linear-gradient(180deg,rgba(186,230,253,.45) 0%,rgba(240,253,250,.5) 60%,rgba(220,252,231,.6) 100%);border:1px solid var(--glass-b);box-shadow:var(--sh,0 8px 24px rgba(0,0,0,.05))}
-html.dark .rbslot,body.dark .rbslot,[data-theme=dark] .rbslot{background:linear-gradient(180deg,rgba(30,41,59,.6),rgba(20,83,45,.35))}
-.rbstage{position:absolute;inset:0}
-.rbground{position:absolute;left:0;right:0;bottom:0;height:22px;background:linear-gradient(180deg,#bbf7d0,#86efac);border-top:2px solid #4ade80}
-.rbground::before{content:"";position:absolute;left:0;right:0;top:-7px;height:8px;background:repeating-linear-gradient(90deg,transparent 0 9px,#4ade80 9px 11px,transparent 11px 17px,#22c55e 17px 18px)}
-.rbbush{position:absolute;bottom:16px;width:44px;height:24px;border-radius:24px 24px 6px 6px;background:radial-gradient(circle at 30% 30%,#86efac,#22c55e);opacity:.85}
-.rbbush.s{width:30px;height:18px}
-.rbbot{position:absolute;left:0;bottom:4px;height:128px;width:171px;will-change:transform;cursor:pointer;z-index:2;-webkit-tap-highlight-color:transparent}
-.rbsvg{width:100%;height:100%;overflow:visible;display:block}
+#rbFloat{position:fixed;inset:0;pointer-events:none;z-index:55;transition:opacity .3s}
+#rbFloat.away{opacity:0}
+.rbbot{position:absolute;left:0;top:0;height:130px;width:169px;will-change:transform;pointer-events:none}
+.rbtilt{width:100%;height:100%;transition:transform .5s}
+.rbbob{width:100%;height:100%;animation:rbFloatY 2.6s ease-in-out infinite}
+@keyframes rbFloatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.rbbot.fly .rbtilt{transform:rotate(7deg)}
+.rbsvg{width:100%;height:100%;overflow:visible;display:block;pointer-events:none;filter:drop-shadow(0 10px 14px rgba(15,23,42,.18))}
 .rbsvg *{transform-box:view-box}
-.rbbub{position:absolute;top:8px;left:0;z-index:3;max-width:78%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid rgba(20,184,166,.35);background:rgba(255,255,255,.95);color:#1e293b;font:700 13px/1.2 inherit;padding:7px 13px;border-radius:14px;box-shadow:0 8px 22px rgba(15,23,42,.12);opacity:0;pointer-events:none;transition:opacity .35s;cursor:pointer}
+.rbsvg .rb-body,.rbsvg .rb-body *,.rbsvg .rb-lf *,.rbsvg .rb-af *{pointer-events:auto;cursor:pointer}
+.rbbub{position:absolute;left:0;top:0;transform-origin:center bottom;margin-top:-34px;max-width:min(320px,80vw);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid rgba(59,130,246,.3);background:rgba(255,255,255,.96);color:#1e293b;font:700 13px/1.2 inherit;padding:7px 13px;border-radius:14px 14px 14px 4px;box-shadow:0 8px 22px rgba(15,23,42,.14);opacity:0;pointer-events:none;transition:opacity .35s;cursor:pointer}
 .rbbub.on{opacity:1;pointer-events:auto}
 .rbbub.urg{border-color:#fca5a5;background:#fff1f2;color:#9f1239}
-.rbbub b{color:#14b8a6}
-.rbx{position:absolute;top:6px;right:8px;z-index:4;border:0;background:rgba(255,255,255,.6);color:#64748b;border-radius:9px;width:24px;height:24px;font-size:12px;cursor:pointer;opacity:.6}
-.rbx:hover{opacity:1}
-/* herramientas visibles según el trabajo */
+.rbbub b{color:#2563eb}
+/* partes que aparecen según el momento */
 .rbt,.rb-tree{display:none}
+.rb-isl{opacity:0;transform-origin:104px 165px;transform:scale(.4);transition:opacity .4s,transform .4s}
+.rbbot.working .rb-isl{opacity:1;transform:none}
+.rb-jet{opacity:0;transition:opacity .2s}
+.rbbot.fly .rb-jet,.rbbot.talk .rb-jet{opacity:1;animation:rbJet .12s linear infinite alternate}
+.rb-jet{transform-origin:63px 156px}
+@keyframes rbJet{from{transform:scaleY(.8)}to{transform:scaleY(1.15)}}
 .rbbot[data-act=sierra] .rbt-sierra,.rbbot[data-act=bomba] .rbt-bomba,.rbbot[data-act=guadana] .rbt-guadana,.rbbot[data-act=podadora] .rbt-podadora{display:inline}
+.rbbot.talk .rbt{display:none!important}
 .rbbot[data-act=sierra] .rb-tree{display:inline;opacity:0;transition:opacity .6s}
-.rbbot.cut .rb-tree{opacity:1}
-.rbbot.cut .rb-tree{animation:rbGrow .9s cubic-bezier(.2,1.4,.4,1) both;transform-origin:152px 161px}
+.rbbot.cut .rb-tree{opacity:1;animation:rbGrow .9s cubic-bezier(.2,1.4,.4,1) both;transform-origin:152px 161px}
 @keyframes rbGrow{from{transform:scaleY(0)}to{transform:none}}
 .rb-treefall{transform-origin:158px 79px;transition:transform 1.5s cubic-bezier(.55,0,.9,.5)}
 .rbbot.fell .rb-treefall{transform:rotate(86deg)}
-/* brazos según la herramienta */
-.rb-af,.rb-ab{transform-origin:62px 66px;transition:transform .5s}
-.rb-lb{transform-origin:57px 102px}.rb-lf{transform-origin:64px 102px}
+/* brazos */
+.rb-af,.rb-ab{transform-origin:62px 68px;transition:transform .5s}
+.rb-lb{transform-origin:57px 106px}.rb-lf{transform-origin:65px 106px}
 .rbbot[data-act=sierra] .rb-af{transform:rotate(-72deg)}.rbbot[data-act=sierra] .rb-ab{transform:rotate(-64deg)}
 .rbbot[data-act=bomba] .rb-af{transform:rotate(-68deg)}
-.rbbot[data-act=bomba] .rb-ab{animation:rbPump 1s ease-in-out infinite}
+.rbbot[data-act=bomba].working .rb-ab{animation:rbPump 1s ease-in-out infinite}
 @keyframes rbPump{0%,100%{transform:rotate(14deg)}50%{transform:rotate(38deg)}}
-.rbbot[data-act=guadana] .rb-af{animation:rbSwA 1.6s ease-in-out infinite}.rbbot[data-act=guadana] .rb-ab{transform:rotate(-30deg)}
+.rbbot[data-act=guadana] .rb-af{transform:rotate(-48deg)}.rbbot[data-act=guadana].working .rb-af{animation:rbSwA 1.6s ease-in-out infinite}.rbbot[data-act=guadana] .rb-ab{transform:rotate(-30deg)}
 @keyframes rbSwA{0%,100%{transform:rotate(-44deg)}50%{transform:rotate(-54deg)}}
-.rb-swing{transform-origin:88px 84px;animation:rbSw 1.6s ease-in-out infinite}
+.rb-swing{transform-origin:88px 86px}.rbbot.working .rb-swing{animation:rbSw 1.6s ease-in-out infinite}
 @keyframes rbSw{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
 .rbbot[data-act=podadora] .rb-af{transform:rotate(-38deg)}.rbbot[data-act=podadora] .rb-ab{transform:rotate(-33deg)}
-/* caminar */
-.rbbot.walking .rb-lb{animation:rbLeg .62s ease-in-out infinite}
-.rbbot.walking .rb-lf{animation:rbLeg .62s ease-in-out infinite reverse}
-@keyframes rbLeg{0%,100%{transform:rotate(20deg)}50%{transform:rotate(-20deg)}}
-.rbbot.walking .rb-body{animation:rbBob .31s ease-in-out infinite alternate}
-@keyframes rbBob{from{transform:translateY(0)}to{transform:translateY(-3px)}}
-.rbbot[data-act=sierra].walking .rb-af{transform:rotate(-30deg)}.rbbot[data-act=sierra].walking .rb-ab{transform:rotate(-20deg)}
-/* detalles vivos */
-.rb-eyes{transform-origin:69px 34px;animation:rbBlink 4.2s infinite}
+.rbbot.fly[data-act=sierra] .rb-af{transform:rotate(-30deg)}.rbbot.fly[data-act=sierra] .rb-ab{transform:rotate(-20deg)}
+.rbbot.talk .rb-af{transform:rotate(-150deg)}.rbbot.talk .rb-ab{transform:rotate(10deg)}
+/* piernas */
+.rbbot.fly .rb-lb,.rbbot.talk .rb-lb{transform:rotate(12deg)}.rbbot.fly .rb-lf,.rbbot.talk .rb-lf{transform:rotate(-8deg)}
+.rbbot.working[data-act=podadora] .rb-lb,.rbbot.working[data-act=bomba] .rb-lb{animation:rbLeg 1s ease-in-out infinite}
+.rbbot.working[data-act=podadora] .rb-lf,.rbbot.working[data-act=bomba] .rb-lf{animation:rbLeg 1s ease-in-out infinite reverse}
+@keyframes rbLeg{0%,100%{transform:rotate(12deg)}50%{transform:rotate(-12deg)}}
+.rb-lb,.rb-lf{transition:transform .4s}
+/* vida */
+.rb-eyes{transform-origin:68px 31px;animation:rbBlink 4.2s infinite}
 @keyframes rbBlink{0%,92%,100%{transform:none}95%{transform:scaleY(.1)}}
-.rb-ant{animation:rbAnt 1.4s ease-in-out infinite}
+.rb-ant{animation:rbAnt 1.4s ease-in-out infinite}.rb-ant.b{animation-delay:.7s}
 @keyframes rbAnt{50%{fill:#fde047}}
-.rb-core{transform-origin:62px 81px;animation:rbCore 1.8s ease-in-out infinite}
-@keyframes rbCore{50%{transform:scale(1.3);fill:#5eead4}}
-.rb-head{transform-origin:62px 54px;animation:rbHead 5s ease-in-out infinite}
-@keyframes rbHead{0%,100%{transform:rotate(0)}30%{transform:rotate(-4deg)}60%{transform:rotate(3deg)}}
+.rb-core{transform-origin:62px 83px;animation:rbCore 1.8s ease-in-out infinite}
+@keyframes rbCore{50%{transform:scale(1.15)}}
+.rb-head{transform-origin:62px 58px;animation:rbHead 5s ease-in-out infinite}
+@keyframes rbHead{0%,100%{transform:rotate(0)}30%{transform:rotate(-5deg)}60%{transform:rotate(4deg)}}
+.rbbot.talk .rb-head{animation:rbNod 1.2s ease-in-out infinite}
+@keyframes rbNod{50%{transform:rotate(-7deg)}}
 /* motosierra */
 .rb-chain{animation:rbChain .25s linear infinite}
 @keyframes rbChain{to{stroke-dashoffset:-10.8}}
@@ -769,36 +776,53 @@ html.dark .rbslot,body.dark .rbslot,[data-theme=dark] .rbslot{background:linear-
 @keyframes rbDust{0%{opacity:1;transform:translate(0,0)}100%{opacity:0;transform:translate(14px,22px)}}
 /* bomba */
 .rb-mist circle{fill:#7dd3fc;opacity:0}
-.rbbot[data-act=bomba] .rb-mist circle{animation:rbMist 1.1s ease-out infinite}
+.rbbot.working[data-act=bomba] .rb-mist circle{animation:rbMist 1.1s ease-out infinite}
 .rb-mist circle:nth-child(2){animation-delay:.2s!important}.rb-mist circle:nth-child(3){animation-delay:.42s!important}.rb-mist circle:nth-child(4){animation-delay:.63s!important}.rb-mist circle:nth-child(5){animation-delay:.85s!important}
 @keyframes rbMist{0%{opacity:1;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(26px,18px) scale(2.4)}}
 /* guadaña */
-.rb-spin{animation:rbSpin .12s linear infinite}
+.rbbot.working .rb-spin{animation:rbSpin .12s linear infinite}
 @keyframes rbSpin{0%{transform:scaleX(1)}50%{transform:scaleX(-1)}100%{transform:scaleX(1)}}
 .rb-grass path{stroke:#16a34a;stroke-width:2;stroke-linecap:round;opacity:0}
-.rbbot[data-act=guadana] .rb-grass path{animation:rbGrass .6s ease-out infinite}
+.rbbot.working[data-act=guadana] .rb-grass path{animation:rbGrass .6s ease-out infinite}
 .rb-grass path:nth-child(2){animation-delay:.15s!important}.rb-grass path:nth-child(3){animation-delay:.3s!important}.rb-grass path:nth-child(4){animation-delay:.45s!important}
 @keyframes rbGrass{0%{opacity:1;transform:translate(0,0)}100%{opacity:0;transform:translate(10px,-18px) rotate(90deg)}}
 /* podadora */
-.rbbot.walking .rb-spin2{animation:rbWheel .5s linear infinite}
 .rb-spin2{transform-box:fill-box;transform-origin:center}
+.rbbot.working .rb-spin2{animation:rbWheel .5s linear infinite}
 @keyframes rbWheel{to{transform:rotate(360deg)}}
 .rb-clip path{stroke:#22c55e;stroke-width:2;stroke-linecap:round;opacity:0}
-.rbbot[data-act=podadora].walking .rb-clip path{animation:rbGrass .7s ease-out infinite}
+.rbbot.working[data-act=podadora] .rb-clip path{animation:rbGrass .7s ease-out infinite}
 .rb-clip path:nth-child(2){animation-delay:.2s!important}.rb-clip path:nth-child(3){animation-delay:.45s!important}
 /* efectos */
 .rbbot.swap .rbsvg{animation:rbSwap .8s ease}
-@keyframes rbSwap{0%{transform:none;filter:none}40%{transform:translateY(-14px) scale(1.06);filter:brightness(1.4) drop-shadow(0 0 10px #5eead4)}100%{transform:none;filter:none}}
+@keyframes rbSwap{0%{transform:none}40%{transform:translateY(-14px) scale(1.08);filter:brightness(1.3) drop-shadow(0 0 12px #60a5fa)}100%{transform:none}}
 .rbbot.jump .rbsvg{animation:rbJump .5s ease 3}
 @keyframes rbJump{50%{transform:translateY(-16px)}}
 .rbbot.wave .rb-af{animation:rbWave .35s ease-in-out 4 alternate!important}
-@keyframes rbWave{from{transform:rotate(-150deg)}to{transform:rotate(-178deg)}}
-/* tamaños */
-.tvslot{height:210px;margin-top:16px}
-.tvslot .rbbot{height:180px;width:240px}
-.tvslot .rbbub{font-size:20px;padding:10px 18px;top:10px}
-@media (max-width:860px){.rbslot{height:132px;margin-bottom:12px}.rbbot{height:100px;width:133px}.rbbub{font-size:12px;padding:6px 11px;max-width:86%}}
-@media (prefers-reduced-motion:reduce){.rbbot *{animation-duration:2s!important}}
+@keyframes rbWave{from{transform:rotate(-140deg)}to{transform:rotate(-175deg)}}
+/* chat */
+#rbChat{position:fixed;right:20px;bottom:20px;width:min(380px,calc(100vw - 24px));max-height:min(74vh,620px);z-index:90;display:flex;flex-direction:column;border-radius:22px;background:color-mix(in srgb,var(--surface-hi,#fff) 92%,transparent);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid var(--glass-b,rgba(255,255,255,.8));box-shadow:0 24px 60px rgba(15,23,42,.25);opacity:0;transform:translateY(20px) scale(.97);pointer-events:none;transition:opacity .25s,transform .25s}
+#rbChat.on{opacity:1;transform:none;pointer-events:auto}
+.rbch{display:flex;align-items:center;gap:10px;padding:12px 12px 10px 14px;border-bottom:1px solid var(--line2)}
+.rbav{width:38px;height:38px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:21px;background:linear-gradient(135deg,#bfdbfe,#60a5fa)}
+.rbhb{border:0;background:var(--soft);border-radius:10px;width:32px;height:32px;cursor:pointer;font-size:14px}
+.rbmsgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:120px;overscroll-behavior:contain}
+.rbm{max-width:92%;padding:9px 12px;border-radius:16px 16px 16px 5px;background:var(--soft);font-size:13.5px;line-height:1.45;align-self:flex-start}
+.rbm.me{align-self:flex-end;border-radius:16px 16px 5px 16px;background:linear-gradient(135deg,#60a5fa,#2563eb);color:#fff;font-weight:600}
+.rbl{display:block;text-decoration:none;color:inherit;padding:6px 9px;margin:4px 0 0;border-radius:10px;background:var(--surface-hi,#fff);border:1px solid var(--line2);font-size:12.8px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rbl:hover{border-color:#60a5fa}.rbl b{color:#2563eb;font-family:ui-monospace,monospace;font-size:12px}.rbl span{color:var(--muted);font-size:11.5px}
+.rbsec{margin-top:6px}.rbh{font-weight:800;font-size:12.5px;margin-top:4px}.rbh span{background:#dbeafe;color:#1d4ed8;border-radius:8px;padding:0 7px;font-size:11px;margin-left:4px}
+.rbsum{display:grid;grid-template-columns:1fr 1fr;gap:3px 10px;margin-top:6px;font-size:12.8px}
+.rbchips{display:flex;gap:6px;overflow-x:auto;padding:2px 0;flex-wrap:wrap}
+.rbq{flex-wrap:nowrap;padding:8px 12px;border-top:1px solid var(--line2);scrollbar-width:none}
+.rbc{flex-shrink:0;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:6px 11px;font:600 12.5px/1.2 inherit;cursor:pointer;white-space:nowrap}
+.rbin{display:flex;gap:8px;padding:10px 12px 12px}
+.rbin input{flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;padding:9px 12px;font:inherit;font-size:14px;background:var(--surface,#fff);color:inherit}
+body.tvmode .rbbot{height:180px;width:234px}
+body.tvmode .rbbub{font-size:19px;padding:10px 18px;margin-top:-48px}
+@media (max-width:860px){.rbbot{height:96px;width:125px}.rbbub{font-size:12px;padding:6px 11px;margin-top:-30px}
+ #rbChat{left:8px;right:8px;width:auto;bottom:calc(84px + env(safe-area-inset-bottom));max-height:62vh}}
+
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
 @media (max-width:860px){
@@ -1305,7 +1329,6 @@ function vInicio(){
   const h=new Date().getHours();
   return `<div class="card hero"><div class="hero-t"><h1><span class="gt">${h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches'}</span> <span class="wave">👋</span></h1><div class="sub">📅 ${new Date().toLocaleDateString('es-CR',{weekday:'long',day:'numeric',month:'long'})} · 🔧 ${ab.length} equipo${ab.length!==1?'s':''} en el taller</div>
    <div class="row" style="margin-top:14px"><button class="btn p lg hide-m" data-act="recibir">${ic('plus')} Recibir máquina</button>${robotOn()?'':'<button class="btn" data-act="rbOn">🤖 Mostrar robot</button>'}</div></div><div class="hero-saw">${sawSVG()}</div></div>
-  ${robotOn()?'<div id="rbSlot" class="rbslot"></div>':''}
   ${bandejas()}
   <div class="grid g4 g5s">
    ${stat('wrench','#ede9fe','#8b5cf6',ab.length,'En el taller','data-act="filtro" data-f="activas"')}
@@ -1891,81 +1914,193 @@ function enviadoTaller(b){
 }
 
 
-/* ================== Robot del taller ================== */
+/* ================== Robot del taller (flotante) ================== */
 const robotOn=()=>{try{return localStorage.getItem('tallerRobot')!=='off'}catch(e){return true}};
 const RB_ACTS=['sierra','bomba','guadana','podadora'];
 const RB_TXT={sierra:'¡A cortar ese árbol! 🪚',bomba:'¡Hora de fumigar! 💧',guadana:'¡A chapear el zacate! 🌿',podadora:'¡A cortar el césped! 🚜'};
-function robotSVG(){return `<svg class="rbsvg" viewBox="-60 -10 240 180" overflow="visible" aria-hidden="true">
-<defs><linearGradient id="rbB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#99f6e4"/><stop offset="1" stop-color="#14b8a6"/></linearGradient>
-<linearGradient id="rbH" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#cbd5e1"/></linearGradient>
-<linearGradient id="rbT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#86efac"/><stop offset="1" stop-color="#16a34a"/></linearGradient></defs>
-<ellipse cx="62" cy="161" rx="34" ry="5" fill="rgba(0,0,0,.12)"/>
-<!-- árbol (motosierra) -->
-<g class="rb-tree"><rect class="rb-stump" x="146" y="78" width="12" height="83" rx="3" fill="#a16207"/><path d="M146 150l-8 8M158 152l8 6" stroke="#a16207" stroke-width="4" stroke-linecap="round"/><g class="rb-treefall"><rect x="146" y="36" width="12" height="44" rx="3" fill="#b45309"/><path d="M146 66l-12-12M158 58l12-12" stroke="#a16207" stroke-width="5" stroke-linecap="round"/><circle cx="152" cy="22" r="26" fill="url(#rbT)"/><circle cx="131" cy="40" r="17" fill="#4ade80"/><circle cx="173" cy="38" r="18" fill="#22c55e"/><circle cx="152" cy="2" r="15" fill="#86efac"/></g></g>
-<!-- mochila (bomba) -->
-<g class="rbt rbt-bomba"><path d="M40 64 L30 70" stroke="#475569" stroke-width="3"/><rect x="18" y="58" width="24" height="44" rx="9" fill="#fde047" stroke="#ca8a04" stroke-width="2"/><rect x="22" y="54" width="12" height="7" rx="3" fill="#ca8a04"/><path d="M24 100 C30 120 70 112 96 82" fill="none" stroke="#334155" stroke-width="2.5"/></g>
-<!-- pierna de atrás -->
-<g class="rb-lb"><rect x="51" y="100" width="12" height="48" rx="6" fill="#94a3b8"/><rect x="48" y="146" width="22" height="11" rx="5" fill="#475569"/></g>
-<!-- brazo de atrás -->
-<g class="rb-ab"><rect x="57" y="64" width="10" height="36" rx="5" fill="#64748b"/><circle cx="62" cy="100" r="5.5" fill="#475569"/></g>
-<!-- cuerpo -->
-<g class="rb-body"><rect x="38" y="58" width="48" height="50" rx="15" fill="url(#rbB)" stroke="#0d9488" stroke-width="1.5"/><rect x="47" y="70" width="30" height="22" rx="7" fill="rgba(255,255,255,.55)"/><circle class="rb-core" cx="62" cy="81" r="6" fill="#fde047"/><rect x="44" y="100" width="36" height="6" rx="3" fill="#0d9488" opacity=".35"/>
- <g class="rb-head"><rect x="56" y="50" width="12" height="10" rx="3" fill="#94a3b8"/><rect x="38" y="16" width="48" height="38" rx="13" fill="url(#rbH)" stroke="#94a3b8" stroke-width="1.5"/><rect x="46" y="25" width="38" height="18" rx="9" fill="#0f172a"/><g class="rb-eyes"><circle cx="62" cy="34" r="3.4" fill="#5eead4"/><circle cx="76" cy="34" r="3.4" fill="#5eead4"/></g><path class="rb-mouth" d="M64 47 q6 4 12 0" stroke="#64748b" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="58" y1="16" x2="58" y2="5" stroke="#94a3b8" stroke-width="2.5"/><circle class="rb-ant" cx="58" cy="4" r="4" fill="#fb7185"/><rect x="34" y="28" width="5" height="12" rx="2" fill="#cbd5e1"/></g></g>
-<!-- pierna de adelante -->
-<g class="rb-lf"><rect x="58" y="100" width="12" height="48" rx="6" fill="#cbd5e1"/><rect x="56" y="146" width="22" height="11" rx="5" fill="#64748b"/></g>
+function robotSVG(){return `<svg class="rbsvg" viewBox="-60 -10 240 185" overflow="visible" aria-hidden="true">
+<defs><linearGradient id="rbW" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dbe4f0"/></linearGradient>
+<linearGradient id="rbBl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7dd3fc"/><stop offset="1" stop-color="#2563eb"/></linearGradient>
+<linearGradient id="rbT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#86efac"/><stop offset="1" stop-color="#16a34a"/></linearGradient>
+<radialGradient id="rbJ"><stop offset="0" stop-color="#fef08a"/><stop offset=".5" stop-color="#fb923c"/><stop offset="1" stop-color="rgba(251,146,60,0)"/></radialGradient></defs>
+<!-- islita flotante -->
+<g class="rb-isl"><path d="M26 162 q78 -12 156 0 q-6 16 -40 20 q-38 6 -76 0 q-34 -6 -40 -20z" fill="#a16207" opacity=".85"/><ellipse cx="104" cy="161" rx="79" ry="7" fill="#4ade80"/><path d="M34 158l2-6 2 6M60 156l2-7 2 7M150 156l2-7 2 7M176 158l2-6 2 6M90 155l2-6 2 6" stroke="#16a34a" stroke-width="1.6" fill="none"/></g>
+<!-- árbol -->
+<g class="rb-tree"><rect x="146" y="78" width="12" height="83" rx="3" fill="#a16207"/><path d="M146 150l-8 8M158 152l8 6" stroke="#a16207" stroke-width="4" stroke-linecap="round"/><g class="rb-treefall"><rect x="146" y="36" width="12" height="44" rx="3" fill="#b45309"/><path d="M146 66l-12-12M158 58l12-12" stroke="#a16207" stroke-width="5" stroke-linecap="round"/><circle cx="152" cy="22" r="26" fill="url(#rbT)"/><circle cx="131" cy="40" r="17" fill="#4ade80"/><circle cx="173" cy="38" r="18" fill="#22c55e"/><circle cx="152" cy="2" r="15" fill="#86efac"/></g></g>
+<!-- mochila de la bomba -->
+<g class="rbt rbt-bomba"><path d="M40 66 L30 72" stroke="#475569" stroke-width="3"/><rect x="16" y="60" width="24" height="44" rx="9" fill="#fde047" stroke="#ca8a04" stroke-width="2"/><rect x="20" y="56" width="12" height="7" rx="3" fill="#ca8a04"/><path d="M22 102 C30 122 70 114 96 84" fill="none" stroke="#334155" stroke-width="2.5"/></g>
+<!-- propulsores -->
+<g class="rb-jet"><ellipse cx="58" cy="166" rx="6" ry="13" fill="url(#rbJ)"/><ellipse cx="68" cy="166" rx="6" ry="13" fill="url(#rbJ)"/></g>
+<!-- pierna atrás -->
+<g class="rb-lb"><rect x="51" y="104" width="12" height="42" rx="6" fill="#cbd5e1"/><rect x="47" y="144" width="22" height="12" rx="6" fill="url(#rbBl)"/></g>
+<!-- brazo atrás -->
+<g class="rb-ab"><rect x="57" y="68" width="10" height="34" rx="5" fill="#cbd5e1"/><circle cx="62" cy="68" r="6" fill="url(#rbBl)"/><circle cx="62" cy="102" r="6" fill="#e2e8f0" stroke="#94a3b8"/></g>
+<!-- cuerpo y cabeza -->
+<g class="rb-body"><rect x="40" y="62" width="44" height="46" rx="16" fill="url(#rbW)" stroke="#94a3b8" stroke-width="1.5"/><circle class="rb-core" cx="62" cy="83" r="9" fill="url(#rbBl)" stroke="#1d4ed8" stroke-width="1.2"/><circle cx="59" cy="80" r="2.5" fill="#fff" opacity=".8"/><rect x="48" y="100" width="28" height="9" rx="4" fill="#334155"/>
+ <g class="rb-head"><rect x="55" y="52" width="14" height="12" rx="4" fill="#475569"/><circle cx="62" cy="32" r="26" fill="url(#rbW)" stroke="#94a3b8" stroke-width="1.5"/><path d="M40 30 q22 -4 44 0" stroke="#e2e8f0" stroke-width="2" fill="none"/><rect x="44" y="20" width="40" height="24" rx="11" fill="#0f172a"/><g class="rb-eyes"><ellipse cx="60" cy="31" rx="3.6" ry="4.6" fill="#67e8f9"/><ellipse cx="75" cy="31" rx="3.6" ry="4.6" fill="#67e8f9"/><circle cx="61" cy="29.5" r="1.2" fill="#fff"/><circle cx="76" cy="29.5" r="1.2" fill="#fff"/></g><path class="rb-mouth" d="M62 49 q7 5 14 0" stroke="#475569" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="38" cy="33" r="8" fill="url(#rbBl)" stroke="#1d4ed8" stroke-width="1.2"/><circle cx="38" cy="33" r="3.5" fill="#bfdbfe"/><line x1="48" y1="10" x2="45" y2="0" stroke="#64748b" stroke-width="2.5"/><circle class="rb-ant" cx="45" cy="-1" r="3.5" fill="#60a5fa"/><line x1="72" y1="8" x2="74" y2="-2" stroke="#64748b" stroke-width="2.5"/><circle class="rb-ant b" cx="74" cy="-3" r="3.5" fill="#60a5fa"/></g></g>
+<!-- pierna adelante -->
+<g class="rb-lf"><rect x="59" y="104" width="12" height="42" rx="6" fill="#e2e8f0" stroke="#cbd5e1"/><rect x="56" y="144" width="23" height="12" rx="6" fill="url(#rbBl)"/></g>
 <!-- herramientas -->
-<g class="rbt rbt-sierra"><g class="rb-vib"><path d="M84 66 h10 v-6 h8 v6" fill="none" stroke="#334155" stroke-width="3" stroke-linejoin="round"/><rect x="82" y="66" width="30" height="20" rx="6" fill="#fb923c" stroke="#c2410c" stroke-width="1.5"/><rect x="86" y="70" width="10" height="6" rx="2" fill="#fff7ed"/><rect x="110" y="72" width="50" height="8" rx="4" fill="#e2e8f0" stroke="#64748b" stroke-width="1"/><rect class="rb-chain" x="109" y="71" width="52" height="10" rx="5" fill="none" stroke="#334155" stroke-width="1.6" stroke-dasharray="3 2.4"/></g>
- <g class="rb-dust"><circle cx="152" cy="84" r="1.8"/><circle cx="150" cy="86" r="1.4"/><circle cx="154" cy="83" r="1.6"/><circle cx="149" cy="85" r="1.2"/><circle cx="153" cy="87" r="1.5"/></g></g>
-<g class="rbt rbt-bomba"><line x1="94" y1="80" x2="142" y2="70" stroke="#475569" stroke-width="3" stroke-linecap="round"/><rect x="139" y="66" width="8" height="7" rx="2" fill="#334155"/>
- <g class="rb-mist"><circle cx="150" cy="70" r="4"/><circle cx="150" cy="70" r="5"/><circle cx="150" cy="70" r="3.5"/><circle cx="150" cy="70" r="4.5"/><circle cx="150" cy="70" r="3"/></g></g>
-<g class="rbt rbt-guadana"><g class="rb-swing"><line x1="58" y1="56" x2="148" y2="152" stroke="#64748b" stroke-width="4" stroke-linecap="round"/><rect x="46" y="44" width="20" height="16" rx="5" fill="#fb923c" stroke="#c2410c" stroke-width="1.5" transform="rotate(43 56 52)"/><path d="M88 84 l14 -14 M88 84 l-4 12" stroke="#334155" stroke-width="3" stroke-linecap="round"/><g transform="translate(148 153)"><ellipse rx="16" ry="3.5" fill="#cbd5e1" stroke="#64748b"/><g class="rb-spin"><line x1="-18" y1="0" x2="18" y2="0" stroke="#f97316" stroke-width="2"/></g></g>
- <g class="rb-grass"><path d="M150 150 l3 -6" /><path d="M146 151 l-2 -7"/><path d="M155 150 l5 -5"/><path d="M142 150 l-4 -4"/></g></g></g>
-<g class="rbt rbt-podadora"><line x1="86" y1="92" x2="112" y2="132" stroke="#475569" stroke-width="3.5" stroke-linecap="round"/><line x1="82" y1="90" x2="90" y2="94" stroke="#334155" stroke-width="5" stroke-linecap="round"/>
- <g class="rb-wh2"><circle cx="122" cy="149" r="7" fill="#64748b"/><circle cx="164" cy="149" r="7" fill="#64748b"/></g>
- <path d="M104 132 q2 -10 14 -10 h40 q10 0 12 10 v12 h-66z" fill="#4ade80" stroke="#15803d" stroke-width="1.5"/><rect x="124" y="110" width="26" height="14" rx="5" fill="#f97316" stroke="#c2410c"/><rect x="128" y="106" width="8" height="6" rx="2" fill="#334155"/><rect x="104" y="138" width="16" height="10" rx="3" fill="#15803d" opacity=".6"/>
- <g class="rb-wh" transform="translate(114 152)"><circle r="9" fill="#1e293b"/><circle r="4" fill="#cbd5e1"/><g class="rb-spin2"><line x1="-4" y1="0" x2="4" y2="0" stroke="#475569" stroke-width="2"/></g></g>
- <g class="rb-wh" transform="translate(158 152)"><circle r="9" fill="#1e293b"/><circle r="4" fill="#cbd5e1"/><g class="rb-spin2"><line x1="-4" y1="0" x2="4" y2="0" stroke="#475569" stroke-width="2"/></g></g>
- <g class="rb-clip"><path d="M100 150 l-4 -5"/><path d="M98 152 l-6 -2"/><path d="M102 151 l-3 -7"/></g></g>
-<!-- brazo de adelante -->
-<g class="rb-af"><rect x="57" y="64" width="11" height="37" rx="5.5" fill="#cbd5e1" stroke="#94a3b8"/><circle cx="62.5" cy="101" r="6" fill="#94a3b8"/></g>
+<g class="rbt rbt-sierra"><g class="rb-vib"><path d="M84 68 h10 v-6 h8 v6" fill="none" stroke="#334155" stroke-width="3" stroke-linejoin="round"/><rect x="82" y="68" width="30" height="20" rx="6" fill="#fb923c" stroke="#c2410c" stroke-width="1.5"/><rect x="86" y="72" width="10" height="6" rx="2" fill="#fff7ed"/><rect x="110" y="74" width="50" height="8" rx="4" fill="#e2e8f0" stroke="#64748b" stroke-width="1"/><rect class="rb-chain" x="109" y="73" width="52" height="10" rx="5" fill="none" stroke="#334155" stroke-width="1.6" stroke-dasharray="3 2.4"/></g>
+ <g class="rb-dust"><circle cx="152" cy="86" r="1.8"/><circle cx="150" cy="88" r="1.4"/><circle cx="154" cy="85" r="1.6"/><circle cx="149" cy="87" r="1.2"/><circle cx="153" cy="89" r="1.5"/></g></g>
+<g class="rbt rbt-bomba"><line x1="94" y1="82" x2="142" y2="72" stroke="#475569" stroke-width="3" stroke-linecap="round"/><rect x="139" y="68" width="8" height="7" rx="2" fill="#334155"/>
+ <g class="rb-mist"><circle cx="150" cy="72" r="4"/><circle cx="150" cy="72" r="5"/><circle cx="150" cy="72" r="3.5"/><circle cx="150" cy="72" r="4.5"/><circle cx="150" cy="72" r="3"/></g></g>
+<g class="rbt rbt-guadana"><g class="rb-swing"><line x1="58" y1="58" x2="148" y2="154" stroke="#64748b" stroke-width="4" stroke-linecap="round"/><rect x="46" y="46" width="20" height="16" rx="5" fill="#fb923c" stroke="#c2410c" stroke-width="1.5" transform="rotate(43 56 54)"/><path d="M88 86 l14 -14 M88 86 l-4 12" stroke="#334155" stroke-width="3" stroke-linecap="round"/><g transform="translate(148 155)"><ellipse rx="16" ry="3.5" fill="#cbd5e1" stroke="#64748b"/><g class="rb-spin"><line x1="-18" y1="0" x2="18" y2="0" stroke="#f97316" stroke-width="2"/></g></g>
+ <g class="rb-grass"><path d="M150 152 l3 -6"/><path d="M146 153 l-2 -7"/><path d="M155 152 l5 -5"/><path d="M142 152 l-4 -4"/></g></g></g>
+<g class="rbt rbt-podadora"><line x1="86" y1="94" x2="112" y2="134" stroke="#475569" stroke-width="3.5" stroke-linecap="round"/><line x1="82" y1="92" x2="90" y2="96" stroke="#334155" stroke-width="5" stroke-linecap="round"/>
+ <g><circle cx="122" cy="151" r="7" fill="#64748b"/><circle cx="164" cy="151" r="7" fill="#64748b"/></g>
+ <path d="M104 134 q2 -10 14 -10 h40 q10 0 12 10 v12 h-66z" fill="#4ade80" stroke="#15803d" stroke-width="1.5"/><rect x="124" y="112" width="26" height="14" rx="5" fill="#f97316" stroke="#c2410c"/><rect x="128" y="108" width="8" height="6" rx="2" fill="#334155"/>
+ <g transform="translate(114 154)"><circle r="9" fill="#1e293b"/><circle r="4" fill="#cbd5e1"/><g class="rb-spin2"><line x1="-4" y1="0" x2="4" y2="0" stroke="#475569" stroke-width="2"/></g></g>
+ <g transform="translate(158 154)"><circle r="9" fill="#1e293b"/><circle r="4" fill="#cbd5e1"/><g class="rb-spin2"><line x1="-4" y1="0" x2="4" y2="0" stroke="#475569" stroke-width="2"/></g></g>
+ <g class="rb-clip"><path d="M100 152 l-4 -5"/><path d="M98 154 l-6 -2"/><path d="M102 153 l-3 -7"/></g></g>
+<!-- brazo adelante -->
+<g class="rb-af"><rect x="57" y="68" width="11" height="35" rx="5.5" fill="#f1f5f9" stroke="#94a3b8"/><circle cx="62.5" cy="68" r="6.5" fill="url(#rbBl)"/><circle cx="62.5" cy="103" r="6.5" fill="#fff" stroke="#94a3b8"/></g>
 </svg>`}
 let RB=null;
-function rbBuild(){const st=document.createElement('div');st.id='rbStage';st.className='rbstage';
-  st.innerHTML=`<div class="rbground"></div><div class="rbbush" style="left:12%"></div><div class="rbbush" style="left:58%"></div><div class="rbbush s" style="left:83%"></div><div class="rbbot" id="rbBot">${robotSVG()}</div><button class="rbbub" id="rbBub" type="button"></button><button class="rbx" id="rbX" type="button" title="Ocultar el robot">✕</button>`;
-  RB={st,bot:st.querySelector('#rbBot'),bub:st.querySelector('#rbBub'),x:40,dir:1,act:RB_ACTS[Math.floor(Math.random()*4)],ph:'walk',tg:200,tAct:Date.now()+rbDur(),tPh:0,last:0,msgI:0,tMsg:Date.now()+3500,bubOn:false,alert:null};
-  RB.bot.onclick=()=>{RB.bot.classList.remove('wave');void RB.bot.offsetWidth;RB.bot.classList.add('wave');RB.tMsg=0};
-  RB.bub.onclick=()=>{const a=RB.alert;if(a&&a.go)go(a.go);else RB.tMsg=0};
-  st.querySelector('#rbX').onclick=()=>{try{localStorage.setItem('tallerRobot','off')}catch(e){}st.remove();RB=null;render();toast('🤖 Robot oculto. Para verlo de nuevo, toque «🤖 Mostrar robot» en Inicio.')};
-  rbSetAct(RB.act,true);requestAnimationFrame(rbLoop);return st}
 const rbDur=()=>60e3+Math.random()*60e3;
-function rbSetAct(a,silent){RB.act=a;RB.bot.dataset.act=a;RB.ph='walk';RB.tg=rbTarget();RB.bot.classList.remove('cut','fell');
+function rbBuild(){const f=document.createElement('div');f.id='rbFloat';
+  f.innerHTML=`<div class="rbbot" id="rbBot"><div class="rbtilt"><div class="rbbob">${robotSVG()}</div></div></div><button class="rbbub" id="rbBub" type="button"></button>`;
+  document.body.appendChild(f);
+  RB={f,bot:f.querySelector('#rbBot'),bub:f.querySelector('#rbBub'),x:innerWidth-200,y:innerHeight-260,dir:-1,tx:0,ty:0,act:RB_ACTS[Math.floor(Math.random()*4)],ph:'fly',tAct:Date.now()+rbDur(),tPh:0,last:0,msgI:0,tMsg:Date.now()+4000,bubOn:false,alert:null,chat:false};
+  RB.bot.dataset.act=RB.act;rbPick();
+  RB.bot.addEventListener('click',e=>{e.stopPropagation();rbChat(!RB.chat)});
+  RB.bub.onclick=e=>{e.stopPropagation();const a=RB.alert;if(a&&a.go){go(a.go);rbHideBub()}else rbChat(true)};
+  addEventListener('resize',()=>{if(!RB)return;rbPick();const {w,h}=rbSize();if(RB.x>innerWidth-w*.5||RB.y>innerHeight-h*.5||RB.x<-w*.5){RB.x=RB.tx;RB.y=RB.ty}});
+  requestAnimationFrame(rbLoop)}
+function rbSize(){return {w:RB.bot.offsetWidth||170,h:RB.bot.offsetHeight||130}}
+function rbPick(){const W=innerWidth,H=innerHeight,ph=W<=860,{w,h}=rbSize();
+  if(RB.chat){const p=$('#rbChat');const r=p?p.getBoundingClientRect():{left:W-380,top:H-400};
+    if(ph){RB.tx=W-w*.95;RB.ty=r.top-h*.92}else{RB.tx=r.left-w*.88;RB.ty=Math.max(70,Math.min(H-h-10,r.top+40))}RB.dirLock=ph?-1:1;return}
+  RB.dirLock=0;const top=ph?H*.4:Math.max(90,H*.28),bot=H-h-(ph?96:12);
+  const side=Math.random();let x;if(ph)x=side<.5?Math.random()*W*.18-w*.12:W-w*.88-Math.random()*W*.18;else x=side<.35?Math.random()*W*.3:W*.45+Math.random()*(W*.55-w*.9);
+  RB.tx=Math.max(-w*.12,Math.min(W-w*.88,x));RB.ty=Math.max(top,Math.min(bot,top+Math.random()*(bot-top)))}
+function rbSetAct(a,silent){RB.act=a;RB.bot.dataset.act=a;RB.bot.classList.remove('cut','fell');
   if(!silent){RB.bot.classList.remove('swap');void RB.bot.offsetWidth;RB.bot.classList.add('swap');rbSay({t:RB_TXT[a]},4500)}}
-function rbW(){return RB.st.clientWidth||600}
-function rbBotW(){return RB.bot.clientWidth||160}
-function rbTarget(){const W=rbW(),bw=rbBotW();const lo=bw*0.25,hi=Math.max(lo+10,W-bw*(RB.act==='sierra'?1.25:0.95));let t;do{t=lo+Math.random()*(hi-lo)}while(Math.abs(t-RB.x)<W*0.18&&W>300);return t}
-function rbSay(m,ms){RB.alert=m;RB.bub.innerHTML=esc(m.t)+(m.go?' <b>›</b>':'');RB.bub.className='rbbub on'+(m.sev==='r'?' urg':'');RB.bubOn=true;RB.tHide=Date.now()+(ms||8000);if(m.sev==='r'){RB.bot.classList.remove('jump');void RB.bot.offsetWidth;RB.bot.classList.add('jump')}}
+function rbHideBub(){RB.bub.className='rbbub';RB.bubOn=false;RB.tMsg=Date.now()+9000}
+function rbSay(m,ms){if(RB.chat)return;RB.alert=m;RB.bub.innerHTML=esc(m.t)+(m.go?' <b>›</b>':'');RB.bub.className='rbbub on'+(m.sev==='r'?' urg':'');RB.bubOn=true;RB.tHide=Date.now()+(ms||8000);if(m.sev==='r'){RB.bot.classList.remove('jump');void RB.bot.offsetWidth;RB.bot.classList.add('jump')}}
 function rbMsgs(){const L=[];try{alertas().filter(a=>a.sev!=='b').slice(0,6).forEach(a=>{const m=/data-page="([^"]+)"(?:\s+data-id="([^"]*)")?/.exec(a.act||'');L.push({t:String(a.title).replace(/<[^>]+>/g,'')+(a.detail?' · '+String(a.detail).split(' · ')[0]:''),sev:a.sev,go:m?{page:m[1],id:m[2]||undefined}:{page:'alertas'}})})}catch(e){}
-  if(!L.length){const ab=arr(S.boletas).filter(isOpen).length,hoy=arr(S.boletas).filter(b=>b.fechaIngreso===today()).length;L.push({t:'¡Todo al día! 💪'},{t:`${ab} máquina${ab!==1?'s':''} en el taller 🔧`});if(hoy)L.push({t:`Hoy entraron ${hoy} 📥`})}
+  if(!L.length){const ab=arr(S.boletas).filter(isOpen).length;L.push({t:'¡Todo al día! 💪 Tóqueme si necesita algo'},{t:`${ab} máquina${ab!==1?'s':''} en el taller 🔧`})}
+  else L.push({t:'¿Le ayudo? Tóqueme y pregúnteme 🙂'});
   return L}
-function rbLoop(ts){if(!RB)return;requestAnimationFrame(rbLoop);if(!RB.st.isConnected||document.hidden){RB.last=ts;return}
-  const dt=Math.min(.05,(ts-(RB.last||ts))/1000);RB.last=ts;const now=Date.now();const W=rbW(),bw=rbBotW(),k=bw/160;
-  if(now>RB.tAct&&RB.ph!=='work'){let n;do{n=RB_ACTS[Math.floor(Math.random()*4)]}while(n===RB.act);rbSetAct(n);RB.tAct=now+rbDur()}
-  const slow=RB.act!=='sierra';
-  if(RB.ph==='walk'||RB.ph==='walkw'){const sp=(slow?28:62)*k*(RB.ph==='walkw'?1:1);const d=RB.tg-RB.x;RB.dir=d>=0?1:-1;
-    if(Math.abs(d)<2){if(RB.act==='sierra'){RB.ph='work';RB.tPh=now;RB.bot.classList.add('cut');RB.bot.classList.remove('fell')}else{RB.ph='pause';RB.tPh=now}}
-    else RB.x+=Math.sign(d)*Math.min(Math.abs(d),sp*dt)}
-  else if(RB.ph==='pause'){if(now-RB.tPh>1600){RB.tg=rbTarget();RB.ph='walk'}}
-  else if(RB.ph==='work'){const e=now-RB.tPh;if(e>6500&&!RB.bot.classList.contains('fell'))RB.bot.classList.add('fell');if(e>11000){RB.bot.classList.remove('cut');const bt=RB.bot;setTimeout(()=>bt.classList.remove('fell'),800);RB.tg=rbTarget();RB.ph='walk'}}
-  if(RB.tg>W-bw*.9)RB.tg=rbTarget();RB.x=Math.max(-bw*.1,Math.min(W-bw*.9,RB.x));
-  RB.bot.classList.toggle('walking',RB.ph==='walk');RB.bot.classList.toggle('working',RB.ph==='work'||slow);
-  RB.bot.style.transform=`translateX(${RB.x}px) scaleX(${RB.dir})`;
-  const bx=Math.max(6,Math.min(W-(RB.bub.offsetWidth||200)-6,RB.x+bw*.5-(RB.bub.offsetWidth||200)/2));RB.bub.style.transform=`translateX(${bx}px)`;
-  if(RB.bubOn&&now>RB.tHide){RB.bub.className='rbbub';RB.bubOn=false;RB.tMsg=now+5000}
-  if(!RB.bubOn&&now>RB.tMsg){const L=rbMsgs();rbSay(L[RB.msgI++%L.length])}}
-function rbPlace(){const slot=$('#rbSlot');
-  if(!slot||!robotOn()){if(RB&&RB.st.isConnected)RB.st.remove();return}
-  if(!RB)rbBuild();if(RB.st.parentNode!==slot){slot.appendChild(RB.st);RB.x=Math.min(RB.x,rbW()*.5);RB.tMsg=Date.now()+2500}}
-setInterval(rbPlace,400);
+function rbLoop(ts){if(!RB)return;requestAnimationFrame(rbLoop);if(document.hidden){RB.last=ts;return}
+  const dt=Math.min(.05,(ts-(RB.last||ts))/1000);RB.last=ts;const now=Date.now();const {w,h}=rbSize();const k=w/170;
+  const hideM=!!document.querySelector('#modal:not(.hidden)');RB.f.classList.toggle('away',hideM);
+  if(RB.ph==='fly'){const dx=RB.tx-RB.x,dy=RB.ty-RB.y,d=Math.hypot(dx,dy);const sp=(RB.chat?260:85)*k;
+    if(Math.abs(dx)>3)RB.dir=RB.dirLock||(dx>0?1:-1);
+    if(d<3){RB.ph=RB.chat?'chat':'work';RB.tPh=now;if(RB.act==='sierra'&&!RB.chat)RB.bot.classList.add('cut')}
+    else{const s=Math.min(d,sp*dt);RB.x+=dx/d*s;RB.y+=dy/d*s}}
+  else if(RB.ph==='work'){const e=now-RB.tPh,lim=RB.act==='sierra'?11500:9000+Math.random()*30;
+    if(RB.act==='sierra'&&e>6500&&!RB.bot.classList.contains('fell'))RB.bot.classList.add('fell');
+    if(e>lim){if(RB.act==='sierra'){RB.bot.classList.remove('cut');const bt=RB.bot;setTimeout(()=>bt.classList.remove('fell'),800)}
+      if(now>RB.tAct){let n;do{n=RB_ACTS[Math.floor(Math.random()*4)]}while(n===RB.act);rbSetAct(n);RB.tAct=now+rbDur()}
+      rbPick();RB.ph='fly'}}
+  else if(RB.ph==='chat'){if(!RB.chat){rbPick();RB.ph='fly'}}
+  RB.bot.classList.toggle('fly',RB.ph==='fly');RB.bot.classList.toggle('working',RB.ph==='work');RB.bot.classList.toggle('talk',RB.ph==='chat');
+  RB.bot.style.transform=`translate(${RB.x}px,${RB.y}px) scaleX(${RB.dir})`;
+  const bw=RB.bub.offsetWidth||200;const bx=Math.max(8,Math.min(innerWidth-bw-8,RB.x+w*.5-bw/2)),by=Math.max(60,RB.y-6);RB.bub.style.transform=`translate(${bx}px,${by}px)`;
+  if(RB.bubOn&&now>RB.tHide)rbHideBub();
+  if(!RB.bubOn&&!RB.chat&&now>RB.tMsg){const L=rbMsgs();rbSay(L[RB.msgI++%L.length])}}
+function rbPlace(){const on=robotOn()&&!document.querySelector('#login,#userScr,#splash');
+  if(!on){if(RB){RB.f.remove();const c=$('#rbChat');if(c)c.remove();RB=null}return}
+  if(!RB&&document.body&&$('#view'))rbBuild()}
+setInterval(rbPlace,800);
+
+/* ---------- conversación con el robot ---------- */
+const rbOL=(b,extra)=>{const e=eq(b.equipoId)||{},c=cli(b.clienteId)||{};return `<a class="rbl" data-act="open" data-page="orden" data-id="${b.id}"><b>${nb(b.numero)}</b> ${tipoEm(e.tipo)} ${esc(eqShort(e))} · ${esc(String(c.nombre||'').split(/\s+/).slice(0,2).join(' '))}${extra?` <span>${extra}</span>`:''}</a>`};
+const rbList=(L,f,max=6)=>L.slice(0,max).map(b=>rbOL(b,f?f(b):'')).join('')+(L.length>max?`<div class="small muted">…y ${L.length-max} más</div>`:'');
+const RB_CHIPS=[['pend','📋 ¿Qué está pendiente?'],['mio','🔧 ¿Qué me toca?'],['atras','⏰ Atrasadas'],['deten','⏳ Detenidas'],['rep','📦 Repuestos que faltan'],['listas','✅ Listas para entregar'],['hoy','📊 Resumen de hoy'],['ayuda','❓ ¿Cómo se hace…?']];
+function rbData(){const B=arr(S.boletas).filter(isOpen),t=today();
+  const atr=B.filter(b=>b.fechaEstimada&&b.fechaEstimada<t&&b.estado!=='Listo para entregar').sort((a,z)=>a.fechaEstimada.localeCompare(z.fechaEstimada));
+  const det=B.filter(b=>!['Listo para entregar','Esperando aprobación','Esperando repuestos'].includes(b.estado)&&daysSince(lastChange(b))>=num(CFG.diasSinMov)&&!(b.crono&&b.crono.t0)).sort((a,z)=>lastChange(a).localeCompare(lastChange(z)));
+  const esp=B.filter(b=>b.estado==='Esperando repuestos');const apr=B.filter(b=>b.estado==='Esperando aprobación');
+  const lis=B.filter(b=>b.estado==='Listo para entregar').sort((a,z)=>lastChange(a).localeCompare(lastChange(z)));
+  const sinT=B.filter(b=>!b.tecnico&&b.estado!=='Listo para entregar');const sinR=B.filter(b=>b.estado==='Recibido'&&!b.tallerRecibio);
+  return {B,atr,det,esp,apr,lis,sinT,sinR}}
+const RB_HELP=[
+ [/recib|ingres|nueva maq|boleta nueva/,'📥 <b>Recibir una máquina:</b> toque <b>➕</b> (abajo al centro en el celular) o <b>Recibir máquina</b> en Inicio. Elija o cree el cliente, la máquina, marque las fallas y guarde. Puede imprimir la boleta con el QR.'],
+ [/entreg|retir/,'🤝 <b>Entregar al cliente:</b> en Inicio, tarjeta <b>Para entregar al cliente</b> → <b>Entregar</b>. Primero recepción la recibe del taller con <b>📥 Recibir</b>. También puede abrir la orden y tocar el estado <b>Entregado</b>.'],
+ [/plantill/,'📝 <b>Plantillas:</b> en la orden, tarjeta Mano de obra → <b>📝 Plantilla</b>. Ahí mismo puede crear una con lo que lleva la orden. Se editan en Catálogo.'],
+ [/etiquet|codigo de barra|barras/,'🏷️ <b>Etiquetas:</b> Repuestos → <b>🏷️ Etiquetas</b>, elija cuántas de cada repuesto e imprima.'],
+ [/cronom|tiempo|horas/,'⏱️ <b>Cronómetro:</b> en la orden, tarjeta Mano de obra → <b>▶️ Iniciar</b>. Al terminar toque <b>⏹️ Terminar</b>, elija el trabajo y las horas se anotan solas.'],
+ [/prueba|lista para entregar|listo/,'🧪 <b>Prueba final:</b> al marcar <b>Listo para entregar</b> el mecánico confirma cada punto. Los puntos se cambian en Catálogo → Prueba final.'],
+ [/respald|copia|backup/,'💾 <b>Respaldo:</b> en el menú <b>Respaldo</b>. Además cada semana se guarda sola una copia en la nube.'],
+ [/encuest|calific|estrella/,'⭐ <b>Encuesta:</b> al entregar, el WhatsApp de "Entregado" lleva el enlace para que el cliente califique. Los resultados están en Reportes → Satisfacción.'],
+ [/calendar|fecha/,'📆 <b>Calendario:</b> en el menú. Muestra lo prometido para cada día y lo atrasado. La fecha se pone en la orden, en "Entrega prometida".'],
+ [/pantalla|tv|television/,'📺 <b>Pantalla del taller:</b> en el menú. Póngala en el TV con ⛶ pantalla completa.'],
+ [/3d|pieza|despiece/,'🧊 <b>Vista 3D:</b> en la orden, tarjeta Piezas de la máquina → <b>Ver en 3D</b>. Toque piezas para marcarlas.'],
+ [/ficha|mezcla|bujia|holgura/,'📘 <b>Fichas técnicas:</b> Catálogo → Fichas técnicas, o desde la orden con <b>Crear ficha</b>.'],
+ [/qr|consulta|seguimiento|enlace/,'🔎 <b>Seguimiento del cliente:</b> la boleta impresa trae un QR. En la orden, el botón de consulta le da el enlace para enviarlo por WhatsApp.'],
+ [/whatsapp|mensaje|avisar/,'💬 <b>WhatsApp:</b> en la orden toque el botón verde. Primero ve el mensaje y lo puede editar.'],
+ [/pedido|proveedor|pedir/,'🛒 <b>Pedidos:</b> en el menú Pedidos está la lista por pedir, ordenada por proveedor, con botón para enviarla por WhatsApp o imprimirla.'],
+ [/garant/,'🛡️ <b>Garantía:</b> si una máquina vuelve dentro de los días de garantía sale la etiqueta GARANTÍA. Reporte en Reportes → Regresos por garantía.'],
+ [/usuario|personal|mecanico|recepcion|clave|pin/,'👥 <b>Usuarios:</b> Configuración → Personal. Ahí se agregan mecánicos y recepción, y quién es administrador.']];
+function rbAnswer(key,q){const D=rbData();const me=norm(yoNombre()),pu=puestoActual();
+  const sec=(t,L,f,max)=>L.length?`<div class="rbsec"><div class="rbh">${t} <span>${L.length}</span></div>${rbList(L,f,max)}</div>`:'';
+  const dias=b=>daysSince(lastChange(b))+' d';
+  switch(key){
+  case 'pend':{const n=D.B.length;if(!n)return '¡No hay máquinas en el taller! 🎉';
+    const res=[[D.atr,'⏰ atrasada'],[D.det,'⏳ detenida'],[D.esp,'📦 esperando repuesto'],[D.apr,'☎️ esperando aprobación'],[D.lis,'✅ lista para entregar'],[D.sinT,'👤 sin técnico'],[D.sinR,'📥 sin recibir en el taller']].filter(([L])=>L.length).map(([L,t])=>`<div>${t.split(' ')[0]} <b>${L.length}</b> ${t.split(' ').slice(1).join(' ')}${L.length!==1?'s':''}</div>`.replace('esperandos','esperando').replace('sin técnicos','sin técnico').replace('sin recibirs','sin recibir').replace(/sin recibir en el tallers/,'sin recibir en el taller')).join('');
+    const pp=arr(S.porpedir).length;
+    const urg=[...D.atr,...D.det.filter(b=>!D.atr.includes(b))].slice(0,5);
+    return `Hay <b>${n}</b> máquina${n!==1?'s':''} en el taller.${res?`<div class="rbsum">${res}${pp?`<div>🛒 <b>${pp}</b> repuesto${pp!==1?'s':''} por pedir</div>`:''}</div>`:''}${urg.length?`<div class="rbh" style="margin-top:8px">Lo más urgente</div>${urg.map(b=>rbOL(b,D.atr.includes(b)?'⏰ prometida '+fdate(b.fechaEstimada):'⏳ '+dias(b)+' sin avanzar')).join('')}`:'<div style="margin-top:6px">Nada atrasado ni detenido 👍</div>'}`}
+  case 'mio':{if(pu==='recepcion'){const lr=D.lis.filter(b=>!b.recepRecibio),le=D.lis.filter(b=>b.recepRecibio);
+      return (sec('📥 Recibir del taller',lr)+sec('🤝 Entregar al cliente',le,dias)+sec('☎️ Llamar para aprobación',D.apr,dias)+sec('📦 Seguir el repuesto',D.esp,dias))||'No tiene nada pendiente ahora mismo 👍'}
+    const L=D.B.filter(b=>norm(b.tecnico)===me&&b.estado!=='Listo para entregar').sort((a,z)=>(a.prioridad==='Urgente'?0:1)-(z.prioridad==='Urgente'?0:1)||String(a.fechaEstimada||'9').localeCompare(String(z.fechaEstimada||'9')));
+    const nuevas=D.sinR;
+    return (me?'':'Elija su usuario para saber qué le toca. ')+(sec('🔧 Asignadas a usted',L,b=>b.estado+(b.fechaEstimada?' · '+fdate(b.fechaEstimada):''),8)+sec('📥 Nuevas sin recibir en el taller',nuevas)+sec('👤 Sin técnico',D.sinT))||'No tiene máquinas asignadas 👍'}
+  case 'atras':return D.atr.length?sec('⏰ Atrasadas',D.atr,b=>'prometida '+fdate(b.fechaEstimada),10):'No hay máquinas atrasadas 👍';
+  case 'deten':{const L=[...D.det,...D.esp.filter(b=>daysSince(lastChange(b))>=1),...D.lis.filter(b=>daysSince(lastChange(b))>=num(CFG.diasRetiro))];return L.length?sec('⏳ Sin avanzar',D.det,b=>dias(b)+' · '+b.estado)+sec('📦 Esperando repuesto',D.esp,dias)+sec('✅ Listas sin retirar',D.lis.filter(b=>daysSince(lastChange(b))>=num(CFG.diasRetiro)),dias):'No hay máquinas detenidas 👍'}
+  case 'rep':{const pp=arr(S.porpedir);const low=arr(S.repuestos).filter(r=>stockSt(r).k!=='ok');const pe=arr(S.pedidos).filter(p=>p.estado==='Pedido');
+    if(!pp.length&&!low.length&&!pe.length&&!D.esp.length)return 'No falta ningún repuesto 👍';
+    return `${pp.length?`<div class="rbsec"><div class="rbh">🛒 Por pedir <span>${pp.length}</span></div>${pp.slice(0,8).map(x=>`<a class="rbl" data-act="nav" data-page="pedidos">${esc(x.nombre||'')}${x.cant?' × '+x.cant:''}${x.boletaId&&S.boletas[x.boletaId]?` <span>${nb(S.boletas[x.boletaId].numero)}</span>`:''}</a>`).join('')}</div>`:''}
+     ${low.length?`<div class="rbsec"><div class="rbh">📉 Bajo el mínimo <span>${low.length}</span></div>${low.slice(0,6).map(r=>`<a class="rbl" data-act="open" data-page="repuesto" data-id="${r.id}">${esc(r.nombre)} <span>quedan ${num(r.stock)}</span></a>`).join('')}</div>`:''}
+     ${pe.length?`<div class="rbsec"><div class="rbh">🚚 Pedidos sin llegar <span>${pe.length}</span></div>${pe.slice(0,5).map(p=>`<a class="rbl" data-act="nav" data-page="pedidos">${esc(p.proveedor||'Proveedor')} <span>hace ${daysSince(iso(new Date(p.fecha)))} d</span></a>`).join('')}</div>`:''}
+     ${sec('⏸️ Máquinas esperando repuesto',D.esp,dias)}`}
+  case 'listas':return D.lis.length?sec('✅ Listas para entregar',D.lis,b=>(b.recepRecibio?'en recepción · ':'en el taller · ')+dias(b),10):'No hay máquinas listas ahora mismo.';
+  case 'hoy':{const t=today(),A=arr(S.boletas);const en=A.filter(b=>b.fechaIngreso===t),ent=A.filter(b=>b.estado==='Entregado'&&String(b.fechaEntrega||'').slice(0,10)===t);
+    const lis=A.filter(b=>(b.historial||[]).some(h=>h.estado==='Listo para entregar'&&iso(new Date(h.t))===t)&&b.estado==='Listo para entregar');
+    return `<div class="rbsum"><div>📥 Entraron <b>${en.length}</b></div><div>✅ Quedaron listas <b>${lis.length}</b></div><div>🤝 Se entregaron <b>${ent.length}</b></div><div>🔧 En el taller <b>${D.B.length}</b></div></div>${sec('📥 Entraron hoy',en)}`}
+  case 'ayuda':return `Pregúnteme cómo se hace algo, por ejemplo <i>"¿cómo recibo una máquina?"</i>, <i>"¿cómo imprimo etiquetas?"</i> o <i>"¿cómo uso el cronómetro?"</i>.<div class="rbchips">${['recibir','entregar','plantilla','etiquetas','cronómetro','respaldo','encuesta','3D','fichas','pedidos'].map(x=>`<button type="button" class="rbc" data-rbq="¿cómo ${x}?">${x}</button>`).join('')}</div>`;
+  }
+  // texto libre
+  const n=norm(q||'');if(!n)return '';
+  if(/^(hola|buen|hey|que tal)/.test(n))return `¡Hola${yoNombre()?' '+esc(yoNombre()):''}! 👋 Soy el asistente del taller. Pregúnteme lo que está pendiente o cómo se hace algo.`;
+  if(/gracias/.test(n))return '¡Con mucho gusto! 🤖💚';
+  if(/^(como|donde|ayuda|que hago|como se)/.test(n)||/\bcomo\b/.test(n)){const h=RB_HELP.find(([re])=>re.test(n));if(h)return h[1];return rbAnswer('ayuda')}
+  if(/pendient|falta|que hay|como vamos|resumen/.test(n)&&!/repuest/.test(n))return rbAnswer('pend');
+  if(/atras|vencid|tarde|prometid/.test(n))return rbAnswer('atras');
+  if(/repuest|pedir|stock|agotad|inventar/.test(n))return rbAnswer('rep');
+  if(/detenid|olvid|parad|abandon|sin avanzar/.test(n))return rbAnswer('deten');
+  if(/list|entreg|retir/.test(n))return rbAnswer('listas');
+  if(/\bmi\b|\bmis\b|mio|mia|asignad|me toca|tengo/.test(n))return rbAnswer('mio');
+  if(/\bhoy\b/.test(n))return rbAnswer('hoy');
+  if(/garant/.test(n)){const G=D.B.filter(b=>{const p=prevInfo(b);return p&&p.enGar});return G.length?sec('🛡️ En garantía',G):'No hay máquinas abiertas en garantía 👍'}
+  {const h=RB_HELP.find(([re])=>re.test(n));const m=/\b(\d{1,6})\b/.exec(n);
+   if(m){const b=arr(S.boletas).find(x=>num(x.numero)===num(m[1]));if(b){const e=eq(b.equipoId)||{};return `${rbOL(b)}<div class="rbsum"><div>Estado: <b>${esc(b.estado)}</b></div>${b.tecnico?`<div>Técnico: <b>${esc(b.tecnico)}</b></div>`:''}<div>Recibida ${fdate(b.fechaIngreso)}${isOpen(b)?` · ${daysSince(b.fechaIngreso)} días en el taller`:''}</div>${b.fechaEstimada?`<div>Prometida: ${fdate(b.fechaEstimada)}</div>`:''}${b.diagnostico?`<div>Diagnóstico: ${esc(b.diagnostico)}</div>`:''}</div>`}}
+   const C=arr(S.clientes).filter(c=>norm(c.nombre).includes(n)||String(c.telefono||'').replace(/\D/g,'').includes(n.replace(/\D/g,'')||'@@'));
+   const E=arr(S.equipos).filter(e=>[e.serie,e.modelo,e.marca].some(v=>v&&norm(v).includes(n)));
+   const O=arr(S.boletas).filter(b=>C.some(c=>c.id===b.clienteId)||E.some(e=>e.id===b.equipoId)).sort((a,z)=>(isOpen(z)?1:0)-(isOpen(a)?1:0)||String(z.fechaIngreso).localeCompare(String(a.fechaIngreso)));
+   if(O.length)return `Encontré esto:${rbList(O,b=>b.estado,8)}`;
+   if(h)return h[1]}
+  return `No le entendí bien 🤔. Puedo decirle lo pendiente, lo atrasado, los repuestos que faltan, buscar una orden por número o un cliente por nombre, o explicarle cómo se hace algo.`}
+let RBM=[];
+function rbChat(open){if(!RB)return;RB.chat=open;let p=$('#rbChat');
+  if(!open){if(p)p.classList.remove('on');RB.ph='fly';rbPick();return}
+  if(!p){p=document.createElement('div');p.id='rbChat';document.body.appendChild(p);
+    p.innerHTML=`<div class="rbch"><div class="rbav">🤖</div><div style="flex:1;min-width:0"><b>Asistente del taller</b><div class="small muted">Pregúnteme lo que necesite</div></div><button type="button" class="rbhb" id="rbOff" title="Ocultar el robot">🙈</button><button type="button" class="rbhb" id="rbClose" title="Cerrar">✕</button></div>
+     <div class="rbmsgs" id="rbMsgs"></div><div class="rbchips rbq">${RB_CHIPS.map(([k,l])=>`<button type="button" class="rbc" data-rbk="${k}">${l}</button>`).join('')}</div>
+     <form class="rbin" id="rbForm"><input id="rbIn" placeholder="Escriba: pendientes, orden 18, Fabian…" autocomplete="off"><button class="btn p sm" type="submit">➤</button></form>`;
+    p.querySelector('#rbClose').onclick=()=>rbChat(false);
+    p.querySelector('#rbOff').onclick=()=>{try{localStorage.setItem('tallerRobot','off')}catch(e){}rbPlace();render();toast('🤖 Robot oculto. Para verlo de nuevo, toque «🤖 Mostrar robot» en Inicio.')};
+    p.addEventListener('click',e=>{const k=e.target.closest('[data-rbk]'),q=e.target.closest('[data-rbq]');
+      if(k){e.stopPropagation();rbAsk(k.textContent,k.dataset.rbk)}else if(q){e.stopPropagation();rbAsk(q.dataset.rbq,null,q.dataset.rbq)}
+      else if(e.target.closest('.rbl')&&innerWidth<=860)setTimeout(()=>rbChat(false),60)});
+    p.querySelector('#rbForm').onsubmit=e=>{e.preventDefault();const i=$('#rbIn');const v=i.value.trim();if(!v)return;i.value='';rbAsk(v,null,v)}}
+  if(!RBM.length){const D=rbData();const h=new Date().getHours();RBM.push({me:0,h:`${h<12?'¡Buenos días':h<19?'¡Buenas tardes':'¡Buenas noches'}${yoNombre()?', '+esc(yoNombre()):''}! 👋 ${D.B.length?`Hay <b>${D.B.length}</b> máquina${D.B.length!==1?'s':''} en el taller${D.atr.length?`, <b style="color:#e11d48">${D.atr.length} atrasada${D.atr.length!==1?'s':''}</b>`:''}${D.det.length?`, <b style="color:#ea580c">${D.det.length} detenida${D.det.length!==1?'s':''}</b>`:''}.`:'No hay máquinas en el taller.'} ¿En qué le ayudo?`})}
+  rbDraw();p.classList.add('on');rbHideBub();RB.ph='fly';setTimeout(()=>{if(RB&&RB.chat)rbPick()},60)}
+function rbAsk(label,key,q){RBM.push({me:1,h:esc(label)});RBM.push({me:0,h:rbAnswer(key,q)||'…'});RBM=RBM.slice(-30);rbDraw();
+  if(RB){RB.bot.classList.remove('wave');void RB.bot.offsetWidth;RB.bot.classList.add('wave')}}
+function rbDraw(){const m=$('#rbMsgs');if(!m)return;m.innerHTML=RBM.map(x=>`<div class="rbm ${x.me?'me':''}">${x.h}</div>`).join('');m.scrollTop=m.scrollHeight}
 
 /* ================== Cronómetro de trabajo ================== */
 const cronoMs=c=>c?num(c.acc)+(c.t0?Date.now()-num(c.t0):0):0;
@@ -2165,7 +2300,7 @@ function vPantalla(){
   const by=f=>B.filter(f).sort((a,z)=>String(a.fechaIngreso).localeCompare(String(z.fechaIngreso))||a.numero-z.numero);
   return `<div class="tv"><div class="tvtop"><div class="row" style="gap:14px"><div class="logo" style="width:56px;height:56px;border-radius:16px">${logoHTML()}</div><div><div class="tvt">${esc(CFG.nombre||'Taller')}</div><div class="bsig" style="font-size:18px">ForBillyComputer</div></div></div>
    <div class="row" style="gap:10px"><div style="text-align:right"><div class="tvclock" id="tvClock">${new Date().toLocaleTimeString('es-CR',{hour:'numeric',minute:'2-digit'})}</div><div class="small muted">${new Date().toLocaleDateString('es-CR',{weekday:'long',day:'numeric',month:'long'})}</div></div><button class="btn" data-act="tvFull" title="Pantalla completa">⛶</button><button class="btn" data-act="tvExit">Salir</button></div></div>
-   <div class="tvg">${col('En fila','📥','#0ea5e9',by(b=>['Recibido','En diagnóstico','Esperando aprobación','Esperando repuestos'].includes(b.estado)))}${col('En reparación','🔧','#8b5cf6',by(b=>['En reparación','Control de calidad'].includes(b.estado)))}${col('Listas para entregar','✅','#22c55e',by(b=>b.estado==='Listo para entregar'))}</div>${robotOn()?'<div id="rbSlot" class="rbslot tvslot"></div>':''}</div>`;
+   <div class="tvg">${col('En fila','📥','#0ea5e9',by(b=>['Recibido','En diagnóstico','Esperando aprobación','Esperando repuestos'].includes(b.estado)))}${col('En reparación','🔧','#8b5cf6',by(b=>['En reparación','Control de calidad'].includes(b.estado)))}${col('Listas para entregar','✅','#22c55e',by(b=>b.estado==='Listo para entregar'))}</div></div>`;
 }
 setInterval(()=>{const c=$('#tvClock');if(c)c.textContent=new Date().toLocaleTimeString('es-CR',{hour:'numeric',minute:'2-digit'})},20000);
 
@@ -3379,7 +3514,7 @@ const A={
  mantOk:async d=>{const b=S.boletas[d.id];if(!b)return;if(await put('boletas',{...b,mantAvisado:Date.now(),mantPor:quien()})){toast('Listo, recordatorio cerrado');render()}},
  consulta:d=>consultaModal(d.id),
  etiquetas:d=>etiquetasModal(d.id?[d.id]:[]),
- rbOn:()=>{try{localStorage.removeItem('tallerRobot')}catch(e){}render();toast('🤖 ¡Hola de nuevo!')},
+ rbOn:()=>{try{localStorage.removeItem('tallerRobot')}catch(e){}rbPlace();render();toast('🤖 ¡Hola de nuevo!')},
  crGo:sinBloq(d=>crGo(d.id)),crPause:d=>crPause(d.id),crStop:d=>crStop(d.id),
  crC:d=>{CR.h=$('#crH').value;CR.nota=$('#crN').value;CR.c=d.c;crRender()},
  crSave:()=>crSave(),
