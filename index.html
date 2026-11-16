@@ -2535,7 +2535,8 @@ const _pzKeys={};const pzKeys=kind=>_pzKeys[kind]||(_pzKeys[kind]=m3dModel(kind)
 function pzMatch(name,kind){const n=String(name||'').toLowerCase();const K=pzKeys(kind);for(const [re,k] of PZ_KW){if(re.test(n)){if(K[k])return k;for(const a of PZ_ALT[k]||[])if(K[a])return a}}return ''}
 const repKey=l=>l.repuestoId||l.nombre;
 function repPz(b,l,kind){const o=(b.repPz||{})[repKey(l)];if(o!=null)return o;return pzMatch(l.nombre+' '+(l.sku||''),kind)}
-function pzAuto(b,links){const e=eq(b.equipoId)||{};const kind=m3dKind(e.tipo);const out={};const bb=links?{...b,repPz:links}:b;(b.repuestos||[]).forEach(l=>{const k=repPz(bb,l,kind);if(k)(out[k]=out[k]||[]).push(l.nombre+(num(l.cant)>1?' ×'+num(l.cant):''))});return out}
+function pzAuto(b,links){const e=eq(b.equipoId)||{};const kind=m3dKind(e.tipo);const out={};const bb=links?{...b,repPz:links}:b;(b.repuestos||[]).forEach(l=>{const k=repPz(bb,l,kind);if(k)(out[k]=out[k]||[]).push(l.nombre+(num(l.cant)>1?' ×'+num(l.cant):'')+repCod(l))});return out}
+function repCod(l){const r=l.repuestoId&&S.repuestos[l.repuestoId];const c=[l.sku||(r&&r.sku),r&&r.codProv&&r.codProv!==(l.sku||r.sku)?'prov. '+r.codProv:''].filter(Boolean);return c.length?' · '+c.join(' / '):''}
 function pzMarks(b){const a=pzAuto(b);const m={};Object.keys(a).forEach(k=>m[k]='cambiado');Object.entries(b.partes||{}).forEach(([k,v])=>{if(v==='none')delete m[k];else m[k]=v});return m}
 let M3=null;
 function m3dOpen(id){
@@ -2561,7 +2562,7 @@ function m3dList(){const L=$('#m3list');if(!L||!M3)return;
 function m3dReps(){const box=$('#m3reps');if(!box||!M3)return;const b=S.boletas[M3.id];const L=b.repuestos||[];
   if(!L.length){box.innerHTML='';return}const bb={...b,repPz:M3.links};
   box.innerHTML=`<div class="lbl" style="margin-top:12px">📦 Repuestos de esta orden ${M3.can?'<span class="opt" style="text-transform:none;letter-spacing:0">· toque uno y luego la pieza para ubicarlo</span>':''}</div><div class="cp">${L.map(l=>{const k=repPz(bb,l,M3.kind);const pl=k?(M3.parts.find(p=>p.k===k)||{}).l:'';const on=M3.linking===repKey(l);
-   return `<button type="button" class="cpc m3r ${on?'link':''} ${k?'ok':''}" data-m3r="${esc(repKey(l))}">📦 ${esc(l.nombre)}${num(l.cant)>1?' ×'+num(l.cant):''} <span class="m3rto">${on?'👆 toque la pieza…':k?'→ '+esc(pl):'📍 sin ubicar'}</span></button>`}).join('')}</div>`}
+   return `<button type="button" class="cpc m3r ${on?'link':''} ${k?'ok':''}" data-m3r="${esc(repKey(l))}">📦 ${esc(l.nombre)}${num(l.cant)>1?' ×'+num(l.cant):''}${repCod(l)?`<span class="mono" style="opacity:.75;font-size:11px">${esc(repCod(l))}</span>`:''} <span class="m3rto">${on?'👆 toque la pieza…':k?'→ '+esc(pl):'📍 sin ubicar'}</span></button>`}).join('')}</div>`}
 function m3dLink(rk){if(!M3||!M3.can)return;M3.linking=M3.linking===rk?'':rk;const t=$('#m3tip');if(t&&M3.linking)t.innerHTML='👆 Ahora toque la pieza donde va este repuesto';m3dReps()}
 function m3dDoLink(k){const b=S.boletas[M3.id];const rk=M3.linking;M3.linking='';M3.links[rk]=k;M3.AUTO=pzAuto(b,M3.links);
   Object.keys(M3.mark).forEach(x=>{if(M3.mark[x]==='cambiado'&&!M3.AUTO[x]&&!(b.partes||{})[x])delete M3.mark[x]});Object.keys(M3.AUTO).forEach(x=>{if(!M3.mark[x])M3.mark[x]='cambiado'});
