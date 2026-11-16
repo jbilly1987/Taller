@@ -1419,6 +1419,7 @@ async function addLine(bid,r,cant){
   if(ex)ex.cant=num(ex.cant)+cant;else b.repuestos.push({repuestoId:r.id,sku:r.sku,nombre:r.nombre,condicion:r.condicion||'Nuevo',cant});
   b.historial=[...(b.historial||[]),{t:Date.now(),estado:b.estado,nota:`Instaló ${cant}× ${r.nombre}`,por:quien(),dev:DEV}];
   await moveStock(r.id,cant,b);await put('boletas',b);
+  {const k=pzMatch(r.nombre+' '+(r.sku||''),m3dKind((eq(b.equipoId)||{}).tipo));if(k)setTimeout(()=>toast(`🧩 ${pzKeys(m3dKind((eq(b.equipoId)||{}).tipo))[k]} marcada en verde en la vista 3D`),900)}
 }
 async function qtyLine(bid,i,d){
   const b=clone(S.boletas[bid]);const l=b.repuestos[i];if(!l)return;const nq=num(l.cant)+d;
@@ -2516,6 +2517,20 @@ function m3dModel(kind){
   return P;
 }
 function m3dFaces(P){const F=[];P.forEach(p=>p.polys.forEach(x=>F.push({k:p.k,c:x.c||p.c,v:x.v||x,e:p.e})));return F}
+
+/* repuestos → piezas 3D (automático) */
+const PZ_KW=[[/pi[ñn][oó]n|tambor|aguja|catarina|estrella/,'tambor'],[/espada|barra gu|\bbarra\b|gu[ií]a/,'espada'],[/freno/,'freno'],[/tapa.*(pi[ñn]|lateral|cadena)|cubierta lateral|guarda cadena/,'cubierta'],[/cadena/,'cadena'],[/buj[ií]a/,'bujia'],[/carbur|diafragma|membrana/,'carburador'],[/pist[oó]n|anillo|aro|perno.*pist|pasador/,'piston'],[/cilindro|camisa/,'cilindro'],
+ [/cig[uü]e[ñn]al|biela|ret[eé]n|rodamiento.*cig/,'cigueñal'],[/bobina|modulo|m[oó]dulo de encendido|cdi/,'bobina'],[/volante|magneto/,'volante'],[/arranc|retr[aá]ctil|cuerda|piola|resorte de arr|polea|manigueta/,'arrancador'],
+ [/embrague|clutch|zapata|resorte de embr/,'embrague'],[/pi[ñn][oó]n|tambor|aguja|catarina|estrella/,'tambor'],[/freno|banda de freno/,'freno'],[/tapa.*(pi[ñn]|lateral|cadena)|cubierta lateral|guarda cadena/,'cubierta'],
+ [/espada|barra gu|\bbarra\b|gu[ií]a/,'espada'],[/silenciador|mofle|escape/,'silenciador'],[/filtro.*(combust|gasol)|tanque|tapa.*(gasol|combust|tanque)|carcasa|chupa|manguera.*combust/,'carcasa'],
+ [/filtro/,'filtro'],[/tapa superior|tapa del filtro|cubierta superior|tapa del cilindro|\btapa\b/,'tapa'],[/manija trasera|gatillo|acelerador|mango trasero|cable.*acel/,'manija_t'],[/manija|agarradera|mango|manubrio/,'manija_d'],
+ [/c[aá]rter|bloque|empaque|junta/,'carter'],[/cuchilla|disco|nylon|hilo|cabezal de nyl|carrete|desbrozadora.*cabezal/,'cuchilla'],[/eje|tubo|cable flexible|varilla/,'eje'],[/caja de engran|cabezal|engrane|engranaje/,'cabezal'],
+ [/protector|guarda/,'protector'],[/arn[eé]s|correa/,'arnes'],[/manguera/,'manguera'],[/lanza|pistola/,'lanza'],[/boquilla/,'boquilla'],[/bomba/,'bomba'],[/rueda/,'ruedas'],[/bolsa/,'bolsa'],[/chasis|plato|base/,'chasis']];
+const PZ_ALT={manija_t:['manubrio','acelerador'],manija_d:['manubrio'],arnes:['correas'],correas:['arnes'],chasis:['base'],cubierta:['protector'],cigueñal:['carter'],tambor:['embrague'],cabezal:['eje'],volante:['arrancador'],tapa:['carcasa'],carcasa:['tanque_q'],tanque_q:['carcasa']};
+const _pzKeys={};const pzKeys=kind=>_pzKeys[kind]||(_pzKeys[kind]=m3dModel(kind).reduce((m,p)=>(m[p.k]=p.l,m),{}));
+function pzMatch(name,kind){const n=String(name||'').toLowerCase();const K=pzKeys(kind);for(const [re,k] of PZ_KW){if(re.test(n)){if(K[k])return k;for(const a of PZ_ALT[k]||[])if(K[a])return a}}return ''}
+function pzAuto(b){const e=eq(b.equipoId)||{};const kind=m3dKind(e.tipo);const out={};(b.repuestos||[]).forEach(l=>{const k=pzMatch(l.nombre+' '+(l.sku||''),kind);if(k)(out[k]=out[k]||[]).push(l.nombre)});return out}
+function pzMarks(b){const a=pzAuto(b);const m={};Object.keys(a).forEach(k=>m[k]='cambiado');Object.entries(b.partes||{}).forEach(([k,v])=>{if(v==='none')delete m[k];else m[k]=v});return m}
 let M3=null;
 function m3dOpen(id){
   const b=S.boletas[id];if(!b)return;const e=eq(b.equipoId)||{};const kind=m3dKind(e.tipo);const P=m3dModel(kind);
@@ -2523,7 +2538,7 @@ function m3dOpen(id){
   const can=esTaller()&&!bloqueado(b)&&(isOpen(b)||isAdmin());
   const F=m3dFaces(P);const fit=V=>{const mn=[0,1,2].map(i=>Math.min(...V.map(v=>v[i]))),mx=[0,1,2].map(i=>Math.max(...V.map(v=>v[i])));const C=mn.map((v,i)=>(v+mx[i])/2);return {C,R:Math.max(...V.map(v=>Math.hypot(v[0]-C[0],v[1]-C[1],v[2]-C[2])))}};
   const fa=fit(F.flatMap(f=>f.v)),fe=fit(F.flatMap(f=>f.v.map(v=>[v[0]+f.e[0],v[1]+f.e[1],v[2]+f.e[2]])));const C=fa.C,RR=fa.R;
-  M3={id,kind,P,F,C,RR,fa,fe,parts,mark:{...(b.partes||{})},mode:'cambiado',yaw:-.75,pitch:.45,zoom:1,auto:true,sel:'',can,hover:'',ex:kind==='sierra'?1:0,exT:kind==='sierra'?1:0,names:innerWidth>700};
+  const AUTO=pzAuto(b);M3={id,kind,P,F,C,RR,fa,fe,parts,AUTO,mark:pzMarks(b),mode:'cambiado',yaw:-.75,pitch:.45,zoom:1,auto:true,sel:'',can,hover:'',ex:kind==='sierra'?1:0,exT:kind==='sierra'?1:0,names:innerWidth>700};
   openModal(`🧩 Vista 3D · ${esc(eqShort(e)||e.tipo||'Máquina')}`,`
    ${can?`<div class="m3modes">${Object.entries(PZ_ST).map(([k,v])=>`<button type="button" class="m3m ${k==='cambiado'?'on':''}" data-m3="${k}" style="--c:${v.c}">${v.em} ${v.l}</button>`).join('')}<button type="button" class="m3m" data-m3="" style="--c:#94a3b8">⚪ Quitar</button></div>`:''}
    <div class="m3wrap"><canvas id="m3c"></canvas><div class="m3tip" id="m3tip">${can?'👆 Toque una pieza para marcarla · arrastre para girar':'Arrastre para girar · solo lectura'}</div><div class="m3tools"><button type="button" class="m3t ${kind==='sierra'?'on':''}" data-m3x="1">💥 Despiece</button><button type="button" class="m3t ${innerWidth>700?'on':''}" data-m3n="1">🏷️ Nombres</button></div><div class="m3zoom"><button type="button" data-m3z="1.15">＋</button><button type="button" data-m3z="0.87">－</button><button type="button" data-m3z="0">⟲</button></div></div>
@@ -2532,11 +2547,11 @@ function m3dOpen(id){
   m3dList();m3dBind();
 }
 function m3dList(){const L=$('#m3list');if(!L||!M3)return;
-  L.innerHTML=M3.parts.map(p=>{const st=PZ_ST[M3.mark[p.k]];return `<button type="button" class="cpc m3p ${st?'on':''}" data-m3p="${p.k}" style="${st?`background:${st.c};border-color:${st.c};color:#fff`:''}">${st?st.em+' ':''}${esc(p.l)}</button>`}).join('');
+  L.innerHTML=M3.parts.map(p=>{const st=PZ_ST[M3.mark[p.k]];const au=M3.AUTO[p.k]&&M3.mark[p.k]==='cambiado';return `<button type="button" class="cpc m3p ${st?'on':''}" data-m3p="${p.k}" title="${au?'Por repuesto: '+esc(M3.AUTO[p.k].join(', ')):''}" style="${st?`background:${st.c};border-color:${st.c};color:#fff`:''}">${st?st.em+' ':''}${esc(p.l)}${au?' · 📦':''}</button>`}).join('');
   const n=Object.keys(M3.mark).length,c=$('#m3cnt');if(c)c.textContent=n?`${n} pieza${n!==1?'s':''} marcada${n!==1?'s':''}`:''}
 function m3dMark(k){if(!M3||!M3.can)return;const pl=(M3.parts.find(p=>p.k===k)||{}).l||k;
   if(!M3.mode||M3.mark[k]===M3.mode)delete M3.mark[k];else M3.mark[k]=M3.mode;M3.sel=k;
-  const st=PZ_ST[M3.mark[k]];const t=$('#m3tip');if(t)t.innerHTML=`<b>${esc(pl)}</b> → ${st?st.em+' '+st.l:'sin marcar'}`;try{navigator.vibrate&&navigator.vibrate(25)}catch(e){}m3dList();m3dDraw()}
+  const st=PZ_ST[M3.mark[k]];const t=$('#m3tip');if(t)t.innerHTML=`<b>${esc(pl)}</b> → ${st?st.em+' '+st.l:'sin marcar'}${M3.AUTO[k]?` <span class="muted">· repuesto: ${esc(M3.AUTO[k].join(', '))}</span>`:''}`;try{navigator.vibrate&&navigator.vibrate(25)}catch(e){}m3dList();m3dDraw()}
 function m3dProj(){const W=M3.W,H=M3.H,cy=Math.cos(M3.yaw),sy=Math.sin(M3.yaw),cp=Math.cos(M3.pitch),sp=Math.sin(M3.pitch);
   const t0=M3.ex,RR=M3.fa.R+(M3.fe.R-M3.fa.R)*t0,C=[0,1,2].map(i=>M3.fa.C[i]+(M3.fe.C[i]-M3.fa.C[i])*t0);const sc=Math.min(W*(W<500?.58:.5),H*.6)/RR*M3.zoom*(1+.18*t0);const dist=RR*3.2;
   return (v,e)=>{const t=e?M3.ex:0;let x=v[0]+(e?e[0]*t:0)-C[0],y=v[1]+(e?e[1]*t:0)-C[1],z=v[2]+(e?e[2]*t:0)-C[2];let x1=x*cy-z*sy,z1=x*sy+z*cy;let y2=y*cp-z1*sp,z2=y*sp+z1*cp;const f=dist/(dist+z2);return [W/2+x1*sc*f,H*.47-y2*sc*f,z2,x1,y2]}}
@@ -2582,16 +2597,16 @@ function m3dBind(){
   box.querySelectorAll('[data-m3x]').forEach(b=>b.onclick=()=>{M3.exT=M3.exT?0:1;b.classList.toggle('on',!!M3.exT)});box.querySelectorAll('[data-m3n]').forEach(b=>b.onclick=()=>{M3.names=!M3.names;b.classList.toggle('on',M3.names);m3dDraw()});m3dDraw();requestAnimationFrame(loop);
   window.addEventListener('resize',m3dDraw);
 }
-async function m3dSave(){if(!M3)return;const b=S.boletas[M3.id];if(!b)return;const prev=b.partes||{};const mark={...M3.mark};
-  const lbl=k=>(M3.parts.find(p=>p.k===k)||{}).l||k;const ch=Object.keys(mark).filter(k=>prev[k]!==mark[k]);
+async function m3dSave(){if(!M3)return;const b=S.boletas[M3.id];if(!b)return;const prevM=pzMarks(b);const prev=prevM;const mark={...M3.mark};const store={};Object.keys(mark).forEach(k=>{if(!(M3.AUTO[k]&&mark[k]==='cambiado'))store[k]=mark[k]});Object.keys(M3.AUTO).forEach(k=>{if(!mark[k])store[k]='none'});
+  const lbl=k=>(M3.parts.find(p=>p.k===k)||{}).l||k;const ch=[...new Set([...Object.keys(mark),...Object.keys(prev)])].filter(k=>prev[k]!==mark[k]);
   const h=[...(b.historial||[])];if(ch.length)h.push({t:Date.now(),estado:b.estado,nota:'Vista 3D: '+ch.map(k=>`${lbl(k)} ${(PZ_ST[mark[k]]||{l:'sin marcar'}).l.toLowerCase()}`).join(', '),por:quien(),dev:DEV});
-  const pl={};Object.keys(mark).forEach(k=>pl[k]=lbl(k));
-  if(await put('boletas',{...b,partes:mark,partesLbl:pl,historial:h})){M3=null;closeModal();render();toast('🧩 Piezas guardadas')}}
-const pzList=b=>Object.entries(b.partes||{}).map(([k,v])=>({k,l:(b.partesLbl||{})[k]||k,st:v})).filter(x=>PZ_ST[x.st]);
+  const pl={};Object.keys(store).forEach(k=>pl[k]=lbl(k));
+  if(await put('boletas',{...b,partes:store,partesLbl:pl,historial:h})){M3=null;closeModal();render();toast('🧩 Piezas guardadas')}}
+const pzList=b=>{const A=pzAuto(b);const K=pzKeys(m3dKind((eq(b.equipoId)||{}).tipo));return Object.entries(pzMarks(b)).map(([k,v])=>({k,l:(b.partesLbl||{})[k]||K[k]||k,st:v,au:!!A[k]&&v==='cambiado'})).filter(x=>PZ_ST[x.st])};
 function pzCard(b){const L=pzList(b);const can=esTaller()&&!bloqueado(b);
   return `<div class="card"><div class="ch"><h2><span class="hem">🧩</span> Piezas de la máquina ${L.length?`<span class="badge" style="background:var(--pri-l);color:var(--pri)">${L.length}</span>`:''}</h2><button class="btn sm ${can?'p':''}" data-act="m3d" data-id="${b.id}">🧊 Ver en 3D</button></div>
-   ${L.length?`<div class="cp-in"><div class="pillist">${L.map(x=>`<span class="pl" style="background:color-mix(in srgb,${PZ_ST[x.st].c} 14%,transparent);color:${PZ_ST[x.st].c};border-color:color-mix(in srgb,${PZ_ST[x.st].c} 35%,transparent)">${PZ_ST[x.st].em} ${esc(x.l)} · ${PZ_ST[x.st].l.toLowerCase()}</span>`).join('')}</div></div>`
-   :`<div class="cp-in small muted">${can?'Toque <b>Ver en 3D</b> y marque con un toque las piezas que se cambiaron, revisaron o tienen daño.':'Aún no hay piezas marcadas.'}</div>`}</div>`}
+   ${L.length?`<div class="cp-in"><div class="pillist">${L.map(x=>`<span class="pl" style="background:color-mix(in srgb,${PZ_ST[x.st].c} 14%,transparent);color:${PZ_ST[x.st].c};border-color:color-mix(in srgb,${PZ_ST[x.st].c} 35%,transparent)">${PZ_ST[x.st].em} ${esc(x.l)} · ${PZ_ST[x.st].l.toLowerCase()}${x.au?' 📦':''}</span>`).join('')}</div></div>`
+   :`<div class="cp-in small muted">${can?'Toque <b>Ver en 3D</b> y marque con un toque las piezas que se cambiaron, revisaron o tienen daño. Los repuestos que agregue a la orden se marcan solos en verde.':'Aún no hay piezas marcadas.'}</div>`}</div>`}
 function pbPZ(b){const L=pzList(b);if(!L.length)return '';return `<h4>Piezas</h4><p>${L.map(x=>`${PZ_ST[x.st].l}: <b>${esc(x.l)}</b>`).join(' · ')}</p>`}
 function moCard(b){
   const L=b.manoObra||[];const can=moPuede(b);
