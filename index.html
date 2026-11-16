@@ -731,6 +731,7 @@ body.tvmode #view{padding:18px 22px!important;max-width:none!important}
 .sttec{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.sttc{padding:12px;border-radius:16px;background:var(--surface-hi);border:1px solid var(--line2);display:flex;flex-direction:column;gap:2px}
 @media (max-width:1100px){.stkg{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:600px){.stkg{grid-template-columns:repeat(2,minmax(0,1fr))}.stkv{font-size:20px}}
+.rbkv{display:flex;justify-content:space-between;gap:10px;font-size:12.8px;padding:3px 0;border-bottom:1px dashed var(--line2)}.rbkv b{color:#2563eb}
 #rbFloat{position:fixed;inset:0;pointer-events:none;z-index:55;transition:opacity .3s}
 #rbFloat.away{opacity:0}
 .rbbot{position:absolute;left:0;top:0;height:112px;width:145px;will-change:transform;pointer-events:none}
@@ -2000,7 +2001,7 @@ function rbSetAct(a,silent){RB.act=a;RB.bot.dataset.act=a;RB.bot.classList.remov
   if(!silent){RB.bot.classList.remove('swap');void RB.bot.offsetWidth;RB.bot.classList.add('swap');rbSay({t:RB_TXT[a]},4500)}}
 function rbHideBub(){RB.bub.className='rbbub';RB.bubOn=false;RB.tMsg=Date.now()+9000}
 function rbSay(m,ms){if(RB.chat)return;RB.alert=m;RB.bub.innerHTML=esc(m.t)+(m.go?' <b>›</b>':'');RB.bub.className='rbbub on'+(m.sev==='r'?' urg':'');RB.bubOn=true;RB.tHide=Date.now()+(ms||8000);if(m.sev==='r'){RB.bot.classList.remove('jump');void RB.bot.offsetWidth;RB.bot.classList.add('jump')}}
-function rbMsgs(){const L=[];try{alertas().filter(a=>a.sev!=='b').slice(0,6).forEach(a=>{const m=/data-page="([^"]+)"(?:\s+data-id="([^"]*)")?/.exec(a.act||'');L.push({t:String(a.title).replace(/<[^>]+>/g,'')+(a.detail?' · '+String(a.detail).split(' · ')[0]:''),sev:a.sev,go:m?{page:m[1],id:m[2]||undefined}:{page:'alertas'}})})}catch(e){}
+function rbMsgs(){const L=[];try{const k='rbDia'+today();if(!localStorage.getItem(k)){localStorage.setItem(k,'1');const D=rbData();const pro=arr(S.boletas).filter(b=>isOpen(b)&&b.fechaEstimada===today()).length;const h=new Date().getHours();return [{t:`${h<12?'¡Buenos días':h<19?'¡Buenas tardes':'¡Buenas noches'}${yoNombre()?' '+yoNombre():''}! ${D.B.length} en el taller${pro?`, ${pro} prometida${pro!==1?'s':''} para hoy`:''}${D.atr.length?`, ${D.atr.length} atrasada${D.atr.length!==1?'s':''}`:''}. Tóqueme y le digo qué hacer 💡`,sev:D.atr.length?'a':''}]}}catch(e){}try{alertas().filter(a=>a.sev!=='b').slice(0,6).forEach(a=>{const m=/data-page="([^"]+)"(?:\s+data-id="([^"]*)")?/.exec(a.act||'');L.push({t:String(a.title).replace(/<[^>]+>/g,'')+(a.detail?' · '+String(a.detail).split(' · ')[0]:''),sev:a.sev,go:m?{page:m[1],id:m[2]||undefined}:{page:'alertas'}})})}catch(e){}
   if(!L.length){const ab=arr(S.boletas).filter(isOpen).length;L.push({t:'¡Todo al día! 💪 Tóqueme si necesita algo'},{t:`${ab} máquina${ab!==1?'s':''} en el taller 🔧`})}
   else L.push({t:'¿Le ayudo? Tóqueme y pregúnteme 🙂'});
   try{const nm=yoNombre();rbRecs().slice(0,3).forEach(x=>L.splice(1,0,{t:`${nm?nm+', ':''}${x.em} ${x.txt}${x.b?' '+nb(x.b.numero):''}`,sev:x.pr<=2?'a':'',go:x.b?{page:'orden',id:x.b.id}:x.go}))}catch(e){}
@@ -2031,7 +2032,7 @@ setInterval(rbPlace,800);
 /* ---------- conversación con el robot ---------- */
 const rbOL=(b,extra)=>{const e=eq(b.equipoId)||{},c=cli(b.clienteId)||{};return `<a class="rbl" data-act="open" data-page="orden" data-id="${b.id}"><b>${nb(b.numero)}</b> ${tipoEm(e.tipo)} ${esc(eqShort(e))} · ${esc(String(c.nombre||'').split(/\s+/).slice(0,2).join(' '))}${extra?` <span>${extra}</span>`:''}</a>`};
 const rbList=(L,f,max=6)=>L.slice(0,max).map(b=>rbOL(b,f?f(b):'')).join('')+(L.length>max?`<div class="small muted">…y ${L.length-max} más</div>`:'');
-const RB_CHIPS=[['recs','💡 ¿Qué me recomienda?'],['pend','📋 ¿Qué está pendiente?'],['mio','🔧 ¿Qué me toca?'],['atras','⏰ Atrasadas'],['deten','⏳ Detenidas'],['rep','📦 Repuestos que faltan'],['listas','✅ Listas para entregar'],['hoy','📊 Resumen de hoy'],['ayuda','❓ ¿Cómo se hace…?']];
+const RB_CHIPS=[['recs','💡 ¿Qué me recomienda?'],['pend','📋 ¿Qué está pendiente?'],['mio','🔧 ¿Qué me toca?'],['atras','⏰ Atrasadas'],['deten','⏳ Detenidas'],['rep','📦 Repuestos que faltan'],['listas','✅ Listas para entregar'],['hoy','📊 Resumen de hoy'],['diag','🧠 ¿Qué suele fallar?'],['ayuda','❓ ¿Cómo se hace…?']];
 function rbData(){const B=arr(S.boletas).filter(isOpen),t=today();
   const atr=B.filter(b=>b.fechaEstimada&&b.fechaEstimada<t&&b.estado!=='Listo para entregar').sort((a,z)=>a.fechaEstimada.localeCompare(z.fechaEstimada));
   const det=B.filter(b=>!['Listo para entregar','Esperando aprobación','Esperando repuestos'].includes(b.estado)&&daysSince(lastChange(b))>=num(CFG.diasSinMov)&&!(b.crono&&b.crono.t0)).sort((a,z)=>lastChange(a).localeCompare(lastChange(z)));
@@ -2083,11 +2084,13 @@ function rbAnswer(key,q){const D=rbData();const me=norm(yoNombre()),pu=puestoAct
   case 'hoy':{const t=today(),A=arr(S.boletas);const en=A.filter(b=>b.fechaIngreso===t),ent=A.filter(b=>b.estado==='Entregado'&&String(b.fechaEntrega||'').slice(0,10)===t);
     const lis=A.filter(b=>(b.historial||[]).some(h=>h.estado==='Listo para entregar'&&iso(new Date(h.t))===t)&&b.estado==='Listo para entregar');
     return `<div class="rbsum"><div>📥 Entraron <b>${en.length}</b></div><div>✅ Quedaron listas <b>${lis.length}</b></div><div>🤝 Se entregaron <b>${ent.length}</b></div><div>🔧 En el taller <b>${D.B.length}</b></div></div>${sec('📥 Entraron hoy',en)}`}
+  case 'diag':return `Cuénteme la falla y la máquina, por ejemplo <i>"MS 250 no arranca"</i>, <i>"bomba no tira presión"</i> o <i>"desbrozadora pierde potencia"</i>. Le digo qué fue en casos parecidos de su taller y qué revisar primero.<div class="rbchips">${['no arranca','pierde potencia','se apaga','echa humo','fuga','bomba sin presión','no corta'].map(x=>`<button type="button" class="rbc" data-rbq="${x}">${x}</button>`).join('')}</div>`;
   case 'ayuda':return `Pregúnteme cómo se hace algo, por ejemplo <i>"¿cómo recibo una máquina?"</i>, <i>"¿cómo imprimo etiquetas?"</i> o <i>"¿cómo uso el cronómetro?"</i>.<div class="rbchips">${['recibir','entregar','plantilla','etiquetas','cronómetro','respaldo','encuesta','3D','fichas','pedidos'].map(x=>`<button type="button" class="rbc" data-rbq="¿cómo ${x}?">${x}</button>`).join('')}</div>`;
   }
   if(key==='recs')return rbRecsHTML(8)||'Todo está al día. ¡Buen trabajo! 💪';
   // texto libre
-  const n=norm(q||'').replace(/[¿?¡!.,;:]/g,' ').replace(/\s+/g,' ').trim();if(!n)return '';
+  const n=rbFix(norm(q||'').replace(/[¿?¡!.,;:]/g,' ').replace(/\s+/g,' ').trim());if(!n)return '';
+  {const x=rbBrain(n,D);if(x)return x}
   const nom=esc(yoNombre()||'');
   if(/recomiend|suger|que hago|que sigue|que debo|que ocupo|que necesito|ayudame|ayudeme|por donde empiezo|que me falta|en que trabajo/.test(n))return rbRecsHTML(8)||`Todo está al día${nom?', '+nom:''}. ¡Buen trabajo! 💪`;
   {const x=rbSmart(n,D);if(x)return x}
@@ -2241,6 +2244,90 @@ function rbEscuchar(){const SR=window.SpeechRecognition||window.webkitSpeechReco
   r.onend=()=>{RBV=null;btn&&btn.classList.remove('rec');const v=(fin||(inp&&inp.value)||'').trim();if(v){if(inp)inp.value='';rbAsk(v,null,v,true)}};
   if(RB){RB.bot.classList.add('listen')}r.addEventListener('end',()=>RB&&RB.bot.classList.remove('listen'));
   try{r.start()}catch(e){RBV=null;btn&&btn.classList.remove('rec')}}
+
+/* ---------- cerebro del asistente (sin IA) ---------- */
+const RBC={b:null,c:null};
+function rbCtx(h){const O=[...new Set([...String(h).matchAll(/data-page="orden" data-id="([^"]+)"/g)].map(m=>m[1]))];if(O.length===1)RBC.b=O[0];
+  const C=[...new Set([...String(h).matchAll(/data-page="cliente" data-id="([^"]+)"/g)].map(m=>m[1]))];if(C.length===1)RBC.c=C[0];else if(O.length===1&&S.boletas[O[0]])RBC.c=S.boletas[O[0]].clienteId}
+const RB_SYN=[[/\b(chapeadora|motoguadana|guadana|desmalezadora|bordeadora|trimmer|orilladora)s?\b/g,'desbrozadora'],[/\b(podadora|cortagrama|cortazacate|zacatera|cortadora de cesped|chapiadora de llantas)s?\b/g,'cortacesped'],[/\b(fumigadora|bomba de espalda|bomba de mochila|atomizadora|aspersora)s?\b/g,'bomba'],[/\b(candela|candelas)\b/g,'bujia'],[/\b(motosierras|sierras|motocierra)\b/g,'motosierra'],[/\b(prende|enciende|jala|agarra)\b/g,'arranca'],[/\b(mecanicos|tecnicos)\b/g,'tecnico'],[/\b(maquinas|equipos)\b/g,'maquina'],[/\b(ordenes|boletas)\b/g,'orden']];
+const RB_VOC='pendiente pendientes atrasada atrasadas repuesto repuestos entregar entregada entregadas lista listas cliente clientes telefono proveedor proveedores respaldo calificacion encuesta estadisticas recomienda mecanico tecnico semana manana ayer hoy cuantas cuantos arranca potencia combustible carburador cadena bujia filtro desbrozadora motosierra cortacesped bomba generador motobomba garantia detenida olvidada abandonada whatsapp mensaje llamar abrir orden maquina reparacion diagnostico historial calendario pantalla pedidos inventario etiquetas plantilla cronometro octubre noviembre diciembre enero febrero marzo abril mayo junio julio agosto septiembre'.split(' ');
+function rbLev(a,b){if(Math.abs(a.length-b.length)>2)return 9;const d=Array.from({length:a.length+1},(_,i)=>[i]);for(let j=1;j<=b.length;j++)d[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++){d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])d[i][j]=Math.min(d[i][j],d[i-2][j-2]+1)}return d[a.length][b.length]}
+const RB_KEEP=new Set('entro entraron entrego entregamos entregaron hora horas dias este esta estos estas tiene tienen hizo hace paso falta faltan cosas nada todo algo bien donde cuando quien como cual porque mucho poco otra otro ella ellos usted puedo puede hacer dame deme diga digame mande ahora llego llegaron salio salieron vino vinieron sirve gastamos usamos usaron cambiamos pusimos vendimos semana pasada pasado ultimo ultima primero primera quiero necesito ayuda gracias chiste cuenteme eres llamas sabes puedes abrala abrir mandele llamele escribale avisele'.split(' '));
+let RBVOC=null,RBVOCt=0;
+function rbVocab(){if(RBVOC&&Date.now()-RBVOCt<60e3)return RBVOC;const v=new Set(RB_VOC);
+  const addW=x=>norm(x).split(/[^a-z0-9ñ]+/).forEach(w=>{if(w.length>3)v.add(w)});
+  arr(S.clientes).forEach(c=>addW(c.nombre));arr(S.repuestos).forEach(r=>addW(r.nombre));arr(S.equipos).forEach(e=>{addW(e.marca);addW(e.modelo);addW(e.tipo)});
+  arr(S.boletas).forEach(b=>{if(b.tecnico)addW(b.tecnico);(b.fallas||[]).forEach(addW)});RBVOC=[...v];RBVOCt=Date.now();return RBVOC}
+function rbFix(n){let t=n;RB_SYN.forEach(([re,w])=>t=t.replace(re,w));const V=rbVocab();const VS=new Set(V);
+  t=t.split(' ').map(w=>{if(w.length<5||VS.has(w)||/\d/.test(w)||RB_STOP.has(w)||RB_KEEP.has(w))return w;const lim=w.length>=7?2:1;let best=null,bd=9;for(const x of V){if(Math.abs(x.length-w.length)>lim||x[0]!==w[0])continue;const d=rbLev(w,x);if(d<bd){bd=d;best=x}if(d===0)break}return bd<=lim?best:w}).join(' ');
+  RB_SYN.forEach(([re,w])=>t=t.replace(re,w));return t}
+const RB_MES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function rbRango(n){const d0=new Date();const D=x=>iso(x);const day=k=>{const x=new Date();x.setDate(x.getDate()+k);return D(x)};
+  if(/\bayer\b/.test(n))return [day(-1),day(-1),'ayer'];if(/\bhoy\b/.test(n))return [day(0),day(0),'hoy'];
+  if(/semana pasada/.test(n)){const dw=(d0.getDay()+6)%7;return [day(-dw-7),day(-dw-1),'la semana pasada']}
+  if(/esta semana|\bsemana\b/.test(n)){const dw=(d0.getDay()+6)%7;return [day(-dw),day(0),'esta semana']}
+  if(/mes pasado/.test(n)){const a=new Date(d0.getFullYear(),d0.getMonth()-1,1),b=new Date(d0.getFullYear(),d0.getMonth(),0);return [D(a),D(b),'el mes pasado']}
+  const mi=RB_MES.findIndex(m=>n.includes(m));if(mi>=0){let y=d0.getFullYear();if(mi>d0.getMonth())y--;return [D(new Date(y,mi,1)),D(new Date(y,mi+1,0)),RB_MES[mi]]}
+  if(/este mes|\bmes\b/.test(n))return [D(new Date(d0.getFullYear(),d0.getMonth(),1)),day(0),'este mes'];
+  if(/este ano|\bano\b/.test(n))return [d0.getFullYear()+'-01-01',day(0),'este año'];return null}
+const RB_PAGES=[[/inicio|principal/,'inicio'],[/alerta/,'alertas'],[/orden/,'ordenes'],[/cliente/,'clientes'],[/maquina|equipo/,'equipos'],[/repuesto|inventario/,'repuestos'],[/pedido/,'pedidos'],[/proveedor/,'proveedores'],[/calendario/,'calendario'],[/pantalla|tv/,'pantalla'],[/respaldo/,'respaldo'],[/catalogo/,'catalogo'],[/estadistic|grafic/,'numeros'],[/reporte/,'reportes'],[/configur|ajuste/,'ajustes']];
+const RB_KB=[
+ [/no arranca|no enciende|cuesta arrancar|dificil de arrancar/,'No arranca',['Bujía sucia, gastada o mojada (revise chispa)','Combustible viejo o mezcla mal hecha','Carburador sucio o membranas duras','Filtro de aire o de combustible tapado','Arrancador / cuerda o trinquete dañado','Baja compresión (anillos o cilindro rayado)']],
+ [/potencia|no acelera|se ahoga|sin fuerza|no jala/,'Pierde potencia',['Filtro de aire tapado','Silenciador o lumbrera de escape carbonizados','Carburador mal ajustado (tornillos H/L)','Mezcla incorrecta o combustible viejo','Respiradero del tanque tapado','Desgaste de pistón y anillos']],
+ [/se apaga|apaga sola|se muere/,'Se apaga',['Ralentí bajo o carburador sucio','Respiradero del tanque tapado','Filtro o manguera de combustible obstruidos','Bujía en mal estado','Bobina que falla en caliente']],
+ [/humo/,'Echa humo',['Demasiado aceite en la mezcla','Filtro de aire tapado (mezcla rica)','Carburador mal regulado','En 4 tiempos: exceso de aceite o anillos gastados']],
+ [/fuga|gotea|bota/,'Fuga',['Manguera de combustible rajada','Tapón del tanque o empaque dañado','Empaques del carburador','En bombas: empaques o sellos del pistón']],
+ [/ruido|suena|vibra/,'Ruido o vibración',['Rodamientos del cigüeñal','Embrague o resortes del embrague','Tornillería floja o soportes antivibración','Cabezal o cuchilla desbalanceada']],
+ [/presion|no tira|no fumiga|no bombea|no rocia/,'Bomba sin presión',['Empaques o sello del pistón gastados','Válvulas (bolitas) sucias o dañadas','Boquilla o filtro tapados','Manguera o lanza con fuga']],
+ [/no corta|cadena|no afila|corta torcido/,'No corta bien',['Cadena sin filo o mal afilada','Tensión de la cadena incorrecta','Espada gastada o abierta','No le llega aceite a la cadena (bomba o conductos)']]];
+function rbBrain(n,D){const sec=(t,L,f,max)=>L.length?`<div class="rbsec"><div class="rbh">${t} <span>${L.length}</span></div>${rbList(L,f,max)}</div>`:'';
+  const has=re=>re.test(n);const nom=yoNombre()?', '+esc(yoNombre()):'';
+  // seguir con la orden anterior
+  const ob=RBC.b&&S.boletas[RBC.b];
+  if(ob&&/^(y |la |abr|abre|abrir|abrala|muestr|ver la|mandele|mande|escribale|avisele|llame|llamele|llamar|whatsapp|mensaje)/.test(n)&&!/\d/.test(n)&&n.split(' ').length<=6){
+    const c=cli(ob.clienteId)||{};
+    if(has(/whats|mensaje|escrib|avis|mand/)){const w=c.telefono?waLink(c.telefono,waMsg(ob)):'';return w?`Aquí tiene el mensaje para <b>${esc(c.nombre)}</b> sobre ${nb(ob.numero)}. Tóquelo para revisarlo antes de enviar:<a class="rbl" href="${esc(w)}" target="_blank" rel="noopener">💬 WhatsApp a ${esc(c.nombre)} ›</a>`:`${esc(c.nombre||'El cliente')} no tiene teléfono registrado.`}
+    if(has(/llam/))return c.telefono?`<a class="rbl" href="tel:${esc(String(c.telefono).replace(/[^\d+]/g,''))}">📞 Llamar a ${esc(c.nombre)} <span>${esc(c.telefono)}</span></a>`:'No tiene teléfono registrado.';
+    if(has(/abr|muestr|ver la/)){setTimeout(()=>{go({page:'orden',id:ob.id});if(innerWidth<=860)rbChat(false)},400);return `Listo, le abro ${nb(ob.numero)} 👍`}}
+  // ir a una página / acciones
+  if(has(/^(ir a|vaya a|lleveme|llevame|abrir|abra|abre|muestreme|mostrar|ensename)\b/)&&!/\d/.test(n)){const pg=RB_PAGES.find(([re])=>re.test(n));if(pg){setTimeout(()=>{go({page:pg[1]});if(innerWidth<=860)rbChat(false)},350);return `Vamos a <b>${esc(TITLES[pg[1]]||pg[1])}</b> 🚀`}}
+  if(has(/(nueva orden|recibir (una )?maquina|ingresar (una )?maquina|entro una maquina|llego una maquina)/)&&!has(/como/)){setTimeout(()=>{rbChat(false);A.recibir({})},350);return 'Abro el formulario para recibir la máquina 📥'}
+  // diagnóstico por historial
+  const sint=RB_KB.find(([re])=>re.test(n));
+  if(sint&&(has(/suele|puede ser|sera|causa|por que|porque|que tiene|que reviso|que le reviso|diagnost|que hago|recomienda|falla/)||n.split(' ').length<=7)){
+    const words=n.split(' ').filter(w=>w.length>2&&!RB_STOP.has(w));
+    const E=arr(S.equipos);const mods=[...new Set(E.map(e=>norm(e.modelo)).filter(m=>m&&m.length>=3))].filter(m=>n.replace(/\s/g,'').includes(m.replace(/\s/g,'')));
+    const tipos=[...new Set(E.map(e=>e.tipo).filter(Boolean))].filter(t=>norm(t).split(/[\s/]+/).some(w=>w.length>4&&n.includes(w)));
+    const symW=norm(sint[1]).split(' ').filter(w=>w.length>3);
+    const sim=arr(S.boletas).filter(b=>(b.diagnostico||(b.trabajos||[]).length||(b.repuestos||[]).length)&&norm(fallaTxt(b)+' '+(b.diagnostico||'')).match(new RegExp(symW.join('|'))));
+    let L=sim,alc='en su taller';const fm=b=>{const e=eq(b.equipoId)||{};return mods.some(m=>norm(e.modelo).replace(/\s/g,'')===m.replace(/\s/g,''))};const ft=b=>{const e=eq(b.equipoId)||{};return tipos.some(t=>t===e.tipo)};
+    if(mods.length&&sim.filter(fm).length){L=sim.filter(fm);alc='en ese modelo'}else if(tipos.length&&sim.filter(ft).length){L=sim.filter(ft);alc='en ese tipo de máquina'}
+    const top=(f)=>{const o={};L.forEach(b=>[...new Set([].concat(f(b)||[]).map(x=>String(x).trim()).filter(Boolean))].forEach(k=>o[k]=(o[k]||0)+1));return Object.entries(o).sort((a,z)=>z[1]-a[1]).slice(0,5)};
+    const dg=top(b=>b.diagnostico?[b.diagnostico.slice(0,70)]:[]),tr=top(b=>[...(b.trabajos||[]),...(b.manoObra||[]).map(l=>l.d)]),rp=top(b=>(b.repuestos||[]).map(l=>l.nombre));
+    const lst=(t,X)=>X.length?`<div class="rbh" style="margin-top:6px">${t}</div>${X.map(([k,v])=>`<div class="rbkv"><span>${esc(k)}</span><b>${v}×</b></div>`).join('')}`:'';
+    return `🧠 <b>${esc(sint[1])}</b>${mods.length?' · '+esc(mods[0].toUpperCase()):tipos.length?' · '+esc(tipos[0]):''}
+     ${L.length?`<div style="margin-top:4px">${alc==='en su taller'?'En su taller':'En su taller, '+alc}, hubo <b>${L.length}</b> caso${L.length!==1?'s':''} parecido${L.length!==1?'s':''}:</div>${lst('🔎 Diagnósticos',dg)}${lst('🔧 Lo que se hizo',tr)}${lst('📦 Repuestos que se cambiaron',rp)}`:'<div style="margin-top:4px">Todavía no tengo casos parecidos en su historial.</div>'}
+     <div class="rbh" style="margin-top:8px">📋 Revise en este orden:</div>${sint[2].map((x,i)=>`<div class="rbkv"><span>${i+1}. ${esc(x)}</span></div>`).join('')}`}
+  // técnico por nombre
+  const tecs=[...new Set(arr(S.boletas).map(b=>b.tecnico).filter(Boolean))];const tn=tecs.find(t=>norm(t).split(' ').some(w=>w.length>2&&new RegExp('\\b'+w+'\\b').test(n)));
+  if(tn&&!has(/telefono|cliente/)){const L=D.B.filter(b=>norm(b.tecnico)===norm(tn)&&b.estado!=='Listo para entregar');const lis=D.lis.filter(b=>norm(b.tecnico)===norm(tn));
+    return (sec(`🔧 ${esc(tn)} tiene en proceso`,L,b=>b.estado+(b.fechaEstimada?' · '+fdate(b.fechaEstimada):''),8)+sec('✅ Terminó y están listas',lis))||`${esc(tn)} no tiene máquinas en proceso ahora 👍`}
+  // tipo de máquina en el taller
+  const TP=[...new Set(arr(S.equipos).map(e=>e.tipo).filter(Boolean))];const tp=TP.find(t=>norm(t).split(/[\s/]+/).some(w=>w.length>4&&n.includes(w.replace(/s$/,''))));
+  if(tp&&has(/cuant|hay|taller|tengo|tenemos|lista|en reparacion|pendiente/)&&!RB_KB.some(([re])=>re.test(n))){const L=D.B.filter(b=>(eq(b.equipoId)||{}).tipo===tp);return L.length?sec(`${tipoEm(tp)} ${esc(tp)} en el taller`,L,b=>b.estado,10):`No hay ${esc(tp.toLowerCase())} en el taller ahora.`}
+  // por fechas: entraron / entregadas / repuestos usados
+  const rg=rbRango(n);
+  if(rg&&has(/entr|recib|ingres|llegaron|vinieron|entregu|entrega|salieron|despach|gast|usamos|usaron|vendi|cambiamos|pusimos/)){const [a,b2,lbl]=rg;const inr=x=>x&&x>=a&&x<=b2;
+    if(has(/gast|usamos|usaron|vendi|cambiamos|pusimos/)){const W=n.split(' ').filter(w=>w.length>2&&!RB_STOP.has(w)&&!/gast|usamos|usaron|vendi|cambiamos|pusimos|semana|mes|hoy|ayer|pasad|este|esta|^anos?$/.test(w)&&!RB_MES.includes(w)).map(w=>w.replace(/(es|s)$/,''));
+      const o={};arr(S.boletas).filter(x=>inr(x.fechaIngreso)).forEach(x=>(x.repuestos||[]).forEach(l=>{if(!l.nombre)return;if(W.length&&!W.every(w=>norm(l.nombre).includes(w)))return;o[l.nombre]=(o[l.nombre]||0)+(num(l.cant)||1)}));const L=Object.entries(o).sort((x,z)=>z[1]-x[1]);
+      return L.length?`<div class="rbh">📦 Repuestos usados ${esc(lbl)}</div>${L.slice(0,10).map(([k,v])=>`<div class="rbkv"><span>${esc(k)}</span><b>${v}</b></div>`).join('')}`:`No se usó ${W.length?'«'+esc(W.join(' '))+'»':'ningún repuesto'} ${esc(lbl)}.`}
+    if(has(/entregu|entrega|salieron|despach/)){const L=arr(S.boletas).filter(x=>x.estado==='Entregado'&&inr(String(x.fechaEntrega||'').slice(0,10)));return L.length?sec(`🤝 Entregadas ${esc(lbl)}`,L,x=>fdate(String(x.fechaEntrega).slice(0,10)),10):`No se entregó ninguna ${esc(lbl)}.`}
+    const L=arr(S.boletas).filter(x=>inr(x.fechaIngreso));return L.length?sec(`📥 Entraron ${esc(lbl)}`,L,x=>fdate(x.fechaIngreso)+' · '+x.estado,10):`No entró ninguna máquina ${esc(lbl)}.`}
+  // varios
+  if(has(/\b(que hora|que dia|fecha de hoy|que fecha)\b/))return `Hoy es ${new Date().toLocaleDateString('es-CR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}, ${new Date().toLocaleTimeString('es-CR',{hour:'numeric',minute:'2-digit'})} 🕒`;
+  if(has(/chiste|algo gracioso|cuenteme algo/)){const J=['¿Por qué la motosierra fue al psicólogo? Porque tenía demasiados cortes en su vida 🪚😄','Le dije a la bujía que se calmara… y me dio una chispa de mal genio ⚡😅','¿Qué le dijo el carburador al mecánico? "Sin ti me ahogo" 🔧💙','Mi jefe me pidió que fuera más rápido… ¡pero yo ya floto! 🤖✨'];return J[Math.floor(Math.random()*J.length)]}
+  if(has(/quien eres|como te llamas|que eres|que sabes hacer|que puedes hacer/))return `Soy el asistente del taller 🤖. Sé lo que está pendiente, qué le toca a cada uno, busco órdenes, clientes y repuestos, le digo qué suele fallar según su historial, cuento lo que entró o se entregó en cualquier fecha y le explico cómo se usa el sistema. Si me pregunta por una orden, después me puede decir <i>"ábrala"</i> o <i>"mándele WhatsApp"</i>.`;
+  return null}
 let RBM=[];
 function rbChat(open){if(!RB)return;RB.chat=open;let p=$('#rbChat');
   if(!open){if(p)p.classList.remove('on');try{speechSynthesis.cancel()}catch(e){}if(RBV)try{RBV.stop()}catch(e){}RB.ph='fly';rbPick();return}
@@ -2258,7 +2345,7 @@ function rbChat(open){if(!RB)return;RB.chat=open;let p=$('#rbChat');
     p.querySelector('#rbForm').onsubmit=e=>{e.preventDefault();const i=$('#rbIn');const v=i.value.trim();if(!v)return;i.value='';rbAsk(v,null,v)}}
   if(!RBM.length){const D=rbData();const h=new Date().getHours();RBM.push({me:0,h:`${h<12?'¡Buenos días':h<19?'¡Buenas tardes':'¡Buenas noches'}${yoNombre()?', '+esc(yoNombre()):''}! 👋 ${D.B.length?`Hay <b>${D.B.length}</b> máquina${D.B.length!==1?'s':''} en el taller${D.atr.length?`, <b style="color:#e11d48">${D.atr.length} atrasada${D.atr.length!==1?'s':''}</b>`:''}${D.det.length?`, <b style="color:#ea580c">${D.det.length} detenida${D.det.length!==1?'s':''}</b>`:''}.`:'No hay máquinas en el taller.'} ${rbRecsHTML(3,true)}¿En qué le ayudo?`})}
   rbDraw();p.classList.add('on');rbHideBub();RB.ph='fly';setTimeout(()=>{if(RB&&RB.chat)rbPick()},60)}
-function rbAsk(label,key,q,voz){RBM.push({me:1,n:yoNombre()||quien()||'Usted',h:esc(label)+(voz?' 🎤':'')});const ans=rbAnswer(key,q)||'…';RBM.push({me:0,h:ans});if(voz||rbVozOn())rbHablar(ans);RBM=RBM.slice(-30);rbDraw();
+function rbAsk(label,key,q,voz){RBM.push({me:1,n:yoNombre()||quien()||'Usted',h:esc(label)+(voz?' 🎤':'')});const ans=rbAnswer(key,q)||'…';rbCtx(ans);RBM.push({me:0,h:ans});if(voz||rbVozOn())rbHablar(ans);RBM=RBM.slice(-30);rbDraw();
   if(RB){RB.bot.classList.remove('wave');void RB.bot.offsetWidth;RB.bot.classList.add('wave')}}
 function rbDraw(){const m=$('#rbMsgs');if(!m)return;m.innerHTML=RBM.map(x=>x.me?`<div class="rbwho">${esc(x.n||'')}</div><div class="rbm me">${x.h}</div>`:`<div class="rbm">${x.h}</div>`).join('');m.scrollTop=m.scrollHeight}
 
