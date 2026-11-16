@@ -92,7 +92,7 @@ svg.i{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-
 .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
 .badge i{width:7px;height:7px;border-radius:50%;background:currentColor}
 .tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.02em}
-.tag.n{background:#dcfce7;color:#166534}.tag.u{background:#ffedd5;color:#9a3412}.tag.urg{background:var(--red-l);color:var(--red)}
+.tag.n{background:#dcfce7;color:#166534}.tag.u{background:#ffedd5;color:#9a3412}.tag.urg{background:var(--red-l);color:var(--red)}.tag.gar{background:#fef3c7;color:#b45309;border:1px solid #fcd34d}
 .st-ok{background:#dcfce7;color:#166534}.st-low{background:#fef3c7;color:#92400e}.st-out{background:#fee2e2;color:#991b1b}
 .num{font-family:"JetBrains Mono",monospace;font-weight:600;color:var(--pri);font-size:13px}
 .ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -693,6 +693,18 @@ body.tvmode #view{padding:18px 22px!important;max-width:none!important}
 .tvb{font-size:12.5px;font-weight:800;padding:3px 9px;border-radius:10px;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
 .tvempty{text-align:center;color:var(--muted);padding:30px;font-size:28px}
 @media (max-width:860px){.tvg{grid-template-columns:1fr}.tvcol{min-height:0}}
+
+.crono{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 16px 12px;padding:10px 12px;border-radius:14px;background:var(--soft);border:1px solid var(--line2)}
+.crono b{font-size:19px;letter-spacing:.02em}.crono .crd{font-size:20px}
+.crono.on{background:linear-gradient(120deg,rgba(34,197,94,.12),rgba(20,184,166,.1));border-color:rgba(34,197,94,.4)}
+.crono.on .crd{animation:wig 1.2s ease-in-out infinite}
+.prl{display:flex;flex-direction:column;gap:8px}
+.pri{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:14px;border:1px solid var(--line2);background:var(--surface-hi);flex-wrap:wrap}
+.pri.ok{border-color:#86efac;background:color-mix(in srgb,#22c55e 9%,var(--surface-hi))}.pri.na{opacity:.75}
+.prb{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:6px 10px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--ink2)}
+.prb.ok.on{background:#22c55e;color:#fff;border-color:#22c55e}.prb.na.on{background:#94a3b8;color:#fff;border-color:#94a3b8}
+.fkv{display:grid;grid-template-columns:minmax(120px,190px) 1fr;gap:8px 14px;margin:0}.fkv dt{font-weight:700;font-size:13px;color:var(--ink2)}.fkv dd{margin:0;font-size:14px}
+@media (max-width:600px){.fkv{grid-template-columns:1fr;gap:2px}.fkv dd{margin-bottom:8px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
 @media (max-width:860px){
   .bnav{left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));padding:6px 6px;border-radius:24px;background:color-mix(in srgb,var(--bg) 60%,transparent);backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);border:1px solid var(--glass-b);box-shadow:var(--sh2)}
@@ -826,9 +838,10 @@ const PIPE=['Recibido','En diagnóstico','En reparación','Control de calidad','
 const CERR=['Entregado','Cancelado'];
 const PROVINCIAS=['San José','Alajuela','Cartago','Heredia','Guanacaste','Puntarenas','Limón'];
 const TIPO_EM=[['aserrad','🪵'],['talador','🌲'],['apilador','🌲'],['tritur','🪵'],['astill','🪵'],['sembr','🌾'],['trasplant','🌾'],['motosierra','🪚'],['desbroz','🌿'],['guadaña','🌿'],['cortac','🌱'],['tractor','🚜'],['fumig','💦'],['espalda','💦'],['motobomba','💧'],['bomba','💧'],['generador','⚡'],['hidrolav','🚿'],['soplad','💨'],['cortaset','✂️'],['motocult','🚜'],['podadora','🌳'],['ahoyador','🕳️'],['motor','⚙️']];
-const DEF_CFG={nombre:'Servicio Técnico de Equipos Agrícolas, Forestales y de Jardín',cedula:'',telefono:'',correo:'',direccion:'',garantia:30,stockMinDef:2,logo:'',diasRetiro:15,diasSinMov:5,diasTaller:15,mesesMant:6,ultimoRespaldo:0,diasAprob:3,diasPedido:7,appUrl:'',
+const DEF_CFG={nombre:'Servicio Técnico de Equipos Agrícolas, Forestales y de Jardín',cedula:'',telefono:'',correo:'',direccion:'',garantia:30,diasAbandono:30,nagHoras:3,stockMinDef:2,logo:'',diasRetiro:15,diasSinMov:5,diasTaller:15,mesesMant:6,ultimoRespaldo:0,diasAprob:3,diasPedido:7,appUrl:'',
  terminos:'1. Todo equipo se recibe sujeto a diagnóstico. Se comunicará al cliente antes de realizar la reparación.\n2. Es indispensable presentar este comprobante para retirar el equipo.\n3. Equipos no retirados 30 días naturales después de notificado que están listos podrán generar cargo por bodegaje.\n4. La garantía cubre el trabajo realizado y los repuestos nuevos instalados por el plazo indicado. Los repuestos usados no tienen garantía salvo indicación.\n5. El taller no se responsabiliza por accesorios no detallados en este comprobante.'};
 const DEF_CAT={
+ prueba:['Arranca bien en frío y en caliente','Sin fugas de combustible ni de aceite','Acelera bien y el ralentí queda estable','Cadena / cuchilla / bomba funcionando y ajustada','Tornillos, tapas y protecciones completos','Máquina limpia y lista'],
  manoObra:[{c:'MO-01',d:'Diagnóstico'},{c:'MO-02',d:'Mantenimiento general'},{c:'MO-03',d:'Afilado / cambio de cadena'},{c:'MO-04',d:'Limpieza y ajuste de carburador'},{c:'MO-05',d:'Reparación de motor'},{c:'MO-06',d:'Reparación de arrancador'},{c:'MO-07',d:'Sistema de encendido'},{c:'MO-08',d:'Embrague y transmisión'},{c:'MO-09',d:'Soldadura / fabricación'},{c:'MO-10',d:'Revisión eléctrica'},{c:'MO-11',d:'Prueba y ajuste final'}],
  tipos:['Motosierra','Desbrozadora / Motoguadaña','Cortacésped','Tractor de jardín','Bomba de espalda / Fumigadora','Motobomba','Generador','Hidrolavadora','Sopladora','Cortasetos','Motocultor','Podadora de altura','Ahoyador','Motor estacionario','Sembradora / Trasplantadora','Trituradora / Astilladora','Aserradero','Talador-apilador'],
  marcas:['Stihl','Husqvarna','Echo','Shindaiwa','Honda','Kawasaki','Makita','Oleo-Mac','Efco','Maruyama','Tanaka','Jacto','Solo','Briggs & Stratton','Yamaha','Truper'],
@@ -1163,7 +1176,7 @@ function go(v){flushTrab();stack.push(view);view=v;UI.q='';$('#qGlobal').value='
 /* ================== Inicio ================== */
 function bandejas(){
   const bs=arr(S.boletas);const card=(icon,t,sub,items,btn)=>`<div class="card"><div class="ch"><h2>${hic(icon)} ${t} ${items.length?`<span class="badge" style="background:var(--pri);color:#fff">${items.length}</span>`:''}</h2></div>${items.length?`<div class="rows">${items.map(btn).join('')}</div>`:emptyBox(icon,sub)}</div>`;
-  const row=(b,right)=>{const c=cli(b.clienteId)||{};return `<div class="rw rwb" data-act="open" data-page="orden" data-id="${b.id}"><div class="ticon">${tipoEm(eq(b.equipoId)?.tipo)}</div><div class="mn"><div class="t ell">${esc(eqShort(eq(b.equipoId)))} ${b.prioridad==='Urgente'?'<span class="tag urg">URG</span>':''}</div><div class="m ell"><span class="num">${nb(b.numero)}</span> · ${esc(c.nombre||'')} · ${esc(fallaTxt(b))}</div></div><div class="r row" style="gap:6px;justify-content:flex-end">${right}</div></div>`};
+  const row=(b,right)=>{const c=cli(b.clienteId)||{};return `<div class="rw rwb" data-act="open" data-page="orden" data-id="${b.id}"><div class="ticon">${tipoEm(eq(b.equipoId)?.tipo)}</div><div class="mn"><div class="t ell">${esc(eqShort(eq(b.equipoId)))} ${b.prioridad==='Urgente'?'<span class="tag urg">URG</span>':''}${garTag(b)}</div><div class="m ell"><span class="num">${nb(b.numero)}</span> · ${esc(c.nombre||'')} · ${esc(fallaTxt(b))}</div></div><div class="r row" style="gap:6px;justify-content:flex-end">${right}</div></div>`};
   const out=[];
   if(esTaller()){const n=bs.filter(b=>b.estado==='Recibido'&&!b.tallerRecibio).sort((a,b)=>(a.prioridad==='Urgente'?0:1)-(b.prioridad==='Urgente'?0:1)||(a.createdAt||0)-(b.createdAt||0));
     out.push(card('inbox','Nuevas para el taller','No hay máquinas nuevas esperando.',n,b=>row(b,`<span class="small muted hide-m">${fts((b.historial||[])[0]?.t||b.createdAt)}</span><button class="btn sm p" data-act="tRecibir" data-id="${b.id}">${ic('check')} Recibir</button>`)))}
@@ -1222,7 +1235,7 @@ function vInicio(){
 function oRow(b){
   const c=cli(b.clienteId)||{},e=eq(b.equipoId);
   return `<div class="rw" data-act="open" data-page="orden" data-id="${b.id}"><div class="ticon">${tipoEm(e?.tipo)}</div>
-   <div class="mn"><div class="row" style="gap:8px"><span class="num">${nb(b.numero)}</span>${b.prioridad==='Urgente'?'<span class="tag urg">URGENTE</span>':''}</div><div class="t ell">${esc(c.nombre||'Cliente')} <span class="muted" style="font-weight:500">· ${esc(eqShort(e))}</span></div><div class="m ell">${esc(fallaTxt(b))}</div></div>
+   <div class="mn"><div class="row" style="gap:8px"><span class="num">${nb(b.numero)}</span>${b.prioridad==='Urgente'?'<span class="tag urg">URGENTE</span>':''}${garTag(b)}</div><div class="t ell">${esc(c.nombre||'Cliente')} <span class="muted" style="font-weight:500">· ${esc(eqShort(e))}</span></div><div class="m ell">${esc(fallaTxt(b))}</div></div>
    <div class="r">${badge(b.estado)}<div style="margin-top:4px">${fdate(b.fechaIngreso)}${isOpen(b)?' · '+daysSince(b.fechaIngreso)+' d':''}</div>${b.tecnico?`<div>${esc(b.tecnico)}</div>`:''}</div></div>`;
 }
 
@@ -1236,7 +1249,7 @@ function pubEstado(b){
   const doc={n:nb(b.numero),eq:eqShort(e),tipo:e.tipo||'',marca:e.marca||'',modelo:e.modelo||'',est:b.estado,hist:H,fi:b.fechaIngreso||'',fe:b.fechaEstimada||'',
    cli:String(c.nombre||'').split(/\s+/)[0]||'',taller:{n:CFG.nombre||'',tel:CFG.telefono||'',dir:CFG.direccion||'',hor:CFG.horario||''},
    trabajos:(b.trabajos||[]).slice(0,12),mo:(b.manoObra||[]).map(l=>l.d).filter(Boolean).slice(0,12),rep:(b.repuestos||[]).map(l=>({n:l.nombre,c:num(l.cant)||1,u:l.condicion==='Usado'||l.cond==='Usado'})).slice(0,20),
-   pz:pzList(b).map(x=>({l:x.l,s:x.st})),diag:b.diagnostico||'',fallas:(b.fallas||[]).slice(0,8),garantia:b.estado==='Entregado'?num(b.garantiaDias??CFG.garantia):0,ent:b.fechaEntrega||'',
+   pz:pzList(b).map(x=>({l:x.l,s:x.st})),pr:b.prueba?Object.entries(b.prueba.items||{}).filter(([k,v])=>v==='ok').map(([k])=>k).slice(0,10):[],diag:b.diagnostico||'',fallas:(b.fallas||[]).slice(0,8),garantia:b.estado==='Entregado'?num(b.garantiaDias??CFG.garantia):0,ent:b.fechaEntrega||'',
    cola:colaPos(b),up:Date.now()};
   const sig=JSON.stringify({...doc,up:0});if(PUBSIG[b.tok]===sig)return;PUBSIG[b.tok]=sig;
   try{DB.collection('estado').doc(b.tok).set(doc).catch(()=>{delete PUBSIG[b.tok]})}catch(e){}
@@ -1306,7 +1319,7 @@ function vOrdenes(){
     return head+`<p class="muted small" style="margin-top:-4px">Arrastre una tarjeta a otra columna para cambiar su estado${innerWidth<=860?' (en el teléfono, abra la orden y toque el estado)':''}.</p>
     <div class="kb">${[...cols,{k:'Entregado',em:'🤝',c:'#475569',bg:'#f1f5f9',lbl:'Entregados (7 días)'}].map(e=>{const items=(e.k==='Entregado'?ent:bs.filter(b=>b.estado===e.k)).sort((a,b)=>(a.prioridad==='Urgente'?0:1)-(b.prioridad==='Urgente'?0:1)||String(a.fechaIngreso).localeCompare(String(b.fechaIngreso)));
       return `<div class="kc" data-col="${esc(e.k)}"><div class="kch"><span class="badge est" style="--c:${e.c};--b:${e.bg}">${e.em?`<span class="be">${e.em}</span>`:'<i></i>'}${esc(e.lbl||e.k)}</span><span class="c">${items.length}</span></div>
-       ${items.map(b=>{const c=cli(b.clienteId)||{},q=eq(b.equipoId);return `<div class="kcard" draggable="true" data-bid="${b.id}" data-act="open" data-page="orden" data-id="${b.id}"><div class="row" style="gap:6px"><span class="num">${nb(b.numero)}</span>${b.prioridad==='Urgente'?'<span class="tag urg">URG</span>':''}<span class="sp"></span><span class="small muted">${daysSince(b.fechaIngreso)} d</span></div><div style="font-weight:700;margin-top:4px" class="ell">${tipoEm(q?.tipo)} ${esc(eqShort(q))}</div><div class="small muted ell">${esc(c.nombre||'')}</div><div class="small ell" style="margin-top:4px">${esc(fallaTxt(b))}</div>${b.tecnico?`<div class="small muted" style="margin-top:4px">${ic('user')} ${esc(b.tecnico)}</div>`:''}</div>`}).join('')||'<div class="small muted" style="padding:8px">Vacío</div>'}</div>`}).join('')}</div>`;
+       ${items.map(b=>{const c=cli(b.clienteId)||{},q=eq(b.equipoId);return `<div class="kcard" draggable="true" data-bid="${b.id}" data-act="open" data-page="orden" data-id="${b.id}"><div class="row" style="gap:6px"><span class="num">${nb(b.numero)}</span>${b.prioridad==='Urgente'?'<span class="tag urg">URG</span>':''}${garTag(b)}<span class="sp"></span><span class="small muted">${daysSince(b.fechaIngreso)} d</span></div><div style="font-weight:700;margin-top:4px" class="ell">${tipoEm(q?.tipo)} ${esc(eqShort(q))}</div><div class="small muted ell">${esc(c.nombre||'')}</div><div class="small ell" style="margin-top:4px">${esc(fallaTxt(b))}</div>${b.tecnico?`<div class="small muted" style="margin-top:4px">${ic('user')} ${esc(b.tecnico)}</div>`:''}</div>`}).join('')||'<div class="small muted" style="padding:8px">Vacío</div>'}</div>`}).join('')}</div>`;
   }
   if(f==='activas')bs=bs.filter(isOpen);else if(f==='esperando')bs=bs.filter(b=>['Esperando repuestos','Esperando aprobación'].includes(b.estado));else if(f!=='todas')bs=bs.filter(b=>b.estado===f);
   bs.sort((a,b)=>num(b.numero)-num(a.numero));
@@ -1319,7 +1332,7 @@ function wireKanban(){
     col.addEventListener('dragover',e=>{e.preventDefault();col.classList.add('over')});
     col.addEventListener('dragleave',()=>col.classList.remove('over'));
     col.addEventListener('drop',async e=>{e.preventDefault();col.classList.remove('over');const id=e.dataTransfer.getData('text/plain');const b=S.boletas[id];if(!b||b.estado===col.dataset.col)return;if(bloqueado(b)&&col.dataset.col!=='Entregado')return avisoBloq(b);
-      if(!puedeEstado(col.dataset.col))return;if(col.dataset.col==='Entregado')return estadoForm(id,'Entregado');await setEstado(id,col.dataset.col,'');render()});
+      if(!puedeEstado(col.dataset.col))return;if(col.dataset.col==='Entregado'||col.dataset.col==='Listo para entregar')return estadoForm(id,col.dataset.col);await setEstado(id,col.dataset.col,'');render()});
   });
 }
 
@@ -1342,7 +1355,7 @@ function vOrden(id){
   ${LK?`<div class="card" style="padding:12px 16px;margin-bottom:12px;display:flex;gap:12px;align-items:center;border-color:color-mix(in srgb,var(--blue) 40%,transparent);background:color-mix(in srgb,var(--blue) 8%,var(--surface))"><span style="font-size:24px">🔒</span><div><b>Trabajo terminado por ${esc(tecDueno(b))}</b><div class="small muted">Solo ${esc(tecDueno(b))} o el administrador pueden modificar el trabajo, los repuestos y la mano de obra.${esRecep()?' Recepción puede recibirla y entregarla.':''}</div></div></div>`:''}
   <div class="card">
    <div class="ohead"><div class="ticon" style="width:56px;height:56px;font-size:28px;border-radius:14px">${tipoEm(e.tipo)}</div>
-    <div style="flex:1;min-width:220px"><div class="row" style="gap:8px"><span class="onum">${nb(b.numero)}</span>${badge(b.estado)}${b.prioridad==='Urgente'?'<span class="tag urg">URGENTE</span>':''}</div>
+    <div style="flex:1;min-width:220px"><div class="row" style="gap:8px"><span class="onum">${nb(b.numero)}</span>${badge(b.estado)}${b.prioridad==='Urgente'?'<span class="tag urg">URGENTE</span>':''}${garTag(b)}</div>
      <div class="otitle">${esc(eqName(e))}</div>
      <div class="muted small">Recibido ${fdate(b.fechaIngreso)}${isOpen(b)?` · ${daysSince(b.fechaIngreso)} días en taller`:''}${b.fechaEstimada?` · Entrega prometida ${fdate(b.fechaEstimada)}`:''}${b.fechaEntrega?` · Entregado ${fdate(b.fechaEntrega)}`:''}</div></div>
     <div class="row"><button class="btn" data-act="label" data-id="${b.id}">${ic('qr')} Etiqueta</button><button class="btn" data-act="print" data-id="${b.id}">${ic('print')} Imprimir</button>${FB_MODE?`<button class="btn" data-act="consulta" data-id="${b.id}">🔎 Consulta</button>`:''}${w?`<a class="btn wa" href="${esc(w)}" target="_blank" rel="noopener">${ic('msg')} WhatsApp</a>`:''}</div></div>
@@ -1365,6 +1378,8 @@ function vOrden(id){
     <div class="card ${LK?'lk':''}"><div class="ch"><h2>${hic('box')} Repuestos utilizados</h2><button class="btn sm" data-act="ppAdd" data-id="${b.id}" title="Pedir un repuesto que no hay">${ic('cart')} Falta</button><button class="btn sm p" data-act="addRep" data-id="${b.id}">${ic('plus')} Agregar</button></div>
      ${lines.length?`<div class="lines">${lines.map((l,i)=>`<div class="ln"><div style="flex:1;min-width:0"><div style="font-weight:600" class="ell">${esc(l.nombre)}</div><div class="small muted"><span class="mono">${esc(l.sku||'Sin código')}</span> · <span class="tag ${l.condicion==='Usado'?'u':'n'}">${esc(condLbl(l.condicion))}</span></div></div><div class="qty"><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="-1">${ic('minus')}</button><span>${num(l.cant)}</span><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="1">${ic('plus')}</button></div><button class="ib" data-act="rmLine" data-id="${b.id}" data-i="${i}" title="Quitar">${ic('trash')}</button></div>`).join('')}</div>`:emptyBox('box','Sin repuestos','Agregue los repuestos nuevos o de segunda que se instalen; se descuentan del inventario.')}</div>
     ${moCard(b)}
+    ${pruebaCard(b)}
+    ${fichaCard(e)}
     ${encCard(b)}
     ${pzCard(b)}
     ${esTaller()&&isOpen(b)?modCard(b):''}
@@ -1428,6 +1443,7 @@ async function setEstado(id,estado,nota,fechaEnt){
 function puedeEstado(e){if(e==='Entregado'&&!esRecep()){toast('La entrega al cliente la hace recepción.');return false}if(!['Entregado','Esperando aprobación','Cancelado'].includes(e)&&!esTaller()){toast('Este estado lo cambia el taller.');return false}return true}
 function estadoForm(id,estado){
   const b=S.boletas[id];if(b.estado===estado)return;
+  if(estado==='Listo para entregar'&&(CAT().prueba||[]).length)return pruebaModal(id);
   const ent=estado==='Entregado';
   openModal(`Cambiar a “${esc(estado)}”`,`<form id="fEs"><p class="muted" style="margin-top:0">${nb(b.numero)} · ${esc(eqShort(eq(b.equipoId)))} · ${esc(cli(b.clienteId)?.nombre||'')}</p>
    ${ent?fld('fecha','Fecha de entrega',today(),'date'):''}
@@ -1524,7 +1540,7 @@ function prevInfo(b,fallasDraft){
   const p=prev[0];if(!p)return null;
   const ref=b.fechaIngreso||today();
   const fin=p.fechaEntrega||'';
-  const enGar=p.estado==='Entregado'&&fin&&num(p.garantiaDias)>0&&dd(fin,ref)>=0&&dd(fin,ref)<=num(p.garantiaDias);
+  const enGar=p.estado==='Entregado'&&fin&&num(p.garantiaDias??CFG.garantia)>0&&dd(fin,ref)>=0&&dd(fin,ref)<=num(p.garantiaDias??CFG.garantia);
   const mine=(fallasDraft||b.fallas||[]).map(norm);
   const same=(p.fallas||[]).filter(f=>mine.includes(norm(f)));
   return {p,enGar,same,dias:fin?dd(fin,ref):dd(p.fechaIngreso,ref),veces:prev.length};
@@ -1562,7 +1578,8 @@ function alertas(){
     if(b.fechaEstimada&&b.estado!=='Listo para entregar'){const d=dd(b.fechaEstimada,t);
       if(d>0)add('r','clock',`Entrega prometida vencida hace ${d} día${d!==1?'s':''}`,who+' · '+b.estado,op,waB);
       else if(d>=-1)add('a','clock',d===0?'Se prometió para hoy':'Se prometió para mañana',who+' · '+b.estado,op)}
-    if(b.estado==='Listo para entregar'&&lc>=num(CFG.diasRetiro))add(lc>=num(CFG.diasRetiro)*2?'r':'a','inbox',`Listo sin retirar hace ${lc} días`,who,op,waB);
+    if(b.estado==='Listo para entregar'&&lc>=(num(CFG.diasAbandono)||30)){const w2=waLink(c.telefono,waAband(b));add('r','inbox',`📦 Máquina abandonada · ${lc} días sin retirar`,who,op,w2?`<a class="btn sm wa" href="${esc(w2)}" target="_blank" rel="noopener">${ic('msg')} Recordar al cliente</a>`:'')}
+    else if(b.estado==='Listo para entregar'&&lc>=num(CFG.diasRetiro))add(lc>=num(CFG.diasRetiro)*2?'r':'a','inbox',`Listo sin retirar hace ${lc} días`,who,op,waB);
     if(b.estado==='Esperando aprobación'&&lc>=num(CFG.diasAprob))add('a','phone',`Esperando aprobación del cliente hace ${lc} días`,who,op,waB);
     if(b.estado==='Esperando repuestos'&&lc>=num(CFG.diasPedido))add('a','cart',`Esperando repuestos hace ${lc} días`,who,op);
     if(!['Listo para entregar','Esperando aprobación','Esperando repuestos'].includes(b.estado)&&lc>=num(CFG.diasSinMov))add('a','activity',`Sin movimiento hace ${lc} días`,who+' · '+b.estado,op);
@@ -1757,6 +1774,7 @@ function vRespaldo(){
     <div class="seg" style="margin-bottom:14px">${[['dia','Diario'],['semana','Semanal'],['no','Apagado']].map(([k,l])=>`<button class="${fr===k?'on':''}" data-act="respSet" data-k="respFrec" data-v="${k}">${l}</button>`).join('')}</div>
     ${fr!=='no'?`<div class="fr">${fr==='semana'?`<div class="f"><label>Día</label><select class="sel" data-resp="respDia">${DIAS.map((d,i)=>`<option value="${i}" ${respDia()===i?'selected':''}>${d[0].toUpperCase()+d.slice(1)}</option>`).join('')}</select></div>`:''}<div class="f"><label>Hora</label><select class="sel" data-resp="respHora">${Array.from({length:17},(_,i)=>i+6).map(h=>`<option value="${h}" ${respHora()===h?'selected':''}>${hLbl(h)}</option>`).join('')}</select></div></div>`:''}
     <p class="small muted" style="margin:4px 0 0">🔔 ${esc(respTxt())} — a esa hora aparece un aviso aquí, en Inicio y en Alertas hasta que haga el respaldo.</p></div></div>
+   ${nubeCard()}
    <div class="card"><div class="ch"><h2><span class="hem">📂</span> ¿Dónde se guarda?</h2></div><div class="cp-in small" style="line-height:1.6">
     <p style="margin-top:0">💻 <b>En la PC</b> (Chrome o Edge) le pregunta <b>en qué carpeta</b> guardarlo. Puede crear una carpeta “Respaldos taller”, o elegir una memoria USB o Google Drive.</p>
     <p>📱 <b>En el teléfono</b> se guarda en <b>Descargas</b> (en iPhone, en la app <b>Archivos</b>).</p>
@@ -1776,6 +1794,120 @@ function enviadoTaller(b){
   o.onclick=ev=>{const k=ev.target.closest('[data-sv]')?.dataset.sv;if(!k&&ev.target!==o)return;close();if(k==='print')printMenu(b.id,'recepcion');else if(k==='otra')A.recibir({})}
 }
 
+
+/* ================== Cronómetro de trabajo ================== */
+const cronoMs=c=>c?num(c.acc)+(c.t0?Date.now()-num(c.t0):0):0;
+const fmtDur=ms=>{const t=Math.floor(ms/1000),h=Math.floor(t/3600),m=Math.floor(t%3600/60),x=t%60;return `${h}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`};
+function cronoBar(b,can){const c=b.crono;if(!c&&!(can&&esTaller()))return '';
+  return `<div class="crono ${c&&c.t0?'on':''}"><span class="crd">⏱️</span><b class="mono" data-crono="${c&&c.t0?c.t0:0}" data-acc="${c?num(c.acc):0}">${fmtDur(c?num(c.acc):0)}</b><span class="small muted ell" style="flex:1;min-width:0">${c?`${esc(c.tec||'')}${c.t0?' · trabajando':' · en pausa'}`:'Cronómetro: llena las horas solo'}</span>
+   ${can&&esTaller()?(c?`${c.t0?`<button class="btn sm" data-act="crPause" data-id="${b.id}">⏸️ Pausar</button>`:`<button class="btn sm" data-act="crGo" data-id="${b.id}">▶️ Seguir</button>`}<button class="btn sm p" data-act="crStop" data-id="${b.id}">⏹️ Terminar</button>`:`<button class="btn sm p" data-act="crGo" data-id="${b.id}">▶️ Iniciar</button>`):''}</div>`}
+setInterval(()=>{document.querySelectorAll('[data-crono]').forEach(el=>{const t0=num(el.dataset.crono);if(t0)el.textContent=fmtDur(num(el.dataset.acc)+Date.now()-t0)})},1000);
+async function crGo(id){let b=S.boletas[id];if(!b)return;const c=b.crono;const me=yoNombre()||quien();
+  if(c&&c.t0)return;if(c&&c.tec&&norm(c.tec)!==norm(me)&&!isAdmin())return toast(`El cronómetro es de ${c.tec}`);
+  await put('boletas',{...b,crono:{tec:c?c.tec:me,acc:c?num(c.acc):0,t0:Date.now()}});render()}
+async function crPause(id){const b=S.boletas[id];if(!b||!b.crono||!b.crono.t0)return;await put('boletas',{...b,crono:{...b.crono,acc:cronoMs(b.crono),t0:0}});render()}
+let CR=null;
+function crStop(id){const b=S.boletas[id];if(!b||!b.crono)return;const ms=cronoMs(b.crono);const h=Math.round(ms/9e5)/4;
+  CR={id,ms,h,c:'',nota:''};crRender()}
+function crRender(){const L=CAT().manoObra;
+  openModal('⏹️ Terminar cronómetro',`<div style="text-align:center;margin-bottom:12px"><div class="mono" style="font-size:34px;font-weight:800">${fmtDur(CR.ms)}</div><div class="small muted">tiempo trabajado</div></div>
+   <div class="f"><label>¿Qué trabajo fue?</label><div class="cp">${L.map(x=>`<button type="button" class="cpc ${CR.c===x.c?'on':''}" data-act="crC" data-c="${esc(x.c)}">${moEm(x.d)} ${esc(x.d)}</button>`).join('')}</div></div>
+   <div class="fr"><div class="f"><label>Horas a anotar</label><input id="crH" type="number" min="0" step="0.25" value="${CR.h}"></div><div class="f"><label>Nota <span class="opt">(opcional)</span></label><input id="crN" value="${esc(CR.nota)}" autocomplete="off"></div></div>`,
+   `<button class="btn" data-act="crDiscard">🗑️ Descartar tiempo</button><span class="sp"></span><button class="btn" data-act="close">Seguir después</button><button class="btn p" data-act="crSave" ${CR.c?'':'disabled'}>${ic('check')} Anotar en mano de obra</button>`,'sm');
+  $('#crH').oninput=e=>CR.h=e.target.value;$('#crN').oninput=e=>CR.nota=e.target.value}
+async function crSave(){const b=S.boletas[CR.id];if(!b)return;const x=CAT().manoObra.find(m=>m.c===CR.c);if(!x)return toast('Elija el trabajo');const h=Math.max(0,Math.round(num(CR.h)*100)/100);
+  const tec=(b.crono&&b.crono.tec)||quien();
+  const nb2={...b,crono:null,manoObra:[...(b.manoObra||[]),{id:uid(),c:x.c,d:x.d,h,tec,nota:['⏱️ Cronómetro '+fmtDur(CR.ms),CR.nota.trim()].filter(Boolean).join(' · '),por:quien(),t:Date.now()}],historial:[...(b.historial||[]),{t:Date.now(),estado:b.estado,nota:`Mano de obra (cronómetro): ${x.d} · ${fh(h)}`,por:quien(),dev:DEV}]};
+  if(await put('boletas',nb2)){CR=null;closeModal();render();toast('⏱️ Horas anotadas')}}
+
+/* ================== Prueba final ================== */
+let PR=null;
+function pruebaModal(id){const b=S.boletas[id];if(!b)return;const L=CAT().prueba||[];const old=(b.prueba||{}).items||{};PR={id,st:Object.fromEntries(L.map(k=>[k,old[k]==='na'?'na':''])),nota:''};prRender()}
+function prRender(){const L=Object.keys(PR.st);const n=L.filter(k=>PR.st[k]).length;const b=S.boletas[PR.id];
+  openModal('🧪 Prueba final',`<p class="small muted" style="margin-top:0">${nb(b.numero)} · ${esc(eqShort(eq(b.equipoId)))}. Antes de pasarla a recepción, confirme cada punto.</p>
+   <div class="prl">${L.map((k,i)=>`<div class="pri ${PR.st[k]}"><div style="flex:1;min-width:0;font-weight:600">${esc(k)}</div><button type="button" class="prb ok ${PR.st[k]==='ok'?'on':''}" data-act="prSet" data-i="${i}" data-v="ok">✅ Bien</button><button type="button" class="prb na ${PR.st[k]==='na'?'on':''}" data-act="prSet" data-i="${i}" data-v="na">➖ No aplica</button></div>`).join('')}</div>
+   <button type="button" class="btn sm" data-act="prAll" style="margin-top:10px">✅ Todo bien</button>
+   <div class="f" style="margin-top:12px"><label>Nota <span class="opt">(opcional)</span></label><input id="prN" value="${esc(PR.nota)}" placeholder="Ej. Probada 10 minutos con carga" autocomplete="off"></div>
+   <p class="small muted" style="margin:6px 0 0">¿Algo falló? Cancele y siga reparando.</p>`,
+   `<span class="small muted">${n}/${L.length}</span><span class="sp"></span><button class="btn" data-act="close">Cancelar</button><button class="btn p" data-act="prOk" ${n===L.length?'':'disabled'}>✅ Marcar lista para entregar</button>`,'sm');
+  $('#prN').oninput=e=>PR.nota=e.target.value}
+async function prOk(){const b=S.boletas[PR.id];if(!b)return;const items={...PR.st};
+  if(!await put('boletas',{...b,prueba:{items,por:quien(),t:Date.now()}}))return;
+  const okN=Object.values(items).filter(v=>v==='ok').length;
+  await setEstado(PR.id,'Listo para entregar',['🧪 Prueba final aprobada ('+okN+' puntos)',PR.nota.trim()].filter(Boolean).join(' · '));PR=null;closeModal();render()}
+function pruebaCard(b){const p=b.prueba;if(!p)return '';const E=Object.entries(p.items||{});
+  return `<div class="card"><div class="ch"><h2><span class="hem">🧪</span> Prueba final</h2><span class="small muted">${esc(p.por||'')} · ${fts(p.t)}</span></div><div class="cp-in"><div class="pillist">${E.map(([k,v])=>`<span class="pl" style="${v==='ok'?'background:#dcfce7;color:#15803d;border-color:#86efac':'color:var(--muted)'}">${v==='ok'?'✅':'➖'} ${esc(k)}</span>`).join('')}</div></div></div>`}
+
+/* ================== Fichas técnicas ================== */
+const FICHA_F=[['mezcla','⛽ Mezcla / combustible'],['aceite','🛢️ Aceite'],['bujia','⚡ Bujía y calibración'],['cadena','⛓️ Cadena / paso / eslabones'],['espada','🗡️ Espada / cuchilla'],['carb','🔧 Carburador y ajustes'],['holguras','📏 Holguras y torques'],['filtros','🌬️ Filtros'],['notas','📝 Notas del mecánico']];
+const fichas=()=>(CAT().fichas||[]).slice().sort((a,b)=>norm(a.marca+a.modelo).localeCompare(norm(b.marca+b.modelo)));
+const mkey=x=>norm(x).replace(/[\s\-_.\/]/g,'');
+function fichaDe(e){if(!e||!e.modelo)return null;const mo=mkey(e.modelo),ma=norm(e.marca);const F=CAT().fichas||[];
+  return F.find(f=>mkey(f.modelo)===mo&&(!f.marca||norm(f.marca)===ma))||F.find(f=>f.modelo&&mkey(f.modelo).length>=3&&mo.includes(mkey(f.modelo))&&(!f.marca||norm(f.marca)===ma))||null}
+const fiPuede=()=>esTaller()||isAdmin();
+function fichaCard(e){if(!e)return '';const f=fichaDe(e);
+  if(!f)return fiPuede()&&e.modelo?`<div class="card" style="padding:12px 16px;display:flex;gap:12px;align-items:center"><span style="font-size:22px">📘</span><div style="flex:1;min-width:0" class="small muted">No hay ficha técnica para <b>${esc([e.marca,e.modelo].filter(Boolean).join(' '))}</b>.</div><button class="btn sm" data-act="fiNew" data-eq="${e.id}">${ic('plus')} Crear ficha</button></div>`:'';
+  const D=f.datos||{};const L=FICHA_F.filter(([k])=>String(D[k]||'').trim());
+  return `<div class="card fichac"><div class="ch"><h2><span class="hem">📘</span> Ficha técnica · ${esc([f.marca,f.modelo].filter(Boolean).join(' '))}</h2>${fiPuede()?`<button class="btn sm" data-act="fiEdit" data-id="${f.id}">${ic('edit')} Editar</button>`:''}</div>
+   <div class="cp-in">${L.length?`<dl class="fkv">${L.map(([k,l])=>`<dt>${l}</dt><dd>${esc(D[k]).replace(/\n/g,'<br>')}</dd>`).join('')}</dl>`:'<p class="small muted" style="margin:0">Ficha vacía. Toque Editar para llenarla.</p>'}</div></div>`}
+let FI=null;
+function fiEditor(f){FI=f?clone(f):{id:uid(),marca:'',modelo:'',tipo:'',datos:{}};
+  const c=CAT();openModal('📘 Ficha técnica',`<form id="fFi"><div class="fr"><div class="f"><label>Marca</label><input name="marca" list="fiMa" value="${esc(FI.marca)}" autocomplete="off"><datalist id="fiMa">${c.marcas.map(m=>`<option value="${esc(m)}">`).join('')}</datalist></div><div class="f"><label>Modelo</label><input name="modelo" required value="${esc(FI.modelo)}" placeholder="Ej. MS 250" autocomplete="off"></div><div class="f"><label>Tipo</label><select name="tipo"><option value="">—</option>${catTipos().map(t=>`<option ${t===FI.tipo?'selected':''}>${esc(t)}</option>`).join('')}</select></div></div>
+   ${FICHA_F.map(([k,l])=>`<div class="f"><label>${l}</label><textarea name="d_${k}" rows="${k==='notas'||k==='holguras'?3:1}" style="min-height:0">${esc((FI.datos||{})[k]||'')}</textarea></div>`).join('')}</form>`,
+   `${(CAT().fichas||[]).some(x=>x.id===FI.id)&&isAdmin()?`<button class="btn d" data-act="fiDel" data-id="${FI.id}">${ic('trash')} Eliminar</button>`:''}<span class="sp"></span><button class="btn" data-act="close">Cancelar</button><button class="btn p" data-act="fiSave">${ic('check')} Guardar</button>`,'lg')}
+async function fiSave(){const d=formData($('#fFi'));if(!String(d.modelo||'').trim())return toast('Escriba el modelo');
+  const f={id:FI.id,marca:String(d.marca||'').trim(),modelo:String(d.modelo).trim(),tipo:d.tipo||'',datos:{}};FICHA_F.forEach(([k])=>{const v=String(d['d_'+k]||'').trim();if(v)f.datos[k]=v});f.por=quien();f.t=Date.now();
+  const c=CAT();c.fichas=[...(c.fichas||[]).filter(x=>x.id!==f.id),f];if(await saveCat(c)){FI=null;closeModal();render();toast('📘 Ficha guardada')}}
+
+/* ================== Garantía y abandono ================== */
+const garTag=b=>{if(!b||!isOpen(b))return '';const pi=prevInfo(b);return pi&&pi.enGar?'<span class="tag gar">🛡️ GARANTÍA</span>':''};
+function waAband(b){const c=cli(b.clienteId)||{},e=eq(b.equipoId);const d=daysSince(lastChange(b));
+  return `Hola ${c.nombre||''}, le saluda ${CFG.nombre}. Le recordamos que su equipo ${eqShort(e)} (orden ${nb(b.numero)}) está listo desde hace ${d} días y todavía no se ha retirado. 🙏 Le agradecemos pasar por él lo antes posible, ya que el espacio en el taller es limitado. Si necesita coordinar otro día, con gusto le atendemos.`}
+
+/* ================== Avisos repetidos de máquinas detenidas ================== */
+const NAGK='tallerNag';
+function nagCheck(){try{
+  const hrs=CFG.nagHoras==null?3:num(CFG.nagHoras);if(!hrs||!WHO&&!fbName())return;
+  const me=norm(yoNombre()),pu=puestoActual(),adm=adminReal()||pu==='ambos';const T=pu!=='recepcion'||adm,Rc=pu!=='taller'||adm;
+  let st={};try{st=JSON.parse(localStorage.getItem(NAGK)||'{}')}catch(e){}
+  const fresh=!sessionStorage.getItem('nagSes');sessionStorage.setItem('nagSes','1');
+  const now=Date.now(),due=(k,min)=>{const l=num(st[k]);return now-l>=hrs*36e5||(fresh&&now-l>=36e5)};
+  const out=[];
+  arr(S.boletas).filter(isOpen).forEach(b=>{const lc=daysSince(lastChange(b));const mine=!b.tecnico||norm(b.tecnico)===me;const e=eq(b.equipoId),c=cli(b.clienteId)||{};const who=`${nb(b.numero)} · ${eqShort(e)} · ${c.nombre||''}`;
+    if(b.crono&&b.crono.t0)return;
+    let k=null,t='',d='';
+    if(b.estado==='Esperando repuestos'){const h=(b.historial||[]);const iE=h.map(x=>x.estado).lastIndexOf('Esperando repuestos');const ya=h.slice(Math.max(0,iE)).some(x=>/^Llegó repuesto/.test(x.nota||''));
+      const pend=arr(S.porpedir).some(x=>x.boletaId===b.id);
+      if(ya&&!pend){if(T&&(mine||adm)){k='llego';t='📦 Ya llegó el repuesto · siga con la reparación';d=who}}
+      else if(lc>=1&&(Rc||mine)){k='detenida';t=`⏳ Sigue esperando repuesto · ${lc} día${lc!==1?'s':''}`;d=who+' · ¿Ya se pidió? ¿Cuándo llega?'}}
+    else if(b.estado==='Esperando aprobación'&&lc>=num(CFG.diasAprob)&&Rc){k='detenida';t=`⏳ Esperando que el cliente apruebe · ${lc} días`;d=who+' · llame o escriba al cliente'}
+    else if(b.estado==='Listo para entregar'){if(Rc&&lc>=num(CFG.diasRetiro)){k='detenida';t=lc>=(num(CFG.diasAbandono)||30)?`📦 Máquina abandonada · ${lc} días sin retirar`:`⏳ Lista sin retirar · ${lc} días`;d=who+' · recuérdele al cliente'}}
+    else if(lc>=num(CFG.diasSinMov)&&T&&(mine||adm)){k='detenida';t=`⏳ Máquina olvidada · ${lc} días sin avanzar`;d=who+' · '+b.estado+(b.tecnico?' · 🔧 '+b.tecnico:'')}
+    if(k&&due(b.id))out.push({id:b.id,k,t,d})});
+  if(!out.length)return;
+  out.forEach(x=>st[x.id]=now);localStorage.setItem(NAGK,JSON.stringify(st));
+  if(out.length<=3)out.forEach((x,i)=>setTimeout(()=>ping(x.t,x.d,x.id,x.k),i*700));
+  else ping(`⏳ ${out.length} máquinas detenidas`,out.slice(0,4).map(x=>x.d.split(' · ').slice(0,2).join(' ')).join(' · ')+(out.length>4?'…':''),()=>go({page:'alertas'}),'detenida');
+}catch(e){console.warn('nag',e)}}
+setTimeout(()=>{nagCheck();setInterval(nagCheck,10*60e3)},25000);
+
+/* ================== Copia automática en la nube ================== */
+let NUBE=null;
+async function nubeList(){if(!FB_MODE||!DB)return [];const s=await DB.collection('respaldos').get();NUBE=s.docs.map(d=>({...d.data(),id:d.id})).sort((a,z)=>num(z.t)-num(a.t));return NUBE}
+async function nubeHacer(manual){if(!FB_MODE||!DB)return false;
+  const data=JSON.stringify({version:2,exportado:new Date().toISOString(),nube:true,config:CFG,catalogo:CATD,...Object.fromEntries(COLS.map(c=>[c,S[c]]))});
+  const id='R'+today()+(manual?'-'+new Date().toTimeString().slice(0,5).replace(':',''):'');const CH=250000;const parts=Math.ceil(data.length/CH);
+  for(let i=0;i<parts;i++)await DB.collection('respaldoPartes').doc(id+'_'+i).set({d:data.slice(i*CH,(i+1)*CH)});
+  await DB.collection('respaldos').doc(id).set({t:Date.now(),por:quien(),partes:parts,tam:data.length,n:arr(S.boletas).length});
+  const L=await nubeList();for(const o of L.slice(8)){for(let i=0;i<num(o.partes);i++)await DB.collection('respaldoPartes').doc(o.id+'_'+i).delete();await DB.collection('respaldos').doc(o.id).delete()}
+  await nubeList();return true}
+async function nubeAuto(){try{if(!FB_MODE||!DB||!arr(S.boletas).length)return;const L=await nubeList();if(L[0]&&Date.now()-num(L[0].t)<7*864e5)return;await nubeHacer(false)}catch(e){console.warn('nube',e)}}
+if(typeof FB_MODE!=='undefined'&&FB_MODE)setTimeout(()=>{nubeAuto();setInterval(nubeAuto,6*36e5)},40000);
+async function nubeLeer(id){const o=(NUBE||[]).find(x=>x.id===id);if(!o)return null;let s='';for(let i=0;i<num(o.partes);i++){const d=await DB.collection('respaldoPartes').doc(id+'_'+i).get();s+=(d.data()||{}).d||''}return s}
+function nubeCard(){if(!FB_MODE)return '';if(!NUBE){nubeList().then(()=>render()).catch(()=>{});}
+  const L=NUBE||[];return `<div class="card"><div class="ch"><h2><span class="hem">☁️</span> Copia automática en la nube</h2>${isAdmin()?`<button class="btn sm" data-act="nubeNow">☁️ Copiar ahora</button>`:''}</div><div class="cp-in">
+   <p class="small muted" style="margin-top:0">Cada semana se guarda sola una copia de todo, sin hacer nada. Se guardan las últimas 8. Sirve si algo se borra por error.</p>
+   ${L.length?`<div class="rows">${L.map(o=>`<div class="rw" style="cursor:default"><div class="ticon" style="width:36px;height:36px;font-size:18px">☁️</div><div class="mn"><div class="t">${new Date(num(o.t)).toLocaleDateString('es-CR',{weekday:'short',day:'numeric',month:'short',year:'numeric'})} · ${new Date(num(o.t)).toLocaleTimeString('es-CR',{hour:'numeric',minute:'2-digit'})}</div><div class="s">${num(o.n)} órdenes · ${Math.round(num(o.tam)/1024)} KB${o.por?' · '+esc(o.por):''}</div></div>${isAdmin()?`<button class="btn sm" data-act="nubeDl" data-id="${o.id}">${ic('dl')}</button><button class="btn sm" data-act="nubeRest" data-id="${o.id}">♻️ Restaurar</button>`:''}</div>`).join('')}</div>`:`<p class="small muted" style="margin:0">${NUBE?'Todavía no hay copias. La primera se hace sola en unos segundos.':'Cargando…'}</p>`}</div></div>`}
 /* ================== Código de barras (Code 128-B) ================== */
 const C128=['212222','222122','222221','121223','121322','131222','122213','122312','132212','221213','221312','231212','112232','122132','122231','113222','123122','123221','223211','221132','221231','213212','223112','312131','311222','321122','321221','312212','322112','322211','212123','212321','232121','111323','131123','131321','112313','132113','132311','211313','231113','231311','112133','112331','132131','113123','113321','133121','313121','211331','231131','213113','213311','213131','311123','311321','331121','312113','312311','332111','314111','221411','431111','111224','111422','121124','121421','141122','141221','112214','112412','122114','122411','142112','142211','241211','221114','413111','241112','134111','111242','121142','121241','114212','124112','124211','411212','421112','421211','212141','214121','412121','111143','111341','131141','114113','114311','411113','411311','113141','114131','311141','411131','211412','211214','211232','2331112'];
 function code128svg(txt,h=40){txt=String(txt).replace(/[^\x20-\x7e]/g,'');const v=[104];for(const ch of txt)v.push(ch.charCodeAt(0)-32);let ck=104;v.slice(1).forEach((x,i)=>ck+=x*(i+1));v.push(ck%103,106);
@@ -2023,6 +2155,7 @@ function vEquipo(id){
    <div style="flex:1;min-width:220px"><div class="muted small">${esc(e.tipo||'')}</div><div class="otitle">${esc(eqShort(e))}</div><div class="muted small">${e.serie?'S/N '+esc(e.serie):'Sin serie'}${e.anio?' · Año '+esc(e.anio):''} · Dueño: <a href="#" data-act="open" data-page="cliente" data-id="${c.id||''}">${esc(c.nombre||'—')}</a></div>${e.notas?`<div class="small" style="margin-top:4px">${esc(e.notas)}</div>`:''}</div>
    <div class="row"><button class="btn p" data-act="recibir" data-cli="${e.clienteId}" data-eq="${id}">${ic('plus')} Recibir este equipo</button><button class="btn" data-act="m3dEq" data-id="${id}">🧊 Ver en 3D</button><button class="btn" data-act="printEq" data-id="${id}">${ic('print')} Historial</button>${A?`<button class="btn" data-act="equipoForm" data-id="${id}">${ic('edit')} Editar</button>`:''}</div></div></div>
   ${bs[0]?`<div class="last" style="margin-top:16px;padding:12px 14px;font-size:13.5px"><b>⭐ Última vez que vino (${fdate(bs[0].fechaIngreso)} · ${nb(bs[0].numero)}):</b> ${esc(fallaTxt(bs[0])||'—')}</div>`:''}
+  ${fichaCard(e)?`<div style="margin-top:16px">${fichaCard(e)}</div>`:''}
   <div class="grid g2" style="margin-top:16px;align-items:start">
    <div class="card"><div class="ch"><h2>${hic('clock')} Historial de servicios (${bs.length})</h2></div>${bs.length?`<div class="cp-in">${bs.map(visita).join('')}</div>`:emptyBox('clock','Sin servicios todavía')}</div>
    <div class="card"><div class="ch"><h2>${hic('box')} Repuestos instalados</h2></div>${Object.keys(used).length?`<div class="rows">${Object.entries(used).sort((a,b)=>b[1]-a[1]).map(([n,c])=>`<div class="rw" style="cursor:default"><div class="mn">${esc(n)}</div><b>${c}</b></div>`).join('')}</div>`:emptyBox('box','Ninguno')}</div>
@@ -2061,7 +2194,7 @@ function vRepuesto(id){
 }
 
 /* ================== Catálogo ================== */
-const CATSECS=[['tipos','Tipos de máquina','Aparecen al recibir una máquina, con su ícono.'],['marcas','Marcas',''],['fallas','Fallas frecuentes','Se marcan con un toque en la recepción.'],['trabajos','Trabajos frecuentes','Se marcan con un toque en el trabajo del taller.'],['condiciones','Condición al recibir',''],['faltantes','Lo que no trae / le falta','Piezas que se marcan como faltantes al recibir.'],['procedencias','Procedencia','De dónde vienen las máquinas: comunidades, fincas, tiendas.'],['personas','Personas del taller','Nombres para registrar quién hizo cada cosa (además de los técnicos).'],['accesorios','Accesorios',''],['servicios','Tipos de servicio',''],['tecnicos','Técnicos / mecánicos',''],['categorias','Categorías de repuestos','']];
+const CATSECS=[['prueba','Prueba final antes de “Listo”','El mecánico revisa cada punto antes de pasar la máquina a recepción.'],['tipos','Tipos de máquina','Aparecen al recibir una máquina, con su ícono.'],['marcas','Marcas',''],['fallas','Fallas frecuentes','Se marcan con un toque en la recepción.'],['trabajos','Trabajos frecuentes','Se marcan con un toque en el trabajo del taller.'],['condiciones','Condición al recibir',''],['faltantes','Lo que no trae / le falta','Piezas que se marcan como faltantes al recibir.'],['procedencias','Procedencia','De dónde vienen las máquinas: comunidades, fincas, tiendas.'],['personas','Personas del taller','Nombres para registrar quién hizo cada cosa (además de los técnicos).'],['accesorios','Accesorios',''],['servicios','Tipos de servicio',''],['tecnicos','Técnicos / mecánicos',''],['categorias','Categorías de repuestos','']];
 
 /* ---------- Catálogo: renombrar / eliminar ---------- */
 function catUso(k,v){const n=norm(v);const E=arr(S.equipos),B=arr(S.boletas);
@@ -2094,6 +2227,8 @@ function vCatalogo(){
      <div class="row" style="margin-bottom:12px"><select class="sel" id="revT" data-ui="revT">${uniq([...ks,...catTipos()]).map(k=>`<option ${k===t?'selected':''}>${esc(k)}</option>`).join('')}</select>${r[t]?'':'<span class="small muted">Usa la lista General hasta que le agregue un punto.</span>'}</div>
      <div class="cp">${(r[t]||r['General']||[]).map(v=>`<span class="cpc catc">${esc(v)}${r[t]?`<button class="cpx" data-act="revDel" data-t="${esc(t)}" data-v="${esc(v)}">×</button>`:''}</span>`).join('')}
      <span class="cpadd"><input id="revNew" placeholder="Agregar punto…"><button class="btn sm p" data-act="revAdd" data-t="${esc(t)}">${ic('plus')}</button></span></div></div></div>`})()}
+   <div class="card"><div class="ch"><h2>📘 Fichas técnicas <span class="muted" style="font-weight:500">${fichas().length}</span></h2><button class="btn sm p" data-act="fiNew">${ic('plus')} Nueva</button></div><div class="cp-in"><p class="small muted" style="margin-top:0">Datos de cada modelo (mezcla, bujía, cadena, holguras…). Aparecen solos en la orden y en la ficha del equipo.</p>
+    ${fichas().length?`<div class="picks">${fichas().map(f=>`<button class="pick" data-act="fiEdit" data-id="${f.id}"><div class="ticon" style="width:38px;height:38px;font-size:19px">📘</div><div style="flex:1;min-width:0"><div style="font-weight:700" class="ell">${esc([f.marca,f.modelo].filter(Boolean).join(' '))}</div><div class="small muted ell">${esc(f.tipo||'')}${f.tipo?' · ':''}${FICHA_F.filter(([k])=>(f.datos||{})[k]).length} datos</div></div>${ic('edit')}</button>`).join('')}</div>`:'<p class="small muted">Todavía no hay fichas. También se crean desde una orden.</p>'}</div></div>
    <div class="card"><div class="ch"><h2>📝 Plantillas de trabajo <span class="muted" style="font-weight:500">${plantillas().length}</span></h2><button class="btn sm p" data-act="plNew">${ic('plus')} Nueva</button></div><div class="cp-in"><p class="small muted" style="margin-top:0">Un toque en la orden agrega la mano de obra, los repuestos y los trabajos de siempre.</p>
     ${plantillas().length?`<div class="picks">${plantillas().map(p=>`<button class="pick" data-act="plEdit" data-id="${p.id}"><div class="ticon" style="width:38px;height:38px;font-size:19px">📝</div><div style="flex:1;min-width:0"><div style="font-weight:700" class="ell">${esc(p.n)}</div><div class="small muted ell">${p.tipo?esc(p.tipo)+' · ':''}${plDesc(p)}</div></div>${ic('edit')}</button>`).join('')}</div>`:'<p class="small muted">Todavía no hay. Cree la primera con <b>Nueva</b>, o desde una orden con <b>📝 Plantilla → Crear plantilla con esta orden</b>.</p>'}</div></div>
    <div class="card"><div class="ch"><h2>🛠️ Mano de obra <span class="muted" style="font-weight:500">${(c.manoObra||[]).length}</span></h2></div><div class="cp-in"><p class="small muted" style="margin-top:0">Trabajos con su código, para anotar la mano de obra en las órdenes.</p>
@@ -2110,6 +2245,11 @@ const REPORTS={
  recibidos:{t:'Equipos recibidos',i:'inbox',d:'Todas las órdenes del período con cliente, equipo, falla, técnico y estado.',build(){
    const bs=arr(S.boletas).filter(b=>inRange(b.fechaIngreso)).sort((a,b)=>num(a.numero)-num(b.numero));
    return [{head:['Orden','Fecha','Cliente','Teléfono','Tipo','Marca','Modelo','Serie','Falla','Técnico','Estado','Días'],num:[11],rows:bs.map(b=>{const c=cli(b.clienteId)||{},e=eq(b.equipoId)||{};return [nb(b.numero),fdate(b.fechaIngreso),c.nombre||'',c.telefono||'',e.tipo||'',e.marca||'',e.modelo||'',e.serie||'',fallaTxt(b),b.tecnico||'',b.estado,daysBetween(b.fechaIngreso,b.fechaEntrega||today())]})}]}},
+ garantias:{t:'Regresos por garantía',i:'shield',d:'Máquinas que volvieron dentro de la garantía, y de qué técnico era el trabajo anterior.',build(){
+   const G=arr(S.boletas).filter(b=>inRange(b.fechaIngreso)).map(b=>({b,pi:prevInfo(b)})).filter(x=>x.pi&&x.pi.enGar);
+   const ent={};arr(S.boletas).filter(b=>b.estado==='Entregado'&&inRange(b.fechaEntrega||b.fechaIngreso)).forEach(b=>{const k=b.tecnico||'Sin asignar';ent[k]=(ent[k]||0)+1});
+   const tc={};G.forEach(({pi})=>{const k=pi.p.tecnico||'Sin asignar';tc[k]=(tc[k]||0)+1});
+   return [{title:`${G.length} regreso${G.length!==1?'s':''} por garantía`,head:['Técnico del trabajo anterior','Regresos','Entregadas','% que regresa'],num:[1,2,3],rows:Object.entries(tc).sort((a,z)=>z[1]-a[1]).map(([k,n])=>[k,n,ent[k]||0,ent[k]?Math.round(n/ent[k]*100)+'%':'—'])},{title:'Detalle',head:['Volvió','Orden','Cliente','Máquina','Orden anterior','Técnico anterior','Días después','Falla ahora'],num:[6],rows:G.sort((a,z)=>String(z.b.fechaIngreso).localeCompare(String(a.b.fechaIngreso))).map(({b,pi})=>[fdate(b.fechaIngreso),nb(b.numero),cli(b.clienteId)?.nombre||'',eqShort(eq(b.equipoId)),nb(pi.p.numero),pi.p.tecnico||'',pi.dias,fallaTxt(b)])}]}},
  satisf:{t:'Satisfacción de clientes',i:'star',d:'Calificaciones que dejaron los clientes al recibir su máquina.',build(){
    const L=arr(S.boletas).filter(b=>encDe(b)&&inRange(b.fechaIngreso)).map(b=>({b,e:encDe(b)}));const n=L.length,avg=n?Math.round(L.reduce((a,x)=>a+num(x.e.s),0)/n*10)/10:0;
    const tc={};L.forEach(({b,e})=>{const k=b.tecnico||'Sin asignar';const o=tc[k]||(tc[k]=[0,0]);o[0]++;o[1]+=num(e.s)});
@@ -2194,7 +2334,7 @@ function vAjustes(){
    <div class="fr">${f('garantia','Garantía por defecto (días)','number','min="0"')}${f('stockMinDef','Stock mínimo por defecto','number','min="0"')}</div>
    <div class="f"><label>Términos del comprobante</label><textarea name="terminos" style="min-height:150px">${esc(CFG.terminos)}</textarea></div>
    <div class="lbl" style="margin-top:6px">Plazos para las alertas (días)</div>
-   <div class="fr">${f('diasRetiro','Listo sin retirar','number','min="1"')}${f('diasSinMov','Orden sin movimiento','number','min="1"')}${f('diasTaller','Mucho tiempo en el taller','number','min="1"')}${f('mesesMant','Recordar mantenimiento (meses, 0 = no)','number','min="0"')}${f('diasAprob','Esperando aprobación','number','min="1"')}${f('diasPedido','Repuestos / pedido sin llegar','number','min="1"')}</div>
+   <div class="fr">${f('diasRetiro','Listo sin retirar','number','min="1"')}${f('diasAbandono','Máquina abandonada (días lista sin retirar)','number','min="1"')}${f('nagHoras','Repetir avisos de máquinas detenidas cada (horas, 0 = no)','number','min="0" step="1"')}${f('diasSinMov','Orden sin movimiento','number','min="1"')}${f('diasTaller','Mucho tiempo en el taller','number','min="1"')}${f('mesesMant','Recordar mantenimiento (meses, 0 = no)','number','min="0"')}${f('diasAprob','Esperando aprobación','number','min="1"')}${f('diasPedido','Repuestos / pedido sin llegar','number','min="1"')}</div>
    <div class="f"><label>Enlace de la app <span class="opt">(para el QR de las etiquetas)</span></label><input name="appUrl" type="url" value="${esc(CFG.appUrl)}" placeholder="${esc(appUrl())}"></div>
    <button class="btn p" type="submit">${ic('check')} Guardar</button></div></form>
   <div class="grid" style="align-content:start">
@@ -2803,7 +2943,7 @@ function pzCard(b){const L=pzList(b);const can=esTaller()&&!bloqueado(b);
 function pbPZ(b){const L=pzList(b);if(!L.length)return '';return `<h4>Piezas</h4><p>${L.map(x=>`${PZ_ST[x.st].l}: <b>${esc(x.l)}</b>`).join(' · ')}</p>`}
 function moCard(b){
   const L=b.manoObra||[];const can=moPuede(b);
-  return `<div class="card"><div class="ch"><h2><span class="hem">🛠️</span> Mano de obra ${L.length?`<span class="badge" style="background:var(--pri-l);color:var(--pri)">⏱️ ${fh(moH(b))}</span>`:''}</h2>${can?`<div class="row" style="gap:6px"><button class="btn sm" data-act="plAplicar" data-id="${b.id}">📝 Plantilla</button><button class="btn sm p" data-act="moAdd" data-id="${b.id}">${ic('plus')} Agregar</button></div>`:''}</div>
+  return `<div class="card"><div class="ch"><h2><span class="hem">🛠️</span> Mano de obra ${L.length?`<span class="badge" style="background:var(--pri-l);color:var(--pri)">⏱️ ${fh(moH(b))}</span>`:''}</h2>${can?`<div class="row" style="gap:6px"><button class="btn sm" data-act="plAplicar" data-id="${b.id}">📝 Plantilla</button><button class="btn sm p" data-act="moAdd" data-id="${b.id}">${ic('plus')} Agregar</button></div>`:''}</div>${cronoBar(b,can)}
    ${L.length?`<div class="lines">${L.map((l,i)=>`<div class="ln"><div class="ticon" style="width:40px;height:40px;font-size:20px">${moEm(l.d)}</div><div style="flex:1;min-width:0"><div style="font-weight:600;line-height:1.3"><span class="mono" style="color:var(--pri)">${esc(l.c||'—')}</span> · ${esc(l.d)}</div><div class="small muted">${l.tec?'🔧 '+esc(l.tec):''}${l.nota?' · '+esc(l.nota):''}${l.por&&l.por!==l.tec?` · anotó ${esc(l.por)}`:''}${l.rec?' · <span style="color:var(--warn)">agregada en recepción</span>':''}</div></div>${can?`<div class="qty"><button data-act="moH" data-id="${b.id}" data-i="${i}" data-d="-0.5">${ic('minus')}</button><span style="min-width:58px">⏱️ ${fh(l.h)}</span><button data-act="moH" data-id="${b.id}" data-i="${i}" data-d="0.5">${ic('plus')}</button></div><button class="ib" data-act="moRm" data-id="${b.id}" data-i="${i}" title="Quitar">${ic('trash')}</button>`:`<b>⏱️ ${fh(l.h)}</b>`}</div>`).join('')}</div>`:emptyBox('👨‍🔧','Sin mano de obra','Anote el trabajo hecho con su código y las horas utilizadas.'+(esTaller()?'':' Si el taller lo olvidó, puede agregarlo aquí.'))}</div>`;
 }
 let MO=null;
@@ -3005,6 +3145,8 @@ const PK={
   lista:{em:'✅',c:'#22c55e',c2:'#14b8a6',lbl:'Lista para entregar',notes:[784,988,1319]},
   recibida:{em:'🤝',c:'#f59e0b',c2:'#f97316',lbl:'Recibida',notes:[587,740]},
   respaldo:{em:'💾',c:'#f59e0b',c2:'#eab308',lbl:'Respaldo',notes:[523,659]},
+  detenida:{em:'⏳',c:'#f97316',c2:'#ef4444',lbl:'Máquina detenida',notes:[440,554,440,659]},
+  llego:{em:'📦',c:'#0ea5e9',c2:'#22c55e',lbl:'Llegó el repuesto',notes:[659,880,1047]},
   info:{em:'🔔',c:'#14b8a6',c2:'#3b82f6',lbl:'Aviso',notes:[740,988]}};
 function pingKind(t){t=String(t);return t.includes('asignaron')?'asignada':t.includes('Nueva máquina')?'nueva':t.includes('lista')?'lista':/recibió/i.test(t)?'recibida':t.includes('respaldo')?'respaldo':'info'}
 let PCOUNT=0;
@@ -3065,6 +3207,20 @@ const A={
  mantOk:async d=>{const b=S.boletas[d.id];if(!b)return;if(await put('boletas',{...b,mantAvisado:Date.now(),mantPor:quien()})){toast('Listo, recordatorio cerrado');render()}},
  consulta:d=>consultaModal(d.id),
  etiquetas:d=>etiquetasModal(d.id?[d.id]:[]),
+ crGo:sinBloq(d=>crGo(d.id)),crPause:d=>crPause(d.id),crStop:d=>crStop(d.id),
+ crC:d=>{CR.h=$('#crH').value;CR.nota=$('#crN').value;CR.c=d.c;crRender()},
+ crSave:()=>crSave(),
+ crDiscard:()=>confirmBox('¿Descartar el tiempo del cronómetro? No se anota nada.',async()=>{const b=S.boletas[CR.id];if(b&&await put('boletas',{...b,crono:null})){CR=null;closeModal();render();toast('Cronómetro descartado')}},'Descartar'),
+ prSet:d=>{const k=Object.keys(PR.st)[+d.i];PR.st[k]=PR.st[k]===d.v?'':d.v;prRender()},
+ prAll:()=>{Object.keys(PR.st).forEach(k=>{if(!PR.st[k])PR.st[k]='ok'});prRender()},
+ prOk:()=>prOk(),
+ fiNew:d=>{if(!fiPuede())return;const e=d.eq?eq(d.eq):null;fiEditor(e?{id:uid(),marca:e.marca||'',modelo:e.modelo||'',tipo:catTipos().find(t=>norm(t)===norm(e.tipo))||'',datos:{}}:null);FI._new=1},
+ fiEdit:d=>{if(!fiPuede())return;const f=(CAT().fichas||[]).find(x=>x.id===d.id);if(f)fiEditor(f)},
+ fiSave:()=>fiSave(),
+ fiDel:adminOnly(d=>confirmBox('¿Eliminar esta ficha técnica?',async()=>{const c=CAT();c.fichas=(c.fichas||[]).filter(x=>x.id!==d.id);if(await saveCat(c)){closeModal();render();toast('Ficha eliminada')}},'Eliminar')),
+ nubeNow:adminOnly(async()=>{toast('☁️ Copiando…');try{await nubeHacer(true);render();toast('☁️ Copia guardada en la nube')}catch(e){toast('No se pudo copiar: '+(e.code||e.message))}}),
+ nubeDl:adminOnly(async d=>{const s=await nubeLeer(d.id);if(s)saveFile('respaldo-nube-'+d.id+'.json',s,true)}),
+ nubeRest:adminOnly(async d=>{const s=await nubeLeer(d.id);if(!s)return toast('No se pudo leer la copia');importFile({text:async()=>s})}),
  etqQ:d=>{ETQ.sel[d.id]=Math.max(0,num(ETQ.sel[d.id])+num(d.d));etqRender()},
  etqAll:()=>{const q=norm(ETQ.q);arr(S.repuestos).filter(r=>!q||norm([r.nombre,r.sku,r.codBarras].join(' ')).includes(q)).forEach(r=>{if(!ETQ.sel[r.id])ETQ.sel[r.id]=1});etqRender()},
  etqSin:()=>{arr(S.repuestos).filter(r=>!r.codBarras).forEach(r=>{if(!ETQ.sel[r.id])ETQ.sel[r.id]=1});etqRender()},
@@ -3291,7 +3447,7 @@ document.addEventListener('change',e=>{
 });
 document.addEventListener('submit',async e=>{
   e.preventDefault();
-  if(e.target.id==='cfgForm'){const d=formData(e.target);['garantia','stockMinDef','diasRetiro','diasSinMov','diasTaller','mesesMant','diasAprob','diasPedido'].forEach(k=>{if(k in d)d[k]=num(d[k])});if(await saveCfg({...CFG,...d})){toast('Configuración guardada');render()}}
+  if(e.target.id==='cfgForm'){const d=formData(e.target);['garantia','diasAbandono','nagHoras','stockMinDef','diasRetiro','diasSinMov','diasTaller','mesesMant','diasAprob','diasPedido'].forEach(k=>{if(k in d)d[k]=num(d[k])});if(await saveCfg({...CFG,...d})){toast('Configuración guardada');render()}}
 });
 $('#qGlobal').addEventListener('blur',()=>{if(!UI.q)$('#tsearch').classList.remove('open')});
 async function importFile(file){
