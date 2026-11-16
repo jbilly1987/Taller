@@ -651,6 +651,16 @@ html[data-theme=dark] .sent-msg{color:#5eead4}
 .cntd{min-width:30px;text-align:center;font-size:14px}
 .cntr.cok{background:color-mix(in srgb,#22c55e 7%,transparent)}.cntr.cdiff{background:color-mix(in srgb,#f59e0b 9%,transparent)}
 @media (max-width:860px){.cntr{flex-wrap:wrap}.cntr .mn{flex-basis:100%}.cntin{margin-left:auto}}
+
+.m3modes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.m3m{all:unset;cursor:pointer;padding:7px 12px;border-radius:12px;font-size:13px;font-weight:700;border:1.5px solid var(--line);background:var(--field);touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.m3m.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--ink);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 18%,transparent)}
+.m3wrap{position:relative;border-radius:18px;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,color-mix(in srgb,#14b8a6 10%,var(--surface-hi)),color-mix(in srgb,#8b5cf6 8%,var(--soft)));border:1px solid var(--line)}
+#m3c{display:block;width:100%;height:min(52vh,380px);touch-action:none;cursor:grab}
+.m3tip{position:absolute;left:10px;right:56px;bottom:10px;padding:7px 11px;border-radius:12px;font-size:12.5px;background:color-mix(in srgb,var(--surface-hi) 88%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);pointer-events:none}
+.m3zoom{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:6px}
+.m3zoom button{all:unset;cursor:pointer;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;background:color-mix(in srgb,var(--surface-hi) 90%,transparent);border:1px solid var(--line);touch-action:manipulation}
+.m3p{font-size:12.5px!important}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
 @media (max-width:860px){
   .bnav{left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));padding:6px 6px;border-radius:24px;background:color-mix(in srgb,var(--bg) 60%,transparent);backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);border:1px solid var(--glass-b);box-shadow:var(--sh2)}
@@ -1190,7 +1200,7 @@ function pubEstado(b){
   const doc={n:nb(b.numero),eq:eqShort(e),tipo:e.tipo||'',marca:e.marca||'',modelo:e.modelo||'',est:b.estado,hist:H,fi:b.fechaIngreso||'',fe:b.fechaEstimada||'',
    cli:String(c.nombre||'').split(/\s+/)[0]||'',taller:{n:CFG.nombre||'',tel:CFG.telefono||'',dir:CFG.direccion||'',hor:CFG.horario||''},
    trabajos:(b.trabajos||[]).slice(0,12),mo:(b.manoObra||[]).map(l=>l.d).filter(Boolean).slice(0,12),rep:(b.repuestos||[]).map(l=>({n:l.nombre,c:num(l.cant)||1,u:l.condicion==='Usado'||l.cond==='Usado'})).slice(0,20),
-   diag:b.diagnostico||'',fallas:(b.fallas||[]).slice(0,8),garantia:b.estado==='Entregado'?num(b.garantiaDias??CFG.garantia):0,ent:b.fechaEntrega||'',
+   pz:pzList(b).map(x=>({l:x.l,s:x.st})),diag:b.diagnostico||'',fallas:(b.fallas||[]).slice(0,8),garantia:b.estado==='Entregado'?num(b.garantiaDias??CFG.garantia):0,ent:b.fechaEntrega||'',
    cola:colaPos(b),up:Date.now()};
   const sig=JSON.stringify({...doc,up:0});if(PUBSIG[b.tok]===sig)return;PUBSIG[b.tok]=sig;
   try{DB.collection('estado').doc(b.tok).set(doc).catch(()=>{delete PUBSIG[b.tok]})}catch(e){}
@@ -1319,6 +1329,7 @@ function vOrden(id){
     <div class="card ${LK?'lk':''}"><div class="ch"><h2>${hic('box')} Repuestos utilizados</h2><button class="btn sm" data-act="ppAdd" data-id="${b.id}" title="Pedir un repuesto que no hay">${ic('cart')} Falta</button><button class="btn sm p" data-act="addRep" data-id="${b.id}">${ic('plus')} Agregar</button></div>
      ${lines.length?`<div class="lines">${lines.map((l,i)=>`<div class="ln"><div style="flex:1;min-width:0"><div style="font-weight:600" class="ell">${esc(l.nombre)}</div><div class="small muted"><span class="mono">${esc(l.sku||'Sin código')}</span> · <span class="tag ${l.condicion==='Usado'?'u':'n'}">${esc(condLbl(l.condicion))}</span></div></div><div class="qty"><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="-1">${ic('minus')}</button><span>${num(l.cant)}</span><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="1">${ic('plus')}</button></div><button class="ib" data-act="rmLine" data-id="${b.id}" data-i="${i}" title="Quitar">${ic('trash')}</button></div>`).join('')}</div>`:emptyBox('box','Sin repuestos','Agregue los repuestos nuevos o de segunda que se instalen; se descuentan del inventario.')}</div>
     ${moCard(b)}
+    ${pzCard(b)}
     ${esTaller()&&isOpen(b)?modCard(b):''}
     <div class="card"><div class="ch"><h2>${hic('clock')} Historial</h2><button class="btn sm" data-act="nota" data-id="${b.id}">${ic('plus')} Nota</button></div>
      <ul class="tl">${(b.historial||[]).slice().reverse().map(h=>`<li style="--c:${est(h.estado).c}"><b>${esc(h.estado)}</b> <span class="muted small">· ${fts(h.t)}${h.por?' · '+esc(h.por):''}</span>${h.nota?`<div class="small" style="margin-top:2px">${esc(h.nota)}</div>`:''}</li>`).join('')}</ul></div>
@@ -2419,6 +2430,108 @@ function modCard(b){
    ${st.trab.length?`<div class="lbl">Trabajos que más se le hacen</div><div class="pillist" style="margin-bottom:10px">${chips(st.trab,'w')}</div>`:''}
    ${st.rep.length?`<div class="lbl">Repuestos más usados</div><div class="pillist">${chips(st.rep,'')}</div>`:''}</div></div>`;
 }
+
+/* ================== Vista 3D de la máquina ================== */
+const PZ_ST={cambiado:{l:'Cambiado',c:'#22c55e',em:'🟢'},revisado:{l:'Revisado',c:'#3b82f6',em:'🔵'},dano:{l:'Con daño',c:'#ef4444',em:'🔴'}};
+function m3dKind(t){const n=norm(t);return /motosierra|sierra/.test(n)?'sierra':/desbroz|chapead|guadan|motoguad|bordead|orillad/.test(n)?'desb':/fumig|bomba|aspers|atomiz|espalda/.test(n)?'bomba':/podador|cortacesp|cortacésp|corta ?cesped|zacate/.test(n)?'corta':'motor'}
+function m3dModel(kind){
+  const P=[];const O='#f97316',D='#374151',G='#9ca3af',S='#cbd5e1',K='#1f2937',W='#f1f5f9',Y='#eab308',B='#0ea5e9';
+  const box=(k,l,c,x,y,z,sx,sy,sz)=>P.push({t:'b',k,l,c,x,y,z,sx,sy,sz});
+  const cyl=(k,l,c,x,y,z,r,h,ax,seg)=>P.push({t:'c',k,l,c,x,y,z,r,h,ax,seg:seg||14});
+  const motor=(x,y,z)=>{box('carcasa','Carcasa del motor',O,x,y,z,1.5,1.0,0.95);cyl('cilindro','Cilindro / pistón',G,x+.15,y+.75,z,.34,.55,'y');cyl('bujia','Bujía',W,x+.15,y+1.18,z,.09,.3,'y',8);
+    box('filtro','Filtro de aire',K,x-.45,y+.62,z+.05,.55,.32,.75);box('carburador','Carburador',S,x-.48,y+.25,z+.55,.4,.3,.25);cyl('arrancador','Arrancador',D,x-.1,y-.05,z-.55,.42,.16,'z');
+    box('silenciador','Silenciador / escape',G,x+.62,y+.35,z+.55,.45,.45,.25);box('tanque','Tanque de combustible','#ea580c',x-.25,y-.62,z,1.2,.35,.9)};
+  if(kind==='sierra'){motor(0,.6,0);box('manija_t','Manija trasera / acelerador',K,-1.25,.62,0,.95,.2,.26);box('manija_t','Manija trasera / acelerador',K,-1.65,.4,0,.18,.6,.26);
+    box('manija_d','Manija delantera',K,.1,1.75,0,.18,.18,1.3);box('manija_d','Manija delantera',K,.1,1.3,.6,.18,.9,.18);box('manija_d','Manija delantera',K,.1,1.3,-.6,.18,.9,.18);
+    box('freno','Freno de cadena',O,.82,1.1,0,.1,.75,.85);cyl('pinon','Piñón y embrague',D,.92,.55,0,.24,.22,'z');
+    box('espada','Espada',S,2.25,.55,0,2.6,.34,.06);box('cadena','Cadena',K,2.25,.76,0,2.75,.07,.1);box('cadena','Cadena',K,2.25,.34,0,2.75,.07,.1);cyl('cadena','Cadena',K,3.6,.55,0,.22,.1,'z',10)}
+  else if(kind==='desb'){motor(-2.4,.55,0);cyl('embrague','Embrague',D,-1.55,.65,0,.3,.3,'x');cyl('eje','Eje / tubo de transmisión',G,.4,.65,0,.1,3.6,'x',10);
+    box('manubrio','Manubrio',K,-.6,1.45,0,.14,.14,2.2);box('manubrio','Manubrio',K,-.6,1.05,0,.12,.8,.12);box('acelerador','Acelerador',O,-.6,1.45,1.05,.24,.24,.3);
+    box('cabezal','Cabezal / caja de engranes',D,2.35,.55,0,.4,.45,.4);cyl('cuchilla','Cuchilla / cabezal de nylon',S,2.4,.22,0,.85,.06,'y',18);box('protector','Protector',O,2.05,.45,0,.35,.08,1.1);box('arnes','Arnés',B,-.3,.68,.0,.5,.25,.5)}
+  else if(kind==='bomba'){box('tanque_q','Tanque del líquido',W,0,1.6,0,1.6,2.0,.9);box('tapa','Tapa del tanque',Y,0,2.7,0,.6,.15,.5);motor(0,-.15,.95);
+    cyl('bomba','Bomba',B,.9,.2,.95,.25,.45,'y');box('correas','Correas / arnés',K,.55,1.6,-.55,.15,1.8,.12);box('correas','Correas / arnés',K,-.55,1.6,-.55,.15,1.8,.12);
+    cyl('manguera','Manguera',K,1.4,.9,.6,.07,1.9,'y',8);cyl('lanza','Lanza / pistola',G,2.0,1.85,.6,.06,1.3,'x',8);box('boquilla','Boquilla',Y,2.75,1.85,.6,.15,.15,.15)}
+  else if(kind==='corta'){box('chasis','Chasis / plato de corte',G,0,.35,0,2.0,.3,1.7);motor(0,1.1,0);cyl('cuchilla','Cuchilla',S,0,.18,0,.8,.05,'y',18);
+    [[.8,.6],[.8,-.6],[-.8,.6],[-.8,-.6]].forEach(([x,z])=>cyl('ruedas','Ruedas',K,x,.2,z*1.35,.28,.16,'z'));box('manubrio','Manubrio',K,-1.6,1.4,0,.12,1.4,1.1);box('bolsa','Bolsa recolectora',B,-1.45,.6,0,.7,.6,1.0)}
+  else{motor(0,.5,0);box('base','Base / chasis',K,0,-.35,0,2.2,.15,1.4);cyl('eje','Eje de salida',G,1.0,.5,0,.12,.6,'x',10)}
+  return P;
+}
+function m3dFaces(P){
+  const F=[];P.forEach(p=>{const c=p.c;
+    if(p.t==='b'){const hx=p.sx/2,hy=p.sy/2,hz=p.sz/2;const v=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]].map(([a,b,d])=>[p.x+a*hx,p.y+b*hy,p.z+d*hz]);
+      [[0,1,2,3],[5,4,7,6],[4,0,3,7],[1,5,6,2],[3,2,6,7],[4,5,1,0]].forEach(f=>F.push({k:p.k,c,v:f.map(i=>v[i])}))}
+    else{const n=p.seg,h=p.h/2,pt=(a,y)=>{const u=Math.cos(a)*p.r,w=Math.sin(a)*p.r;return p.ax==='y'?[p.x+u,p.y+y,p.z+w]:p.ax==='x'?[p.x+y,p.y+u,p.z+w]:[p.x+u,p.y+w,p.z+y]};
+      const top=[],bot=[];for(let i=0;i<n;i++){const a=i/n*Math.PI*2,a2=(i+1)/n*Math.PI*2;F.push({k:p.k,c,v:[pt(a,-h),pt(a2,-h),pt(a2,h),pt(a,h)]});top.push(pt(a,h));bot.push(pt(a,-h))}
+      F.push({k:p.k,c,v:top});F.push({k:p.k,c,v:bot.reverse()})}});
+  return F;
+}
+let M3=null;
+function m3dOpen(id){
+  const b=S.boletas[id];if(!b)return;const e=eq(b.equipoId)||{};const kind=m3dKind(e.tipo);const P=m3dModel(kind);
+  const parts=[];P.forEach(p=>{if(!parts.some(x=>x.k===p.k))parts.push({k:p.k,l:p.l})});
+  const can=esTaller()&&!bloqueado(b)&&(isOpen(b)||isAdmin());
+  const F=m3dFaces(P),V=F.flatMap(f=>f.v);const mn=[0,1,2].map(i=>Math.min(...V.map(v=>v[i]))),mx=[0,1,2].map(i=>Math.max(...V.map(v=>v[i])));const C=mn.map((v,i)=>(v+mx[i])/2);const RR=Math.max(...V.map(v=>Math.hypot(v[0]-C[0],v[1]-C[1],v[2]-C[2])));
+  M3={id,kind,P,F,C,RR,parts,mark:{...(b.partes||{})},mode:'cambiado',yaw:-.6,pitch:.42,zoom:1,auto:true,sel:'',can,hover:''};
+  openModal(`🧩 Vista 3D · ${esc(eqShort(e)||e.tipo||'Máquina')}`,`
+   ${can?`<div class="m3modes">${Object.entries(PZ_ST).map(([k,v])=>`<button type="button" class="m3m ${k==='cambiado'?'on':''}" data-m3="${k}" style="--c:${v.c}">${v.em} ${v.l}</button>`).join('')}<button type="button" class="m3m" data-m3="" style="--c:#94a3b8">⚪ Quitar</button></div>`:''}
+   <div class="m3wrap"><canvas id="m3c"></canvas><div class="m3tip" id="m3tip">${can?'👆 Toque una pieza para marcarla · arrastre para girar':'Arrastre para girar · solo lectura'}</div><div class="m3zoom"><button type="button" data-m3z="1.15">＋</button><button type="button" data-m3z="0.87">－</button><button type="button" data-m3z="0">⟲</button></div></div>
+   <div class="lbl" style="margin-top:12px">Piezas</div><div class="cp" id="m3list"></div>`,
+   `<span class="small muted" id="m3cnt"></span><span class="sp"></span><button class="btn" data-act="close">${can?'Cancelar':'Cerrar'}</button>${can?`<button class="btn p" data-act="m3save">${ic('check')} Guardar</button>`:''}`,'lg');
+  m3dList();m3dBind();
+}
+function m3dList(){const L=$('#m3list');if(!L||!M3)return;
+  L.innerHTML=M3.parts.map(p=>{const st=PZ_ST[M3.mark[p.k]];return `<button type="button" class="cpc m3p ${st?'on':''}" data-m3p="${p.k}" style="${st?`background:${st.c};border-color:${st.c};color:#fff`:''}">${st?st.em+' ':''}${esc(p.l)}</button>`}).join('');
+  const n=Object.keys(M3.mark).length,c=$('#m3cnt');if(c)c.textContent=n?`${n} pieza${n!==1?'s':''} marcada${n!==1?'s':''}`:''}
+function m3dMark(k){if(!M3||!M3.can)return;const pl=(M3.parts.find(p=>p.k===k)||{}).l||k;
+  if(!M3.mode||M3.mark[k]===M3.mode)delete M3.mark[k];else M3.mark[k]=M3.mode;M3.sel=k;
+  const st=PZ_ST[M3.mark[k]];const t=$('#m3tip');if(t)t.innerHTML=`<b>${esc(pl)}</b> → ${st?st.em+' '+st.l:'sin marcar'}`;try{navigator.vibrate&&navigator.vibrate(25)}catch(e){}m3dList();m3dDraw()}
+function m3dProj(){const W=M3.W,H=M3.H,cy=Math.cos(M3.yaw),sy=Math.sin(M3.yaw),cp=Math.cos(M3.pitch),sp=Math.sin(M3.pitch);
+  const sc=Math.min(W*.5,H*.62)/M3.RR*M3.zoom;const dist=M3.RR*3.2;const C=M3.C;
+  return v=>{let x=v[0]-C[0],y=v[1]-C[1],z=v[2]-C[2];let x1=x*cy-z*sy,z1=x*sy+z*cy;let y2=y*cp-z1*sp,z2=y*sp+z1*cp;const f=dist/(dist+z2);return [W/2+x1*sc*f,H*.47-y2*sc*f,z2,x1,y2]}}
+function shade(hex,k){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;r=Math.min(255,r*k);g=Math.min(255,g*k);b=Math.min(255,b*k);return `rgb(${r|0},${g|0},${b|0})`}
+function m3dDraw(){
+  if(!M3)return;const cv=$('#m3c');if(!cv)return;const ctx=cv.getContext('2d');const dpr=window.devicePixelRatio||1;const W=cv.clientWidth,H=cv.clientHeight;
+  if(cv.width!==W*dpr||cv.height!==H*dpr){cv.width=W*dpr;cv.height=H*dpr}M3.W=W;M3.H=H;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+  const pr=m3dProj();
+  const g=ctx.createRadialGradient(W/2,H*.86,10,W/2,H*.86,W*.42);g.addColorStop(0,'rgba(0,0,0,.18)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(W/2,H*.86,W*.42,H*.07,0,0,Math.PI*2);ctx.fill();
+  const L=[.35,.75,-.55];const ln=Math.hypot(...L);
+  const fs=M3.F.map(f=>{const q=f.v.map(pr);const z=q.reduce((a,p)=>a+p[2],0)/q.length;
+    const a=[q[1][3]-q[0][3],q[1][4]-q[0][4],q[1][2]-q[0][2]],b2=[q[2][3]-q[0][3],q[2][4]-q[0][4],q[2][2]-q[0][2]];const nx=a[1]*b2[2]-a[2]*b2[1],ny=a[2]*b2[0]-a[0]*b2[2],nz=a[0]*b2[1]-a[1]*b2[0];const nl=Math.hypot(nx,ny,nz)||1;
+    const li=Math.abs((nx*L[0]+ny*L[1]+nz*L[2])/(nl*ln));return {f,q,z,li}}).sort((a,b)=>b.z-a.z);
+  M3.drawn=fs;
+  fs.forEach(({f,q,li})=>{const st=PZ_ST[M3.mark[f.k]];const base=st?st.c:f.c;const hov=M3.hover===f.k;
+    ctx.beginPath();q.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();
+    ctx.fillStyle=shade(base,(.55+li*.6)*(hov?1.18:1));ctx.fill();ctx.strokeStyle=st?shade(st.c,.6):'rgba(0,0,0,.18)';ctx.lineWidth=st||hov?1.2:.6;ctx.stroke()});
+}
+function m3dPick(x,y){if(!M3||!M3.drawn)return '';for(let i=M3.drawn.length-1;i>=0;i--){const q=M3.drawn[i].q;let ins=false;for(let a=0,b=q.length-1;a<q.length;b=a++){const xi=q[a][0],yi=q[a][1],xj=q[b][0],yj=q[b][1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))ins=!ins}if(ins)return M3.drawn[i].f.k}return ''}
+function m3dBind(){
+  const cv=$('#m3c');if(!cv)return;let down=null,moved=0,pinch=null;const pts=new Map();
+  const pos=e=>{const r=cv.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top]};
+  cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,pos(e));M3.auto=false;if(pts.size===1){down=pos(e);moved=0}else if(pts.size===2){const [a,b]=[...pts.values()];pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1]),z:M3.zoom}}});
+  cv.addEventListener('pointermove',e=>{const p=pos(e);if(!pts.has(e.pointerId)){const k=m3dPick(p[0],p[1]);if(k!==M3.hover){M3.hover=k;cv.style.cursor=k&&M3.can?'pointer':'grab';m3dDraw()}return}
+    const prev=pts.get(e.pointerId);pts.set(e.pointerId,p);
+    if(pts.size===2&&pinch){const [a,b]=[...pts.values()];M3.zoom=Math.max(.5,Math.min(2.6,pinch.z*Math.hypot(a[0]-b[0],a[1]-b[1])/pinch.d));m3dDraw();return}
+    const dx=p[0]-prev[0],dy=p[1]-prev[1];moved+=Math.abs(dx)+Math.abs(dy);M3.yaw+=dx*.012;M3.pitch=Math.max(-.2,Math.min(1.3,M3.pitch+dy*.01));m3dDraw()});
+  const up=e=>{const p=pos(e);pts.delete(e.pointerId);if(pts.size<2)pinch=null;if(down&&moved<8&&pts.size===0){const k=m3dPick(p[0],p[1]);if(k)m3dMark(k);else{const t=$('#m3tip');if(t&&M3.can)t.textContent='👆 Toque sobre una pieza'}}if(!pts.size)down=null};
+  cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',e=>{pts.delete(e.pointerId);down=null});
+  cv.addEventListener('wheel',e=>{e.preventDefault();M3.zoom=Math.max(.5,Math.min(2.6,M3.zoom*(e.deltaY<0?1.1:.9)));m3dDraw()},{passive:false});
+  const box=$('#modal');box.querySelectorAll('[data-m3]').forEach(b=>b.onclick=()=>{M3.mode=b.dataset.m3;box.querySelectorAll('[data-m3]').forEach(x=>x.classList.toggle('on',x===b))});
+  box.querySelectorAll('[data-m3z]').forEach(b=>b.onclick=()=>{const z=+b.dataset.m3z;if(z)M3.zoom=Math.max(.5,Math.min(2.6,M3.zoom*z));else{M3.zoom=1;M3.yaw=-.6;M3.pitch=.42}m3dDraw()});
+  $('#m3list').addEventListener('click',e=>{const b=e.target.closest('[data-m3p]');if(b)m3dMark(b.dataset.m3p)});
+  const loop=()=>{if(!M3||!document.body.contains(cv))return;if(M3.auto){M3.yaw+=.006;m3dDraw()}requestAnimationFrame(loop)};m3dDraw();requestAnimationFrame(loop);
+  window.addEventListener('resize',m3dDraw);
+}
+async function m3dSave(){if(!M3)return;const b=S.boletas[M3.id];if(!b)return;const prev=b.partes||{};const mark={...M3.mark};
+  const lbl=k=>(M3.parts.find(p=>p.k===k)||{}).l||k;const ch=Object.keys(mark).filter(k=>prev[k]!==mark[k]);
+  const h=[...(b.historial||[])];if(ch.length)h.push({t:Date.now(),estado:b.estado,nota:'Vista 3D: '+ch.map(k=>`${lbl(k)} ${(PZ_ST[mark[k]]||{l:'sin marcar'}).l.toLowerCase()}`).join(', '),por:quien(),dev:DEV});
+  const pl={};Object.keys(mark).forEach(k=>pl[k]=lbl(k));
+  if(await put('boletas',{...b,partes:mark,partesLbl:pl,historial:h})){M3=null;closeModal();render();toast('🧩 Piezas guardadas')}}
+const pzList=b=>Object.entries(b.partes||{}).map(([k,v])=>({k,l:(b.partesLbl||{})[k]||k,st:v})).filter(x=>PZ_ST[x.st]);
+function pzCard(b){const L=pzList(b);const can=esTaller()&&!bloqueado(b);
+  return `<div class="card"><div class="ch"><h2><span class="hem">🧩</span> Piezas de la máquina ${L.length?`<span class="badge" style="background:var(--pri-l);color:var(--pri)">${L.length}</span>`:''}</h2><button class="btn sm ${can?'p':''}" data-act="m3d" data-id="${b.id}">🧊 Ver en 3D</button></div>
+   ${L.length?`<div class="cp-in"><div class="pillist">${L.map(x=>`<span class="pl" style="background:color-mix(in srgb,${PZ_ST[x.st].c} 14%,transparent);color:${PZ_ST[x.st].c};border-color:color-mix(in srgb,${PZ_ST[x.st].c} 35%,transparent)">${PZ_ST[x.st].em} ${esc(x.l)} · ${PZ_ST[x.st].l.toLowerCase()}</span>`).join('')}</div></div>`
+   :`<div class="cp-in small muted">${can?'Toque <b>Ver en 3D</b> y marque con un toque las piezas que se cambiaron, revisaron o tienen daño.':'Aún no hay piezas marcadas.'}</div>`}</div>`}
+function pbPZ(b){const L=pzList(b);if(!L.length)return '';return `<h4>Piezas</h4><p>${L.map(x=>`${PZ_ST[x.st].l}: <b>${esc(x.l)}</b>`).join(' · ')}</p>`}
 function moCard(b){
   const L=b.manoObra||[];const can=moPuede(b);
   return `<div class="card"><div class="ch"><h2><span class="hem">🛠️</span> Mano de obra ${L.length?`<span class="badge" style="background:var(--pri-l);color:var(--pri)">⏱️ ${fh(moH(b))}</span>`:''}</h2>${can?`<button class="btn sm p" data-act="moAdd" data-id="${b.id}">${ic('plus')} Agregar</button>`:''}</div>
@@ -2475,6 +2588,7 @@ function tallerBody(b){
   <h4>Trabajo realizado</h4>${trabTxt(b)?`<p>${esc(trabTxt(b))}</p>`:'<div class="wl"></div><div class="wl"></div><div class="wl"></div>'}
   <h4>Repuestos usados</h4>${(b.repuestos||[]).length?pbRepuestos(b).replace('<h4>Repuestos instalados</h4>',''):'<table><thead><tr><th>Código</th><th>Repuesto</th><th>Nuevo / Segunda</th><th>Cant.</th></tr></thead><tbody>'+'<tr><td>&nbsp;</td><td></td><td></td><td></td></tr>'.repeat(4)+'</tbody></table>'}
   ${pbMO(b,true)}
+  ${pbPZ(b)}
   ${b.notas?`<h4>Notas internas</h4><p>${esc(b.notas)}</p>`:''}
   <div class="sig"><div>Técnico</div><div>Revisado por</div></div>`;
 }
@@ -2490,6 +2604,7 @@ function entregaBody(b){
   ${cs.n?`<h4>Revisión del equipo</h4><p>${Object.keys(c).filter(k=>c[k]!=='na').map(k=>c[k]==='mal'?`<b style="color:#b91c1c">✗ ${esc(k)}</b>`:`✓ ${esc(k)}`).join(' &nbsp;·&nbsp; ')}</p>`:''}
   ${pbRepuestos(b)}
   ${pbMO(b)}
+  ${pbPZ(b)}
   <div class="two"><div><h4>Accesorios</h4><p>Trajo: ${esc(accTxt(b)||'nada adicional')}</p>${b.recepRecibio&&(b.recepRecibio.faltan||[]).length?`<p style="color:#b91c1c">Faltan al devolver: ${esc(b.recepRecibio.faltan.join(', '))}</p>`:b.recepRecibio?'<p>Se devuelve todo lo recibido.</p>':''}</div>
   <div><h4>Garantía</h4><p>${num(b.garantiaDias)?`${num(b.garantiaDias)} días${gh?` · hasta el <b>${fdate(gh)}</b>`:''}`:'Sin garantía'}</p>${b.tecnico?`<p>Técnico: ${esc(b.tecnico)}</p>`:''}</div></div>
   <h4>Recorrido del equipo</h4><table><thead><tr><th>Paso</th><th>Fecha</th><th>Responsable</th></tr></thead><tbody>
@@ -2676,6 +2791,8 @@ const A={
  scan:()=>scanQR(),
  mantOk:async d=>{const b=S.boletas[d.id];if(!b)return;if(await put('boletas',{...b,mantAvisado:Date.now(),mantPor:quien()})){toast('Listo, recordatorio cerrado');render()}},
  consulta:d=>consultaModal(d.id),
+ m3d:d=>m3dOpen(d.id),
+ m3save:()=>m3dSave(),
  cntStep:d=>{const r=rep(d.id);if(!r)return;const c=CNT[d.id];const cur=c==null||c===''?(+d.d>0?0:num(r.stock)):num(c);CNT[d.id]=String(Math.max(0,cur+num(d.d)));cntSave();cntRow(d.id)},
  cntReset:()=>confirmBox('¿Borrar lo contado y empezar de nuevo?',()=>{CNT={};cntSave();closeModal();render()},'Empezar de nuevo'),
  cntScan:()=>scanCode({title:'📋 Contar escaneando',hint:'Cada vez que escanee un repuesto se suma 1 al conteo.',keep:true,manual:'…o escriba el código',onCode:t=>{const n=norm(t);const r=arr(S.repuestos).find(r=>[r.codBarras,r.sku,r.codProv].some(x=>x&&norm(x)===n));if(!r){chime([220]);return '❓ Código '+t+' no está en el inventario'}const c=CNT[r.id];CNT[r.id]=String((c==null||c===''?0:num(c))+1);cntSave();cntRow(r.id);return `✔ ${r.nombre}: ${CNT[r.id]} contado${CNT[r.id]==='1'?'':'s'}`}}),

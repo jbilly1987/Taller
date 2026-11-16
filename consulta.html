@@ -104,7 +104,7 @@ function view(d){
   const e=EST[d.est]||EST['Recibido'];const si=stepIdx(d.est);const T=d.taller||{};const tel=String(T.tel||'').replace(/\D/g,'');const tl=tel.length===8?'506'+tel:tel;
   const wa=tl?`https://wa.me/${tl}?text=${encodeURIComponent(`Hola, le escribo por mi equipo ${d.eq||''} (orden ${d.n}).`)}`:'';
   const cola=d.cola&&['Recibido','En diagnóstico'].includes(d.est)?d.cola:null;
-  const hechos=(d.trabajos||[]).length||(d.mo||[]).length||(d.rep||[]).length||d.diag;
+  const hechos=(d.trabajos||[]).length||(d.mo||[]).length||(d.rep||[]).length||(d.pz||[]).length||d.diag;
   $('#app').innerHTML=`
   <div class="card"><div class="top"><div class="logo">🔧</div><div style="flex:1;min-width:0"><div class="tn">${esc(T.n||'Servicio técnico')}</div><div class="ts">Seguimiento de su máquina</div></div><span class="live"><i></i>En vivo</span></div>
    <div class="num">Orden ${esc(d.n)}</div><h1>${tipoEm(d.tipo)} ${esc(d.eq||'Su máquina')}</h1><div class="sub">${d.cli?'Hola, '+esc(d.cli)+' · ':''}Recibida el ${esc(fd(d.fi))}</div>
@@ -118,6 +118,7 @@ function view(d){
    ${(d.fallas||[]).length?`<div class="lbl">Lo que usted reportó</div><div class="chips">${d.fallas.map(x=>`<span class="chip f">${esc(x)}</span>`).join('')}</div>`:''}
    ${d.diag?`<div class="lbl">Diagnóstico del mecánico</div><p style="margin:0;font-size:14px;line-height:1.5">${esc(d.diag)}</p>`:''}
    ${[...new Set([...(d.trabajos||[]),...(d.mo||[])])].length?`<div class="lbl">Trabajos realizados</div><div class="chips">${[...new Set([...(d.trabajos||[]),...(d.mo||[])])].map(x=>`<span class="chip">✔ ${esc(x)}</span>`).join('')}</div>`:''}
+   ${(d.pz||[]).length?`<div class="lbl">Piezas</div><div class="chips">${d.pz.map(x=>`<span class="chip ${x.s==='dano'?'f':x.s==='revisado'?'r':''}">${x.s==='cambiado'?'🟢 Cambiada':x.s==='revisado'?'🔵 Revisada':'🔴 Con daño'}: ${esc(x.l)}</span>`).join('')}</div>`:''}
    ${(d.rep||[]).length?`<div class="lbl">Repuestos instalados</div><div class="chips">${d.rep.map(r=>`<span class="chip r">${r.c>1?r.c+' × ':''}${esc(r.n)}${r.u?' (de segunda)':''}</span>`).join('')}</div>`:''}
    ${!hechos?`<p class="muted small" style="margin:10px 0 0">Todavía no hay trabajos anotados. Aquí aparecerán apenas el mecánico avance.</p>`:''}</div>`:''}
   ${(d.hist||[]).length?`<div class="card"><h2>🕒 Historial</h2><ul class="tl">${d.hist.slice().reverse().map(h=>`<li><b>${(EST[h.e]||{}).em||'•'} ${esc(h.e)}</b><small>${esc(ft(h.t))}</small></li>`).join('')}</ul></div>`:''}
