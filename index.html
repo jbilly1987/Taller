@@ -152,7 +152,7 @@ table.t .n{text-align:right;font-variant-numeric:tabular-nums}
 .cpadd{display:inline-flex;gap:6px;align-items:center}
 .cpadd input{padding:7px 10px;border:1.5px solid var(--pri);border-radius:10px;outline:none;width:180px}
 .cpfil{margin-bottom:8px;width:100%;max-width:280px}
-.cpx{all:unset;cursor:pointer;margin-left:2px;opacity:.55;font-size:15px;line-height:1}.cpx:hover{opacity:1;color:var(--red)}
+.cpx{all:unset;cursor:pointer;margin-left:6px;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:14px;line-height:1;color:var(--red);background:var(--red-l);opacity:.85;touch-action:manipulation}.cpx:hover{opacity:1;background:var(--red);color:#fff}.catc{cursor:pointer}
 /* form */
 .f{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;min-width:0}
 .f>label,.fl{font-size:13px;font-weight:600;color:var(--ink2)}
@@ -1939,23 +1939,41 @@ function vRepuesto(id){
 
 /* ================== Catálogo ================== */
 const CATSECS=[['tipos','Tipos de máquina','Aparecen al recibir una máquina, con su ícono.'],['marcas','Marcas',''],['fallas','Fallas frecuentes','Se marcan con un toque en la recepción.'],['trabajos','Trabajos frecuentes','Se marcan con un toque en el trabajo del taller.'],['condiciones','Condición al recibir',''],['faltantes','Lo que no trae / le falta','Piezas que se marcan como faltantes al recibir.'],['procedencias','Procedencia','De dónde vienen las máquinas: comunidades, fincas, tiendas.'],['personas','Personas del taller','Nombres para registrar quién hizo cada cosa (además de los técnicos).'],['accesorios','Accesorios',''],['servicios','Tipos de servicio',''],['tecnicos','Técnicos / mecánicos',''],['categorias','Categorías de repuestos','']];
+
+/* ---------- Catálogo: renombrar / eliminar ---------- */
+function catUso(k,v){const n=norm(v);const E=arr(S.equipos),B=arr(S.boletas);
+  if(k==='tipos')return E.filter(e=>norm(e.tipo)===n).length;if(k==='marcas')return E.filter(e=>norm(e.marca)===n).length;
+  if(k==='fallas')return B.filter(b=>(b.fallas||[]).some(x=>norm(x)===n)).length;if(k==='trabajos')return B.filter(b=>(b.trabajos||[]).some(x=>norm(x)===n)).length;
+  if(k==='faltantes')return B.filter(b=>(b.faltantes||[]).some(x=>norm(x)===n)).length;if(k==='condiciones')return B.filter(b=>norm(b.condicion)===n).length;
+  if(k==='procedencias')return B.filter(b=>norm(b.procedencia)===n).length;if(k==='accesorios')return B.filter(b=>(b.accesorios||[]).some(x=>norm(x)===n)).length;
+  if(k==='categorias')return arr(S.repuestos).filter(r=>norm(r.categoria)===n).length;return 0}
+const catTit=k=>(CATSECS.find(x=>x[0]===k)||[k,k])[1];
+function catEditForm(k,v){
+  openModal(`✏️ ${esc(catTit(k))}`,`<div class="f"><label>Nombre</label><input id="catRen" value="${esc(v)}" autocomplete="off"></div>
+   <p class="small muted">Se cambia en la lista para elegir${k==='tipos'||k==='marcas'?' y en los modelos de esa '+(k==='tipos'?'clase':'marca'):''}. Las órdenes y máquinas ya guardadas conservan el nombre anterior.</p>`,
+   `<button class="btn d" data-act="catDel" data-k="${esc(k)}" data-v="${esc(v)}">${ic('trash')} Eliminar</button><span class="sp"></span><button class="btn" data-act="close">Cancelar</button><button class="btn p" data-act="catRen" data-k="${esc(k)}" data-v="${esc(v)}">${ic('check')} Guardar</button>`,'sm');
+  setTimeout(()=>{const i=$('#catRen');if(i){i.focus();i.select()}},50);
+}
 function vCatalogo(){
   const c=CAT();const A=isAdmin();
-  const block=([k,t,d])=>`<div class="card"><div class="ch"><h2>${esc(t)} <span class="muted" style="font-weight:500">${c[k].length}</span></h2></div><div class="cp-in">${d?`<p class="small muted" style="margin-top:0">${d}</p>`:''}<div class="cp">${c[k].map(v=>`<span class="cpc">${k==='tipos'?`<span class="em">${tipoEm(v)}</span>`:''}${esc(v)}${A?`<button class="cpx" data-act="catDel" data-k="${k}" data-v="${esc(v)}" title="Quitar">×</button>`:''}</span>`).join('')}
+  const block=([k,t,d])=>`<div class="card"><div class="ch"><h2>${esc(t)} <span class="muted" style="font-weight:500">${c[k].length}</span></h2></div><div class="cp-in">${d?`<p class="small muted" style="margin-top:0">${d}</p>`:''}<div class="cp">${c[k].map(v=>`<span class="cpc catc" data-act="catEdit" data-k="${k}" data-v="${esc(v)}">${k==='tipos'?`<span class="em">${tipoEm(v)}</span>`:''}${esc(v)}${true?`<button class="cpx" data-act="catDel" data-k="${k}" data-v="${esc(v)}" title="Quitar">×</button>`:''}</span>`).join('')}
    <span class="cpadd"><input id="ca_${k}" placeholder="Agregar…" data-catadd="${k}"><button class="btn sm p" data-act="catAdd" data-k="${k}">${ic('plus')}</button></span></div></div></div>`;
   const byM={};c.modelos.forEach(m=>{(byM[m.m||'Sin marca']=byM[m.m||'Sin marca']||[]).push(m)});
-  return `<div class="ph"><div><h1>Catálogo</h1><div class="sub">Lo que aparece para elegir con un toque. También se agrega solo desde los formularios.</div></div></div>
+  return `<div class="ph"><div><h1>Catálogo</h1><div class="sub">Lo que aparece para elegir con un toque. Toque una opción para <b>cambiarle el nombre</b>, o la <b>×</b> para eliminarla.</div></div></div>
   <div class="grid g2" style="align-items:start">
    ${block(CATSECS[0])}
    <div class="card"><div class="ch"><h2>Modelos <span class="muted" style="font-weight:500">${c.modelos.length}</span></h2></div><div class="cp-in">
     <div class="fr" style="align-items:end"><div class="f"><label>Marca</label><select id="nmM">${catMarcas().map(m=>`<option>${esc(m)}</option>`).join('')}</select></div><div class="f"><label>Tipo</label><select id="nmT"><option value="">(cualquiera)</option>${catTipos().map(m=>`<option>${esc(m)}</option>`).join('')}</select></div><div class="f"><label>Modelo</label><input id="nmN" placeholder="Ej. MS 250"></div></div>
     <button class="btn sm p" data-act="catAddModelo" style="margin-bottom:14px">${ic('plus')} Agregar modelo</button>
-    ${Object.entries(byM).sort().map(([m,ms])=>`<div style="margin-bottom:12px"><div class="lbl">${esc(m)}</div><div class="cp">${ms.map(x=>`<span class="cpc" title="${esc(x.t||'')}">${x.t?`<span class="em">${tipoEm(x.t)}</span>`:''}${esc(x.n)}${A?`<button class="cpx" data-act="catDelModelo" data-m="${esc(x.m)}" data-n="${esc(x.n)}">×</button>`:''}</span>`).join('')}</div></div>`).join('')}</div></div>
+    ${Object.entries(byM).sort().map(([m,ms])=>`<div style="margin-bottom:12px"><div class="lbl">${esc(m)}</div><div class="cp">${ms.map(x=>`<span class="cpc catc" title="${esc(x.t||'')}">${x.t?`<span class="em">${tipoEm(x.t)}</span>`:''}${esc(x.n)}${true?`<button class="cpx" data-act="catDelModelo" data-m="${esc(x.m)}" data-n="${esc(x.n)}">×</button>`:''}</span>`).join('')}</div></div>`).join('')}</div></div>
    <div class="card"><div class="ch"><h2>Proveedores <span class="muted" style="font-weight:500">${provs().length}</span></h2><button class="btn sm" data-act="nav" data-page="proveedores">${ic('edit')} Administrar</button></div><div class="cp-in"><p class="small muted" style="margin-top:0">Con su WhatsApp, para enviarles los pedidos.</p><div class="cp">${provs().map(p=>`<span class="cpc">${esc(p.n)}${p.tel?` <span class="small muted">${esc(p.tel)}</span>`:' <span class="small" style="color:var(--red)">sin tel.</span>'}</span>`).join('')||'<span class="small muted">Ninguno todavía.</span>'}</div></div></div>
    ${(()=>{const r=c.revision||{};const ks=Object.keys(r);const t=ks.includes(UI.revT)?UI.revT:ks[0]||'General';return `<div class="card"><div class="ch"><h2>Lista de revisión por tipo</h2></div><div class="cp-in"><p class="small muted" style="margin-top:0">Los puntos que el mecánico marca como Bien / Falla al revisar. Los tipos sin lista propia usan “General”.</p>
      <div class="row" style="margin-bottom:12px"><select class="sel" id="revT" data-ui="revT">${uniq([...ks,...catTipos()]).map(k=>`<option ${k===t?'selected':''}>${esc(k)}</option>`).join('')}</select>${r[t]?'':'<span class="small muted">Usa la lista General hasta que le agregue un punto.</span>'}</div>
-     <div class="cp">${(r[t]||r['General']||[]).map(v=>`<span class="cpc">${esc(v)}${A&&r[t]?`<button class="cpx" data-act="revDel" data-t="${esc(t)}" data-v="${esc(v)}">×</button>`:''}</span>`).join('')}
+     <div class="cp">${(r[t]||r['General']||[]).map(v=>`<span class="cpc catc">${esc(v)}${r[t]?`<button class="cpx" data-act="revDel" data-t="${esc(t)}" data-v="${esc(v)}">×</button>`:''}</span>`).join('')}
      <span class="cpadd"><input id="revNew" placeholder="Agregar punto…"><button class="btn sm p" data-act="revAdd" data-t="${esc(t)}">${ic('plus')}</button></span></div></div></div>`})()}
+   <div class="card"><div class="ch"><h2>🛠️ Mano de obra <span class="muted" style="font-weight:500">${(c.manoObra||[]).length}</span></h2></div><div class="cp-in"><p class="small muted" style="margin-top:0">Trabajos con su código, para anotar la mano de obra en las órdenes.</p>
+    <div class="cp">${(c.manoObra||[]).map(x=>`<span class="cpc catc" data-act="moCatEdit" data-c="${esc(x.c)}"><span class="mono" style="font-size:11.5px;opacity:.75">${esc(x.c)}</span> ${esc(x.d)}<button class="cpx" data-act="moCatDel" data-c="${esc(x.c)}" title="Eliminar">×</button></span>`).join('')}
+    <span class="cpadd"><input id="moCatNew" placeholder="Nuevo trabajo…"><button class="btn sm p" data-act="moCatAdd">${ic('plus')}</button></span></div></div></div>
    ${CATSECS.slice(1).map(block).join('')}
   </div>`;
 }
@@ -2980,7 +2998,17 @@ const A={
  delRep:adminOnly(d=>confirmBox('¿Eliminar este repuesto del inventario? Las órdenes que lo usaron conservan el registro.',async()=>{await del('repuestos',d.id);closeModal();A.back();toast('Repuesto eliminado')})),
  // catálogo
  catAdd:async d=>{const i=$('#ca_'+d.k);const v=(i?.value||'').trim();if(!v)return;if(await catAdd(d.k,v)){toast('Agregado');render();setTimeout(()=>$('#ca_'+d.k)?.focus(),20)}},
- catDel:adminOnly(async d=>{const c=CAT();c[d.k]=c[d.k].filter(x=>x!==d.v);if(await saveCat(c))render()}),
+ catDel:adminOnly(d=>{const u=catUso(d.k,d.v);confirmBox(`¿Eliminar <b>${esc(d.v)}</b> de <b>${esc(catTit(d.k))}</b>?${u?`<br><span class="small muted">Se usa en ${u} registro${u!==1?'s':''}; esos registros no se borran, solo deja de aparecer para elegir.</span>`:''}${d.k==='tipos'?'<br><span class="small muted">También se quita su lista de revisión propia.</span>':''}`,async()=>{const c=CAT();c[d.k]=c[d.k].filter(x=>x!==d.v);if(d.k==='tipos'&&c.revision&&c.revision[d.v]){const r=clone(c.revision);delete r[d.v];c.revision=r}if(await saveCat(c)){closeModal();render();toast('🗑️ Eliminado')}},'Eliminar')}),
+ catEdit:(d,el)=>catEditForm(d.k,d.v),
+ catRen:adminOnly(async d=>{const nv=($('#catRen')?.value||'').trim();if(!nv)return toast('Escriba el nombre');if(nv===d.v)return closeModal();const c=CAT();
+   if(c[d.k].some(x=>norm(x)===norm(nv)&&x!==d.v))return toast('Ya existe «'+nv+'»');c[d.k]=c[d.k].map(x=>x===d.v?nv:x);
+   if(d.k==='tipos'){c.modelos=c.modelos.map(m=>m.t===d.v?{...m,t:nv}:m);if(c.revision&&c.revision[d.v]){const r=clone(c.revision);r[nv]=r[d.v];delete r[d.v];c.revision=r}}
+   if(d.k==='marcas')c.modelos=c.modelos.map(m=>m.m===d.v?{...m,m:nv}:m);
+   if(await saveCat(c)){closeModal();render();toast('✏️ Cambiado a «'+nv+'»')}}),
+ moCatAdd:async()=>{const i=$('#moCatNew');const v=(i?.value||'').trim();if(!v)return;const c=CAT();if(c.manoObra.some(x=>norm(x.d)===norm(v)))return toast('Ya existe');c.manoObra=[...c.manoObra,{c:moNextCode(),d:v}];if(await saveCat(c)){toast('Agregado');render();setTimeout(()=>$('#moCatNew')?.focus(),20)}},
+ moCatDel:adminOnly(d=>{const x=CAT().manoObra.find(x=>x.c===d.c);if(!x)return;confirmBox(`¿Eliminar <b>${esc(x.c)} · ${esc(x.d)}</b> de la mano de obra?<br><span class="small muted">Las órdenes que ya lo tienen no cambian.</span>`,async()=>{const c=CAT();c.manoObra=c.manoObra.filter(y=>y.c!==d.c);if(await saveCat(c)){closeModal();render();toast('🗑️ Eliminado')}},'Eliminar')}),
+ moCatEdit:d=>{const x=CAT().manoObra.find(x=>x.c===d.c);if(!x)return;openModal('✏️ Mano de obra',`<div class="fr"><div class="f"><label>Código</label><input id="moceC" value="${esc(x.c)}"></div><div class="f" style="grid-column:span 2"><label>Trabajo</label><input id="moceD" value="${esc(x.d)}"></div></div>`,`<button class="btn d" data-act="moCatDel" data-c="${esc(x.c)}">${ic('trash')} Eliminar</button><span class="sp"></span><button class="btn" data-act="close">Cancelar</button><button class="btn p" data-act="moCatSave" data-c="${esc(x.c)}">${ic('check')} Guardar</button>`,'sm')},
+ moCatSave:adminOnly(async d=>{const nc=($('#moceC').value||'').trim().toUpperCase(),nd=($('#moceD').value||'').trim();if(!nc||!nd)return toast('Complete código y trabajo');const c=CAT();if(c.manoObra.some(x=>x.c===nc&&x.c!==d.c))return toast('Ese código ya existe');c.manoObra=c.manoObra.map(x=>x.c===d.c?{c:nc,d:nd}:x);if(await saveCat(c)){closeModal();render();toast('Guardado')}}),
  catAddModelo:async()=>{const m=$('#nmM').value,t=$('#nmT').value,n=$('#nmN').value.trim();if(!n)return toast('Escriba el modelo');if(await catAddModelo(m,t,n)){toast('Modelo agregado');render()}},
  catDelModelo:adminOnly(async d=>{const c=CAT();c.modelos=c.modelos.filter(x=>!(x.m===d.m&&x.n===d.n));if(await saveCat(c))render()}),
  // alertas y pedidos
