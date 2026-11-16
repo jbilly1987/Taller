@@ -80,6 +80,7 @@ h2{font-size:15px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
 .stt{text-align:center;font-weight:700;margin:6px 0 10px;min-height:20px}
 .enc textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:14px;padding:10px 12px;font:inherit;font-size:14px;background:#fff;resize:vertical}
 .sendb{width:100%;margin-top:10px;justify-content:center}
+.hx{border:1px solid var(--line,#e5e7eb);border-radius:14px;padding:10px 12px;margin-top:8px;background:rgba(255,255,255,.6)}.hx summary{cursor:pointer;display:flex;justify-content:space-between;gap:10px;font-size:14px}.hx summary span{color:#64748b;font-size:13px}.hx[open] summary{margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -130,6 +131,7 @@ function view(d){
    ${(d.pr||[]).length?`<div class="lbl">🧪 Prueba final aprobada</div><div class="chips">${d.pr.map(x=>`<span class="chip">✅ ${esc(x)}</span>`).join('')}</div>`:''}
    ${(d.rep||[]).length?`<div class="lbl">Repuestos instalados</div><div class="chips">${d.rep.map(r=>`<span class="chip r">${r.c>1?r.c+' × ':''}${esc(r.n)}${r.u?' (de segunda)':''}</span>`).join('')}</div>`:''}
    ${!hechos?`<p class="muted small" style="margin:10px 0 0">Todavía no hay trabajos anotados. Aquí aparecerán apenas el mecánico avance.</p>`:''}</div>`:''}
+  ${(d.hx||[]).length?`<div class="card"><h2>📚 Servicios anteriores de su máquina</h2><p class="small muted" style="margin:-4px 0 10px">${d.hx.length} visita${d.hx.length!==1?'s':''} anterior${d.hx.length!==1?'es':''} a nuestro taller.</p>${d.hx.map(x=>`<details class="hx"><summary><b>${esc(x.n)}</b><span>${esc(fd(x.fi))}${x.fe?' → '+esc(fd(x.fe)):''}</span></summary>${(x.f||[]).length?`<div class="lbl">Lo que reportó</div><div class="chips">${x.f.map(f=>`<span class="chip f">${esc(f)}</span>`).join('')}</div>`:''}${x.d?`<div class="lbl">Diagnóstico</div><p style="margin:2px 0 6px">${esc(x.d)}</p>`:''}${(x.t||[]).length?`<div class="lbl">Trabajos</div><div class="chips">${x.t.map(t=>`<span class="chip">✓ ${esc(t)}</span>`).join('')}</div>`:''}${(x.r||[]).length?`<div class="lbl">Repuestos</div><div class="chips">${x.r.map(t=>`<span class="chip r">${esc(t)}</span>`).join('')}</div>`:''}</details>`).join('')}</div>`:''}
   ${(d.hist||[]).length?`<div class="card"><h2>🕒 Historial</h2><ul class="tl">${d.hist.slice().reverse().map(h=>`<li><b>${(EST[h.e]||{}).em||'•'} ${esc(h.e)}</b><small>${esc(ft(h.t))}</small></li>`).join('')}</ul></div>`:''}
   <div class="card"><h2>📞 ¿Tiene dudas?</h2><div class="small">${esc(T.n||'')}${T.dir?'<br>📍 '+esc(T.dir):''}${T.hor?'<br>🕐 '+esc(T.hor):''}</div>
    <div class="btns">${wa?`<a class="btn" href="${wa}" target="_blank" rel="noopener">💬 WhatsApp</a>`:''}${tl?`<a class="btn t" href="tel:+${tl}">📞 Llamar</a>`:''}</div></div>
