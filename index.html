@@ -2128,7 +2128,7 @@ function openModal(title,body,foot,cls=''){
   m._t=title;m.innerHTML=`<div class="mbox ${cls}"><div class="mh"><h2>${title}</h2><button class="ib" data-act="close" aria-label="Cerrar">${ic('x')}</button></div><div class="mb" id="mb">${body}</div>${foot?`<div class="mf" id="mf">${foot}</div>`:''}</div>`;
   m.classList.remove('hidden');document.body.style.overflow='hidden';
 }
-function closeModal(){stopScan();const m=$('#modal');m.classList.add('hidden');m.innerHTML='';m._t='';document.body.style.overflow='';W=null;RP=null}
+function closeModal(){stopScan();if(typeof M3!=='undefined'&&M3&&M3.V){try{M3.V.dispose()}catch(e){}M3.V=null}const m=$('#modal');m.classList.add('hidden');m.innerHTML='';m._t='';document.body.style.overflow='';W=null;RP=null}
 function confirmBox(msg,yes,label='Eliminar'){
   openModal('Confirmar',`<p style="margin:0">${msg}</p>`,`<span class="sp"></span><button class="btn" data-act="close">Cancelar</button><button class="btn d" id="cYes">${esc(label)}</button>`,'sm');
   $('#cYes').onclick=async()=>{$('#cYes').disabled=true;await yes()};
@@ -2551,7 +2551,7 @@ function m3dOpen(id){
    <div id="m3reps"></div>
    <div class="lbl" style="margin-top:12px">Piezas</div><div class="cp" id="m3list"></div>`,
    `<span class="small muted" id="m3cnt"></span><span class="sp"></span><button class="btn" data-act="close">${can?'Cancelar':'Cerrar'}</button>${can?`<button class="btn p" data-act="m3save">${ic('check')} Guardar</button>`:''}`,'lg');
-  m3dList();m3dReps();m3dBind();
+  m3dList();m3dReps();m3dBind();m3dTry3();
   setTimeout(()=>{const r=$('#m3reps');if(r)r.addEventListener('click',e=>{const x=e.target.closest('[data-m3r]');if(x)m3dLink(x.dataset.m3r)})},0);
 }
 function m3dList(){const L=$('#m3list');if(!L||!M3)return;
@@ -2574,7 +2574,7 @@ function m3dProj(){const W=M3.W,H=M3.H,cy=Math.cos(M3.yaw),sy=Math.sin(M3.yaw),c
   return (v,e)=>{const t=e?M3.ex:0;let x=v[0]+(e?e[0]*t:0)-C[0],y=v[1]+(e?e[1]*t:0)-C[1],z=v[2]+(e?e[2]*t:0)-C[2];let x1=x*cy-z*sy,z1=x*sy+z*cy;let y2=y*cp-z1*sp,z2=y*sp+z1*cp;const f=dist/(dist+z2);return [W/2+x1*sc*f,H*.47-y2*sc*f,z2,x1,y2]}}
 function shade(hex,k){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;r=Math.min(255,r*k);g=Math.min(255,g*k);b=Math.min(255,b*k);return `rgb(${r|0},${g|0},${b|0})`}
 function m3dDraw(){
-  if(!M3)return;const cv=$('#m3c');if(!cv)return;const ctx=cv.getContext('2d');const dpr=window.devicePixelRatio||1;const W=cv.clientWidth,H=cv.clientHeight;
+  if(!M3)return;if(M3.V){M3.V.set(m3dState());return}const cv=$('#m3c');if(!cv)return;const ctx=cv.getContext('2d');const dpr=window.devicePixelRatio||1;const W=cv.clientWidth,H=cv.clientHeight;
   if(cv.width!==W*dpr||cv.height!==H*dpr){cv.width=W*dpr;cv.height=H*dpr}M3.W=W;M3.H=H;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
   const pr=m3dProj();
   const g=ctx.createRadialGradient(W/2,H*.86,10,W/2,H*.86,W*.42);g.addColorStop(0,'rgba(0,0,0,.18)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(W/2,H*.86,W*.42,H*.07,0,0,Math.PI*2);ctx.fill();
@@ -2615,13 +2615,26 @@ function m3dBind(){
   cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',e=>{pts.delete(e.pointerId);down=null});
   cv.addEventListener('wheel',e=>{e.preventDefault();M3.zoom=Math.max(.5,Math.min(2.6,M3.zoom*(e.deltaY<0?1.1:.9)));m3dDraw()},{passive:false});
   const box=$('#modal');box.querySelectorAll('[data-m3]').forEach(b=>b.onclick=()=>{M3.mode=b.dataset.m3;box.querySelectorAll('[data-m3]').forEach(x=>x.classList.toggle('on',x===b))});
-  box.querySelectorAll('[data-m3z]').forEach(b=>b.onclick=()=>{const z=+b.dataset.m3z;if(z)M3.zoom=Math.max(.5,Math.min(2.6,M3.zoom*z));else{M3.zoom=1;M3.yaw=-.6;M3.pitch=.42}m3dDraw()});
+  box.querySelectorAll('[data-m3z]').forEach(b=>b.onclick=()=>{const z=+b.dataset.m3z;if(M3.V){z?M3.V.zoom(z):M3.V.reset();return}if(z)M3.zoom=Math.max(.5,Math.min(2.6,M3.zoom*z));else{M3.zoom=1;M3.yaw=-.6;M3.pitch=.42}m3dDraw()});
   $('#m3list').addEventListener('click',e=>{const b=e.target.closest('[data-m3p]');if(b)m3dMark(b.dataset.m3p)});
-  const loop=()=>{if(!M3||!document.body.contains(cv))return;let d=false;if(Math.abs(M3.ex-M3.exT)>.005){M3.ex+=(M3.exT-M3.ex)*.12;d=true}if(M3.auto){M3.yaw+=.004;d=true}if(d)m3dDraw();requestAnimationFrame(loop)};
-  box.querySelectorAll('[data-m3x]').forEach(b=>b.onclick=()=>{M3.exT=M3.exT?0:1;b.classList.toggle('on',!!M3.exT)});box.querySelectorAll('[data-m3n]').forEach(b=>b.onclick=()=>{M3.names=!M3.names;b.classList.toggle('on',M3.names);m3dDraw()});m3dDraw();requestAnimationFrame(loop);
+  const loop=()=>{if(!M3||!document.body.contains(cv))return;if(M3.V){M3.ex=M3.exT;requestAnimationFrame(loop);return}let d=false;if(Math.abs(M3.ex-M3.exT)>.005){M3.ex+=(M3.exT-M3.ex)*.12;d=true}if(M3.auto){M3.yaw+=.004;d=true}if(d)m3dDraw();requestAnimationFrame(loop)};
+  box.querySelectorAll('[data-m3x]').forEach(b=>b.onclick=()=>{M3.exT=M3.exT?0:1;b.classList.toggle('on',!!M3.exT);if(M3.V)m3dDraw()});box.querySelectorAll('[data-m3n]').forEach(b=>b.onclick=()=>{M3.names=!M3.names;b.classList.toggle('on',M3.names);m3dDraw()});m3dDraw();requestAnimationFrame(loop);
   window.addEventListener('resize',m3dDraw);
 }
-async function m3dSave(){if(!M3)return;const b=S.boletas[M3.id];if(!b)return;const prevM=pzMarks(b);const prev=prevM;const mark={...M3.mark};const store={};Object.keys(mark).forEach(k=>{if(!(M3.AUTO[k]&&mark[k]==='cambiado'))store[k]=mark[k]});const linksCh=JSON.stringify(M3.links)!==JSON.stringify(b.repPz||{});Object.keys(M3.AUTO).forEach(k=>{if(!mark[k])store[k]='none'});
+
+const m3dState=()=>({mark:M3.mark,auto:M3.AUTO,names:M3.names,exT:M3.exT,sel:M3.sel});
+async function m3dTry3(){
+  const my=M3;if(!my||!window.WebGLRenderingContext||!/^https?:/.test(location.protocol))return;
+  try{const c=document.createElement('canvas');if(!(c.getContext('webgl2')||c.getContext('webgl')))return}catch(e){return}
+  const ld=$('#m3tip');if(ld)ld.textContent='⏳ Cargando vista realista…';
+  let mod;try{mod=await import(new URL('lib/visor3d.js',location.href).href)}catch(e){if(ld&&M3===my)ld.textContent=my.can?'👆 Toque una pieza para marcarla · arrastre para girar':'Arrastre para girar · solo lectura';return}
+  if(M3!==my||!$('#m3c'))return;
+  const wrap=$('.m3wrap'),cv=$('#m3c');const host=document.createElement('div');host.id='m3g';host.style.cssText='position:relative;width:100%;height:min(58vh,440px)';wrap.insertBefore(host,cv);
+  try{my.V=mod.crearVisor({host,kind:my.kind,onPick:k=>{if(k)m3dMark(k);else{const t=$('#m3tip');if(t&&my.can)t.textContent=my.linking?'👆 Toque la pieza donde va este repuesto':'👆 Toque sobre una pieza'}}})}catch(e){host.remove();console.warn(e);return}
+  cv.style.display='none';my.auto=false;my.V.set({...m3dState(),exNow:my.exT});wrap.classList.add('real');
+  if(ld)ld.innerHTML=my.can?'✨ Vista realista · toque una pieza para marcarla':'✨ Vista realista · arrastre para girar';
+}
+async function m3dSave(){if(!M3)return;if(M3.V){try{M3.V.dispose()}catch(e){}M3.V=null}const b=S.boletas[M3.id];if(!b)return;const prevM=pzMarks(b);const prev=prevM;const mark={...M3.mark};const store={};Object.keys(mark).forEach(k=>{if(!(M3.AUTO[k]&&mark[k]==='cambiado'))store[k]=mark[k]});const linksCh=JSON.stringify(M3.links)!==JSON.stringify(b.repPz||{});Object.keys(M3.AUTO).forEach(k=>{if(!mark[k])store[k]='none'});
   const lbl=k=>(M3.parts.find(p=>p.k===k)||{}).l||k;const ch=[...new Set([...Object.keys(mark),...Object.keys(prev)])].filter(k=>prev[k]!==mark[k]);
   const h=[...(b.historial||[])];if(ch.length)h.push({t:Date.now(),estado:b.estado,nota:'Vista 3D: '+ch.map(k=>`${lbl(k)} ${(PZ_ST[mark[k]]||{l:'sin marcar'}).l.toLowerCase()}`).join(', '),por:quien(),dev:DEV});
   const pl={};Object.keys(store).forEach(k=>pl[k]=lbl(k));
