@@ -1201,7 +1201,7 @@ function handleErr(e){
   console.error(e);
 }
 async function put(col,obj){
-  const o=clone(obj);o.updatedAt=Date.now();o._dev=DEV;if(!o.createdAt)o.createdAt=o.updatedAt;if(col==='boletas'&&!o.tok)o.tok=tokNew();
+  const o=clone(obj);o.updatedAt=Math.max(Date.now(),num((S[col]&&S[col][obj.id]||{}).updatedAt)+1);o._dev=DEV;if(!o.createdAt)o.createdAt=o.updatedAt;if(col==='boletas'&&!o.tok)o.tok=tokNew();
   S[col]={...S[col],[o.id]:o};
   if(LOCAL||!DB){saveLocal();return true}
   const w=()=>DB.collection(col).doc(o.id).set(o);
@@ -1211,7 +1211,7 @@ async function del(col,id){
   if(col==='boletas'&&DB&&S.boletas[id]&&S.boletas[id].tok){try{DB.collection('estado').doc(S.boletas[id].tok).delete()}catch(e){}}
   const m={...S[col]};delete m[id];S[col]=m;
   if(LOCAL||!DB){saveLocal();return true}
-  try{await DB.collection(col).doc(id).delete();return true}catch(e){handleErr(e);return false}
+  try{if(FB_MODE&&!DELTA_SKIP.has(col))await DB.collection(col).doc(id).set({id,_del:true,updatedAt:Date.now(),_dev:DEV});else await DB.collection(col).doc(id).delete();return true}catch(e){handleErr(e);return false}
 }
 async function saveCfg(c){
   CFG={...DEF_CFG,...c};
@@ -1253,13 +1253,33 @@ function showLogin(){
   $('#lgReset').onclick=async()=>{const m=$('#fLogin [name=email]').value.trim();if(!m)return $('#lgErr').textContent='Escriba su correo arriba.';try{await FBAUTH.sendPasswordResetEmail(m);$('#lgErr').textContent='Le enviamos un correo para cambiar la contraseña.'}catch(x){$('#lgErr').textContent='No se pudo enviar: '+(x.code||'')}};
 }
 function hideLogin(){const o=$('#login');if(o)o.remove()}
+
+/* ---------- sincronización por cambios (ahorra lecturas de Firebase) ---------- */
+const DELTA_SKIP=new Set(['encuestas']);
+const dKey=c=>'dsync_'+((FBUSER&&FBUSER.uid)||'x')+'_'+c;
+function subDelta(db,c,on,ok,fullFn){let st={};try{st=JSON.parse(localStorage.getItem(dKey(c))||'{}')}catch(e){}
+  const save=()=>{try{localStorage.setItem(dKey(c),JSON.stringify(st))}catch(e){}};let unsub=null,dead=false;
+  (async()=>{const now=Date.now();let m={},needFull=!st.since||now-num(st.full)>7*864e5;
+    if(!needFull){try{const cs=await db.collection(c).get({source:'cache'});cs.docs.forEach(d=>{const x=d.data();if(!x._del)m[d.id]={...x,id:d.id}});const k=Object.keys(m).length;if(!k||k<Math.floor(num(st.n)*0.9))needFull=true}catch(e){needFull=true}}
+    if(needFull){try{const ss=await db.collection(c).get({source:'server'});m={};let mx=0;ss.docs.forEach(d=>{const x=d.data();mx=Math.max(mx,num(x.updatedAt));if(!x._del)m[d.id]={...x,id:d.id}});st={since:mx||now,full:now,n:Object.keys(m).length};save()}
+      catch(e){if(!dead)unsub=fullFn(c);return}}
+    if(dead)return;S[c]=m;if(c==='boletas')watchBoletas(m);later();
+    const since=num(st.since)-3*36e5;
+    unsub=on(db.collection(c).where('updatedAt','>',since),sn=>{const ch=typeof sn.docChanges==='function'?sn.docChanges():[];
+      if(ch.length){const m2={...S[c]};let mx=num(st.since);
+        ch.forEach(x=>{const d=x.doc,dt=d.data()||{};if(x.type==='removed'){const id=d.id;db.collection(c).doc(id).get().then(g=>{const v=g.exists?g.data():null;const m3={...S[c]};if(v&&!v._del)m3[id]={...v,id};else delete m3[id];S[c]=m3;later()}).catch(()=>{});return}if(dt._del)delete m2[d.id];else m2[d.id]={...dt,id:d.id};mx=Math.max(mx,num(dt.updatedAt))});
+        S[c]=m2;if(!sn.metadata.fromCache&&!sn.metadata.hasPendingWrites){st.since=Math.min(Date.now(),Math.max(num(st.since),mx));st.n=Object.keys(m2).length;save()}
+        if(c==='boletas')watchBoletas(m2);later()}
+      ok(c,sn)})})();
+  return ()=>{dead=true;try{unsub&&unsub()}catch(e){}}}
 function subscribe(db){
   const timer=setTimeout(()=>{if(!connected)setStatus('Todavía no se puede conectar con la base de datos. Lo que ve puede estar desactualizado.','warn')},10000);
   const done=new Set();const total=COLS.length+2;
   const ok=(k,snap)=>{const md=snap.metadata||{};SYNC[k]={c:!!md.fromCache,p:!!md.hasPendingWrites};syncUI();if(!snap.metadata.fromCache){done.add(k);if(done.size>=total&&!connected){connected=true;clearTimeout(timer);setStatus('')}}};
   const onErr=e=>{clearTimeout(timer);setStatus(e.code==='revoked'?'Se retiró el acceso a los datos de esta página.':e.code==='permission-denied'?'Sin permiso para leer los datos. Revise las reglas de Firestore o vuelva a iniciar sesión.':'Error al leer los datos ('+e.code+').','err')};
   const on=(ref,cb)=>FB_MODE?ref.onSnapshot({includeMetadataChanges:true},cb,onErr):ref.onSnapshot(cb,onErr);
-  UNSUB=[...COLS.map(c=>on(db.collection(c),s=>{if(FB_MODE&&S[c]&&typeof s.docChanges==='function'&&s.docChanges().length===0){ok(c,s);return}const m={};s.docs.forEach(d=>{m[d.id]={...d.data(),id:d.id}});S[c]=m;ok(c,s);if(c==='boletas'&&(SEEN||!s.metadata.fromCache))watchBoletas(m);later()})),
+  const full=c=>on(db.collection(c),s=>{if(FB_MODE&&S[c]&&typeof s.docChanges==='function'&&s.docChanges().length===0){ok(c,s);return}const m={};s.docs.forEach(d=>{const x=d.data();if(!x._del)m[d.id]={...x,id:d.id}});S[c]=m;ok(c,s);if(c==='boletas'&&(SEEN||!s.metadata.fromCache))watchBoletas(m);later()});
+  UNSUB=[...COLS.map(c=>FB_MODE&&!DELTA_SKIP.has(c)?subDelta(db,c,on,ok,full):full(c)),
    on(db.doc('config/taller'),d=>{const j=JSON.stringify(d.exists?d.data():null);if(FB_MODE&&j===on._cfg){ok('cfg',d);return}on._cfg=j;CFG={...DEF_CFG,...(d.exists?d.data():{})};ok('cfg',d);later()}),
    on(db.doc('config/catalogo'),d=>{const j=JSON.stringify(d.exists?d.data():null);if(FB_MODE&&j===on._cat){ok('cat',d);return}on._cat=j;CATD=d.exists?d.data():null;ok('cat',d);later()})];
 }
@@ -2473,14 +2493,14 @@ async function nubeHacer(manual){if(!FB_MODE||!DB)return false;
   const id='R'+today()+(manual?'-'+new Date().toTimeString().slice(0,5).replace(':',''):'');const CH=250000;const parts=Math.ceil(data.length/CH);
   for(let i=0;i<parts;i++)await DB.collection('respaldoPartes').doc(id+'_'+i).set({d:data.slice(i*CH,(i+1)*CH)});
   await DB.collection('respaldos').doc(id).set({t:Date.now(),por:quien(),partes:parts,tam:data.length,n:arr(S.boletas).length});
-  const L=await nubeList();for(const o of L.slice(8)){for(let i=0;i<num(o.partes);i++)await DB.collection('respaldoPartes').doc(o.id+'_'+i).delete();await DB.collection('respaldos').doc(o.id).delete()}
+  const L=await nubeList();for(const o of L.slice(4)){for(let i=0;i<num(o.partes);i++)await DB.collection('respaldoPartes').doc(o.id+'_'+i).delete();await DB.collection('respaldos').doc(o.id).delete()}
   await nubeList();return true}
 async function nubeAuto(){try{if(!FB_MODE||!DB||!arr(S.boletas).length)return;const L=await nubeList();if(L[0]&&Date.now()-num(L[0].t)<7*864e5)return;await nubeHacer(false)}catch(e){console.warn('nube',e)}}
 if(typeof FB_MODE!=='undefined'&&FB_MODE)setTimeout(()=>{nubeAuto();setInterval(nubeAuto,6*36e5)},40000);
 async function nubeLeer(id){const o=(NUBE||[]).find(x=>x.id===id);if(!o)return null;let s='';for(let i=0;i<num(o.partes);i++){const d=await DB.collection('respaldoPartes').doc(id+'_'+i).get();s+=(d.data()||{}).d||''}return s}
 function nubeCard(){if(!FB_MODE)return '';if(!NUBE){nubeList().then(()=>render()).catch(()=>{});}
   const L=NUBE||[];return `<div class="card"><div class="ch"><h2><span class="hem">☁️</span> Copia automática en la nube</h2>${isAdmin()?`<button class="btn sm" data-act="nubeNow">☁️ Copiar ahora</button>`:''}</div><div class="cp-in">
-   <p class="small muted" style="margin-top:0">Cada semana se guarda sola una copia de todo, sin hacer nada. Se guardan las últimas 8. Sirve si algo se borra por error.</p>
+   <p class="small muted" style="margin-top:0">Cada semana se guarda sola una copia de todo, sin hacer nada. Se guardan las últimas 4. Sirve si algo se borra por error.</p>
    ${L.length?`<div class="rows">${L.map(o=>`<div class="rw" style="cursor:default"><div class="ticon" style="width:36px;height:36px;font-size:18px">☁️</div><div class="mn"><div class="t">${new Date(num(o.t)).toLocaleDateString('es-CR',{weekday:'short',day:'numeric',month:'short',year:'numeric'})} · ${new Date(num(o.t)).toLocaleTimeString('es-CR',{hour:'numeric',minute:'2-digit'})}</div><div class="s">${num(o.n)} órdenes · ${Math.round(num(o.tam)/1024)} KB${o.por?' · '+esc(o.por):''}</div></div>${isAdmin()?`<button class="btn sm" data-act="nubeDl" data-id="${o.id}">${ic('dl')}</button><button class="btn sm" data-act="nubeRest" data-id="${o.id}">♻️ Restaurar</button>`:''}</div>`).join('')}</div>`:`<p class="small muted" style="margin:0">${NUBE?'Todavía no hay copias. La primera se hace sola en unos segundos.':'Cargando…'}</p>`}</div></div>`}
 /* ================== Código de barras (Code 128-B) ================== */
 const C128=['212222','222122','222221','121223','121322','131222','122213','122312','132212','221213','221312','231212','112232','122132','122231','113222','123122','123221','223211','221132','221231','213212','223112','312131','311222','321122','321221','312212','322112','322211','212123','212321','232121','111323','131123','131321','112313','132113','132311','211313','231113','231311','112133','112331','132131','113123','113321','133121','313121','211331','231131','213113','213311','213131','311123','311321','331121','312113','312311','332111','314111','221411','431111','111224','111422','121124','121421','141122','141221','112214','112412','122114','122411','142112','142211','241211','221114','413111','241112','134111','111242','121142','121241','114212','124112','124211','411212','421112','421211','212141','214121','412121','111143','111341','131141','114113','114311','411113','411311','113141','114131','311141','411131','211412','211214','211232','2331112'];
