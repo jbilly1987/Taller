@@ -1411,6 +1411,35 @@ function oRow(b){
 function tokNew(){const a='abcdefghijkmnpqrstuvwxyz23456789';let t='';const r=crypto.getRandomValues(new Uint32Array(18));r.forEach(x=>t+=a[x%a.length]);return t}
 const appBase=()=>appUrl().replace(/[#?].*$/,'').replace(/index\.html$/,'').replace(/\/?$/,'/');
 const consultaUrl=b=>b&&b.tok&&FB_MODE?appBase()+'consulta.html?t='+b.tok:'';
+
+/* ================== Página web del taller ================== */
+const tel4=b=>{const c=cli(b.clienteId)||{};const d=String(c.telefono||'').replace(/\D/g,'');return d.length>=4?d.slice(-4):''};
+function qDoc(b){if(!FB_MODE||!DB||!b||!b.tok)return;const d=tel4(b);if(!d)return;const id='q'+num(b.numero)+'-'+d;const k='qd_'+id;try{if(localStorage.getItem(k)===b.tok)return}catch(e){}
+  DB.collection('estado').doc(id).set({t:b.tok}).then(()=>{try{localStorage.setItem(k,b.tok)}catch(e){}}).catch(()=>{})}
+const webUrl=()=>appUrl().replace(/index\.html.*$/,'').replace(/\/?$/,'/')+'web.html';
+function webDoc(){const nm=c=>String(c||'').split(/\s+/)[0];
+  const res=CFG.webResenas===false?[]:arr(S.boletas).map(b=>({b,e:encDe(b)})).filter(x=>x.e&&num(x.e.s)>=4&&x.e.c&&String(x.e.c).trim().length>3).sort((a,z)=>num(z.e.t)-num(a.e.t)).slice(0,6).map(({b,e})=>({s:num(e.s),c:String(e.c).slice(0,240),n:nm((cli(b.clienteId)||{}).nombre),m:eqShort(eq(b.equipoId))}));
+  const E=Object.values(S.encuestas||{});
+  return {nombre:CFG.nombre||'',logo:logoOk()&&CFG.logo.length<700000?CFG.logo:'',tel:CFG.telefono||'',wa:CFG.webWa||CFG.telefono||'',dir:CFG.direccion||'',mapa:CFG.webMapa||'',hor:CFG.webHorario||'',lema:CFG.webLema||'',
+   marcas:String(CFG.webMarcas||'').split(/[,\n]/).map(x=>x.trim()).filter(Boolean).slice(0,24),tipos:catTipos().slice(0,30),fb:CFG.webFb||'',ig:CFG.webIg||'',correo:CFG.correo||'',
+   res,prom:E.length?Math.round(E.reduce((a,e)=>a+num(e.s),0)/E.length*10)/10:0,nres:E.length,anos:CFG.webDesde||'',up:Date.now()}}
+async function webPub(force){if(!FB_MODE||!DB||!isAdmin())return false;const d=webDoc();const sig=JSON.stringify({...d,up:0});
+  try{if(!force&&localStorage.getItem('webSig')===sig)return true}catch(e){}
+  try{await DB.collection('estado').doc('_web').set(d);try{localStorage.setItem('webSig',sig)}catch(e){}
+    const lim=iso(new Date(Date.now()-120*864e5));arr(S.boletas).filter(b=>isOpen(b)||String(b.fechaIngreso)>=lim).forEach(b=>{if(b.tok){qDoc(b);pubEstado(b)}});return true}catch(e){console.warn('web',e);return false}}
+setTimeout(()=>{try{webPub()}catch(e){}},45000);
+function webCard(){const f=(k,l,t='text',x='')=>`<div class="f"><label>${l}</label><input name="${k}" type="${t}" value="${esc(CFG[k]||'')}" ${x}></div>`;
+  return `<form id="webForm" class="card"><div class="ch"><h2><span class="hem">🌐</span> Página web del taller</h2>${FB_MODE?`<a class="btn sm" href="${esc(webUrl())}" target="_blank" rel="noopener">👁️ Ver página</a>`:''}</div><div class="cp-in">
+   <p class="small muted" style="margin-top:0">Una página pública para sus clientes: servicios, horario, ubicación, WhatsApp y consulta de su máquina por número de orden. Usa el nombre, logo, teléfono y dirección de arriba.</p>
+   ${f('webLema','Frase corta','text','placeholder="Ej. Reparamos su equipo como si fuera nuestro"')}
+   <div class="f"><label>Horario de atención</label><textarea name="webHorario" rows="3" placeholder="Lunes a viernes 7:00 a. m. – 5:00 p. m.&#10;Sábados 7:00 a. m. – 12:00 m.">${esc(CFG.webHorario||'')}</textarea></div>
+   <div class="fr">${f('webWa','WhatsApp (si es otro)','tel')}${f('webDesde','Años de experiencia','text','placeholder="Ej. 15"')}</div>
+   ${f('webMapa','Enlace de Google Maps','url','placeholder="https://maps.app.goo.gl/…"')}
+   <div class="f"><label>Marcas que trabaja <span class="opt">(separadas por coma)</span></label><input name="webMarcas" value="${esc(CFG.webMarcas||'')}" placeholder="Stihl, Husqvarna, Honda, Echo, Shindaiwa"></div>
+   <div class="fr">${f('webFb','Facebook (enlace)','url')}${f('webIg','Instagram (enlace)','url')}</div>
+   <label class="row" style="gap:8px;margin:4px 0 12px;font-size:14px"><input type="checkbox" name="webResenas" ${CFG.webResenas===false?'':'checked'}> Mostrar opiniones de clientes (4 y 5 estrellas con comentario, solo el primer nombre)</label>
+   <button class="btn p" type="submit">🌐 Guardar y publicar</button>
+   ${FB_MODE?`<p class="small muted" style="margin-bottom:0">Enlace para compartir: <b style="word-break:break-all">${esc(webUrl())}</b></p>`:''}</div></form>`}
 function pubEstado(b){
   if(!FB_MODE||!DB||!b||!b.tok)return;
   const c=cli(b.clienteId)||{},e=eq(b.equipoId)||{};const H=[];(b.historial||[]).forEach(h=>{if(h.estado&&(!H.length||H[H.length-1].e!==h.estado))H.push({e:h.estado,t:h.t||0})});
@@ -1422,6 +1451,7 @@ function pubEstado(b){
    cola:colaPos(b),up:Date.now()};
   const sig=JSON.stringify({...doc,up:0});if(PUBSIG[b.tok]===sig)return;PUBSIG[b.tok]=sig;
   try{DB.collection('estado').doc(b.tok).set(doc).catch(()=>{delete PUBSIG[b.tok]})}catch(e){}
+  qDoc(b);
   clearTimeout(pubEstado._t);pubEstado._t=setTimeout(pubCola,2500);
 }
 const PUBSIG={};
@@ -2139,6 +2169,7 @@ function rbAnswer(key,q){const D=rbData();const me=norm(yoNombre()),pu=puestoAct
   if(/list|entreg|retir/.test(n))return rbAnswer('listas');
   if(/\bmi\b|\bmis\b|mio|mia|asignad|me toca|tengo/.test(n))return rbAnswer('mio');
   if(/\bhoy\b/.test(n))return rbAnswer('hoy');
+  if(/pagina web|pagina del taller|sitio web|\bweb\b/.test(n))return `🌐 La página del taller se configura en <b>Configuración → Página web del taller</b>.${FB_MODE?`<a class="rbl" href="${esc(webUrl())}" target="_blank" rel="noopener">Abrir la página ›</a>`:''}`;
   if(/estadistic|grafic|numeros del taller/.test(n))return 'Las gráficas del taller están en <b>Estadísticas</b>.<a class="rbl" data-act="nav" data-page="numeros">📊 Abrir Estadísticas ›</a>';
   if(/garant/.test(n)){const G=D.B.filter(b=>{const p=prevInfo(b);return p&&p.enGar});return G.length?sec('🛡️ En garantía',G):'No hay máquinas abiertas en garantía 👍'}
   {const h=RB_HELP.find(([re])=>re.test(n));const m=/\b(\d{1,6})\b/.exec(n);
@@ -2935,6 +2966,7 @@ function vAjustes(){
    <div class="f"><label>Enlace de la app <span class="opt">(para el QR de las etiquetas)</span></label><input name="appUrl" type="url" value="${esc(CFG.appUrl)}" placeholder="${esc(appUrl())}"></div>
    <button class="btn p" type="submit">${ic('check')} Guardar</button></div></form>
   <div class="grid" style="align-content:start">
+   ${webCard()}
    ${FB_MODE?`<div class="card"><div class="ch"><h2>${hic('user')} Cuenta</h2></div><div class="cp-in"><p style="margin-top:0">Sesión iniciada como <b>${esc(FBUSER?.email||'')}</b>. Los datos se guardan en Firebase y se sincronizan entre todos los equipos que inicien sesión.</p><p>${fbPerson()?`Usted es <b>${esc(fbPerson().n)}</b> · ${PLBL[fbPerson().puesto]}.`:'<span style="color:var(--warn)">Este correo no está en <b>Personal y puestos</b>. Agréguelo ahí con su nombre y puesto.</span>'}</p><button class="btn" data-act="logout">${ic('logout')} Cerrar sesión</button></div></div>`:''}
    <div class="card"><div class="ch"><h2>${hic('users')} Personal y puestos</h2></div><div class="cp-in">
     <p class="small muted" style="margin-top:0">Cada persona trabaja en su puesto: <b>Recepcionista</b> recibe y entrega máquinas; <b>Mecánico</b> recibe en taller, revisa, repara y pone repuestos. Al elegir su nombre${FB_MODE?' o iniciar sesión con su correo':''}, la app se pone sola en su puesto.</p>
@@ -4046,6 +4078,7 @@ document.addEventListener('change',e=>{
 });
 document.addEventListener('submit',async e=>{
   e.preventDefault();
+  if(e.target.id==='webForm'){const d=formData(e.target);d.webResenas=!!e.target.querySelector('[name=webResenas]').checked;if(await saveCfg({...CFG,...d})){const ok=await webPub(true);toast(ok?'🌐 Página publicada':'Guardado. La página se publica cuando haya conexión con Firebase.');render()}return}
   if(e.target.id==='cfgForm'){const d=formData(e.target);['garantia','diasAbandono','nagHoras','stockMinDef','diasRetiro','diasSinMov','diasTaller','mesesMant','diasAprob','diasPedido'].forEach(k=>{if(k in d)d[k]=num(d[k])});if(await saveCfg({...CFG,...d})){toast('Configuración guardada');render()}}
 });
 $('#qGlobal').addEventListener('blur',()=>{if(!UI.q)$('#tsearch').classList.remove('open')});

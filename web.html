@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Taller de servicio técnico</title>
+<meta name="description" content="Servicio técnico de motosierras, desbrozadoras, bombas de fumigar, cortacéspedes y equipos agrícolas y de jardín.">
+<meta name="theme-color" content="#14b8a6">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1e293b;--ink2:#475569;--muted:#64748b;--line:#e2e8f0;--pri:#14b8a6;--pri2:#0ea5e9;--card:rgba(255,255,255,.78);--bg:#f8fafc}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(900px 500px at 10% -10%,#ccfbf1 0,transparent 60%),radial-gradient(800px 500px at 100% 0,#e0e7ff 0,transparent 55%),radial-gradient(700px 600px at 50% 110%,#fef3c7 0,transparent 60%)}
+a{color:inherit}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+header.top{position:sticky;top:0;z-index:20;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:rgba(248,250,252,.72);border-bottom:1px solid rgba(226,232,240,.7)}
+.topin{display:flex;align-items:center;gap:12px;height:62px}
+.lg{width:40px;height:40px;border-radius:12px;overflow:hidden;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 16px rgba(20,184,166,.3)}
+.lg img{width:100%;height:100%;object-fit:cover;background:#fff}
+.tn{font-weight:800;font-size:15px;line-height:1.15;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav a{font-size:14px;font-weight:600;color:var(--ink2);text-decoration:none;margin-left:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:14px;padding:12px 20px;font:700 15px/1 inherit;text-decoration:none;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.btn:active{transform:scale(.97)}
+.wa{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;box-shadow:0 10px 24px rgba(34,197,94,.3)}
+.call{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.pri{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;box-shadow:0 10px 24px rgba(14,165,233,.28)}
+.hero{padding:56px 0 30px;display:grid;grid-template-columns:1.25fr 1fr;gap:34px;align-items:center}
+.kick{display:inline-flex;gap:8px;align-items:center;font-size:13px;font-weight:700;color:#0f766e;background:#ccfbf1;border-radius:999px;padding:6px 12px}
+h1{font-size:clamp(30px,5vw,48px);line-height:1.08;margin:14px 0 12px;letter-spacing:-.02em}
+h1 .gt{background:linear-gradient(120deg,#0d9488,#0284c7);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lema{font-size:18px;color:var(--ink2);margin:0 0 22px;max-width:520px}
+.ctas{display:flex;gap:10px;flex-wrap:wrap}
+.trust{display:flex;gap:18px;margin-top:22px;flex-wrap:wrap;color:var(--ink2);font-size:14px}
+.trust b{color:var(--ink)}
+.heroart{position:relative;aspect-ratio:1/1;max-width:400px;justify-self:center;width:100%}
+.blob{position:absolute;inset:6%;border-radius:42% 58% 55% 45%/48% 42% 58% 52%;background:linear-gradient(135deg,#99f6e4,#bae6fd 55%,#ddd6fe);animation:morph 12s ease-in-out infinite;box-shadow:inset 0 0 60px rgba(255,255,255,.6)}
+@keyframes morph{50%{border-radius:58% 42% 45% 55%/42% 58% 42% 58%}}
+.heroart .big{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:110px;filter:drop-shadow(0 18px 24px rgba(15,23,42,.18))}
+.fl{position:absolute;width:64px;height:64px;border-radius:20px;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 12px 28px rgba(15,23,42,.12);animation:flo 5s ease-in-out infinite}
+@keyframes flo{50%{transform:translateY(-10px)}}
+section{padding:34px 0}
+h2{font-size:clamp(22px,3.4vw,30px);margin:0 0 6px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 20px}
+.card{background:var(--card);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.9);border-radius:22px;box-shadow:0 10px 30px rgba(15,23,42,.06)}
+.consulta{padding:24px;display:grid;grid-template-columns:1fr 1.3fr;gap:20px;align-items:center}
+.cf{display:flex;gap:10px;flex-wrap:wrap}
+.cf input{flex:1;min-width:120px;border:1px solid var(--line);border-radius:14px;padding:13px 14px;font:inherit;font-size:16px;background:#fff}
+.err{color:#e11d48;font-size:14px;min-height:20px;margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.srv{padding:18px 16px;display:flex;flex-direction:column;gap:8px;transition:transform .2s}
+.srv:hover{transform:translateY(-3px)}
+.srv .e{width:48px;height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:26px;background:linear-gradient(135deg,#ccfbf1,#e0f2fe)}
+.srv b{font-size:14.5px;line-height:1.3}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 14px;border-radius:999px;background:#fff;border:1px solid var(--line);font-weight:700;font-size:14px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.step{padding:18px}.step .n{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.step b{display:block;margin-bottom:4px}.step span{font-size:14px;color:var(--ink2)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.box{padding:22px}
+.hor{white-space:pre-line;font-size:15.5px;margin:6px 0 0}
+.revs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.rev{padding:18px}.st{color:#f59e0b;letter-spacing:2px;font-size:17px}.rev p{margin:8px 0 10px;font-size:15px}.rev small{color:var(--muted)}
+footer{padding:34px 0 110px;text-align:center;color:var(--muted);font-size:14px}
+.sig{font-family:'Dancing Script',cursive;font-size:22px;background:linear-gradient(90deg,#0d9488,#f97316);-webkit-background-clip:text;background-clip:text;color:transparent}
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:30;width:60px;height:60px;border-radius:50%;padding:0;font-size:28px}
+.soc a{display:inline-flex;margin:0 6px;font-weight:700;text-decoration:none;color:var(--ink2)}
+.load{padding:80px 0;text-align:center;color:var(--muted)}
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s,transform .6s}.reveal.in{opacity:1;transform:none}
+@media (max-width:820px){.hero{grid-template-columns:1fr;padding-top:30px;text-align:center}.lema{margin-left:auto;margin-right:auto}.ctas,.trust{justify-content:center}.heroart{max-width:280px;order:-1}.heroart .big{font-size:80px}.fl{width:50px;height:50px;font-size:25px}
+ .consulta,.two{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}.nav{display:none}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap topin"><div class="lg" id="lg">🔧</div><div class="tn" id="tn">Taller</div><nav class="nav"><a href="#servicios">Servicios</a><a href="#consulta">Consultar</a><a href="#ubicacion">Ubicación</a></nav></div></header>
+<main id="app"><div class="load">Cargando…</div></main>
+<script src="firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s??'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+const TEM=[['aserrad','🪵'],['talador','🌲'],['tritur','🪵'],['sembr','🌾'],['motosierra','🪚'],['desbroz','🌿'],['guadana','🌿'],['cortac','🌱'],['tractor','🚜'],['fumig','💦'],['bomba','💦'],['motobomba','💧'],['generador','⚡'],['hidrolav','🚿'],['motocult','🚜'],['sopla','🍃'],['setos','✂️'],['poda','✂️'],['ahoyad','🕳️'],['motor','⚙️']];
+const tem=t=>{const n=norm(t);const x=TEM.find(([k])=>n.includes(k));return x?x[1]:'🔧'};
+const telD=t=>String(t||'').replace(/\D/g,'');
+const waL=(t,m)=>{let d=telD(t);if(!d)return '';if(d.length===8)d='506'+d;return 'https://wa.me/'+d+(m?'?text='+encodeURIComponent(m):'')};
+let DB=null,W=null;
+function render(){const w=W||{};const nm=w.nombre||'Taller de servicio técnico';document.title=nm;
+  $('#tn').textContent=nm;$('#lg').innerHTML=w.logo?`<img src="${w.logo}" alt="">`:esc((nm.match(/\b\w/g)||['T']).slice(0,2).join('').toUpperCase());
+  const wa=waL(w.wa,'Hola, quisiera información sobre una reparación 🙂');const tel=telD(w.tel);
+  const words=nm.split(' ');const h1=words.length>2?`${esc(words.slice(0,-1).join(' '))} <span class="gt">${esc(words.slice(-1)[0])}</span>`:`<span class="gt">${esc(nm)}</span>`;
+  const tipos=(w.tipos&&w.tipos.length?w.tipos:['Motosierra','Desbrozadora / Motoguadaña','Bomba de fumigar','Cortacésped','Generador','Motobomba']);
+  const mapa=w.mapa||(w.dir?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(w.dir):'');
+  $('#app').innerHTML=`
+  <div class="wrap hero">
+   <div><span class="kick">🛠️ Servicio técnico${w.anos?` · ${esc(w.anos)} años de experiencia`:''}</span>
+    <h1>${h1}</h1>
+    <p class="lema">${esc(w.lema||'Reparación y mantenimiento de equipos agrícolas, forestales y de jardín. Le avisamos por WhatsApp cada paso.')}</p>
+    <div class="ctas">${wa?`<a class="btn wa" href="${esc(wa)}" target="_blank" rel="noopener">💬 Escribir por WhatsApp</a>`:''}${tel?`<a class="btn call" href="tel:${esc(tel)}">📞 Llamar</a>`:''}<a class="btn call" href="#consulta">🔎 Consultar mi máquina</a></div>
+    <div class="trust">${w.nres?`<span>⭐ <b>${esc(w.prom)}</b> de 5 (${w.nres} opini${w.nres!==1?'ones':'ón'})</span>`:''}<span>📲 <b>Seguimiento</b> en línea</span><span>🧪 <b>Prueba final</b> antes de entregar</span></div></div>
+   <div class="heroart"><div class="blob"></div><div class="big">🪚</div><div class="fl" style="left:2%;top:14%">🌿</div><div class="fl" style="right:4%;top:6%;animation-delay:1s">💦</div><div class="fl" style="right:0;bottom:16%;animation-delay:2s">🌱</div><div class="fl" style="left:6%;bottom:6%;animation-delay:3s">⚙️</div></div>
+  </div>
+  <section id="consulta" class="wrap reveal"><div class="card consulta">
+   <div><h2>🔎 Consulte su máquina</h2><p class="sub" style="margin:0">Escriba el número de su orden (está en su boleta) y los últimos 4 dígitos de su teléfono.</p></div>
+   <div><form class="cf" id="fq"><input id="qn" inputmode="numeric" placeholder="N.º de orden, ej. 18" required><input id="qt" inputmode="numeric" maxlength="4" placeholder="Últimos 4 del teléfono" required><button class="btn pri" type="submit">Ver estado</button></form><div class="err" id="qe"></div></div>
+  </div></section>
+  <section id="servicios" class="wrap reveal"><h2>¿Qué reparamos?</h2><p class="sub">Diagnóstico, reparación y mantenimiento.</p>
+   <div class="grid">${tipos.map(t=>`<div class="card srv"><div class="e">${tem(t)}</div><b>${esc(t)}</b></div>`).join('')}</div></section>
+  ${(w.marcas||[]).length?`<section class="wrap reveal"><h2>Marcas que trabajamos</h2><p class="sub">Y muchas más, pregúntenos.</p><div class="chips">${w.marcas.map(m=>`<span class="chip">${esc(m)}</span>`).join('')}</div></section>`:''}
+  <section class="wrap reveal"><h2>Así trabajamos</h2><p class="sub">Usted siempre sabe en qué va su máquina.</p>
+   <div class="steps"><div class="card step"><div class="n">1</div><b>Recibimos</b><span>Le damos su boleta con un código QR.</span></div><div class="card step"><div class="n">2</div><b>Revisamos</b><span>Diagnóstico y le avisamos qué necesita.</span></div><div class="card step"><div class="n">3</div><b>Reparamos</b><span>Con repuestos de calidad y prueba final.</span></div><div class="card step"><div class="n">4</div><b>Le avisamos</b><span>Por WhatsApp, cuando está lista.</span></div></div></section>
+  <section id="ubicacion" class="wrap reveal"><div class="two">
+   <div class="card box"><h2>🕒 Horario</h2><p class="hor">${esc(w.hor||'Consúltenos por WhatsApp.')}</p></div>
+   <div class="card box"><h2>📍 Ubicación</h2><p class="hor">${esc(w.dir||'')}</p>${mapa?`<a class="btn pri" style="margin-top:12px" href="${esc(mapa)}" target="_blank" rel="noopener">🗺️ Cómo llegar</a>`:''}${tel?`<p style="margin:14px 0 0">📞 <a href="tel:${esc(tel)}">${esc(w.tel)}</a>${w.correo?` · ✉️ <a href="mailto:${esc(w.correo)}">${esc(w.correo)}</a>`:''}</p>`:''}</div>
+  </div></section>
+  ${(w.res||[]).length?`<section class="wrap reveal"><h2>Lo que dicen nuestros clientes</h2><p class="sub">Opiniones reales de clientes al recibir su máquina.</p><div class="revs">${w.res.map(r=>`<div class="card rev"><div class="st">${'★'.repeat(r.s)}${'☆'.repeat(5-r.s)}</div><p>“${esc(r.c)}”</p><small>${esc(r.n)}${r.m?' · '+esc(r.m):''}</small></div>`).join('')}</div></section>`:''}
+  <footer class="wrap">${w.fb||w.ig?`<div class="soc" style="margin-bottom:10px">${w.fb?`<a href="${esc(w.fb)}" target="_blank" rel="noopener">Facebook</a>`:''}${w.ig?`<a href="${esc(w.ig)}" target="_blank" rel="noopener">Instagram</a>`:''}</div>`:''}
+   <div>© ${new Date().getFullYear()} ${esc(nm)}</div><div style="margin-top:6px">Sistema por <span class="sig">ForBillyComputer</span></div></footer>
+  ${wa?`<a class="btn wa fab" href="${esc(wa)}" target="_blank" rel="noopener" aria-label="WhatsApp">💬</a>`:''}`;
+  $('#fq').onsubmit=consultar;
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});document.querySelectorAll('.reveal').forEach(x=>io.observe(x));
+}
+async function consultar(e){e.preventDefault();const n=parseInt(String($('#qn').value).replace(/\D/g,''),10),d=telD($('#qt').value).slice(-4);const er=$('#qe');er.textContent='';
+  if(!n||d.length!==4){er.textContent='Revise el número de orden y los 4 dígitos.';return}
+  if(!DB){er.textContent='No hay conexión. Intente de nuevo.';return}
+  er.style.color='#64748b';er.textContent='Buscando…';
+  try{const g=await DB.collection('estado').doc('q'+n+'-'+d).get();if(g.exists&&g.data().t){location.href='consulta.html?t='+encodeURIComponent(g.data().t);return}
+    er.style.color='';er.textContent='No encontramos esa orden. Revise los datos o escríbanos por WhatsApp.'}
+  catch(x){er.style.color='';er.textContent='No encontramos esa orden. Revise los datos o escríbanos por WhatsApp.'}}
+(async()=>{try{firebase.initializeApp(window.FIREBASE_CONFIG);DB=firebase.firestore();const g=await DB.collection('estado').doc('_web').get();W=g.exists?g.data():null}catch(e){W=null}render()})();
+</script>
+</body>
+</html>
