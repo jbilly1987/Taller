@@ -89,7 +89,7 @@ svg.i{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-
 .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
 .badge i{width:7px;height:7px;border-radius:50%;background:currentColor}
 .tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.02em}
-.tag.n{background:#dcfce7;color:#166534}.tag.u{background:#ffedd5;color:#9a3412}.tag.urg{background:var(--red-l);color:var(--red)}.tag.gar{background:#fef3c7;color:#b45309;border:1px solid #fcd34d}
+.tag.n{background:#dcfce7;color:#166534}.tag.u{background:#ffedd5;color:#9a3412}.tag.urg{background:var(--red-l);color:var(--red)}.chipbtn{border:1px dashed var(--line);background:var(--soft);border-radius:8px;padding:2px 8px;font:600 12px ui-monospace,monospace;cursor:pointer;margin-top:3px;color:inherit}.tag.gar{background:#fef3c7;color:#b45309;border:1px solid #fcd34d}
 .st-ok{background:#dcfce7;color:#166534}.st-low{background:#fef3c7;color:#92400e}.st-out{background:#fee2e2;color:#991b1b}
 .num{font-family:"JetBrains Mono",monospace;font-weight:600;color:var(--pri);font-size:13px}
 .ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1848,10 +1848,21 @@ function pdEnvioPanel(L){
   const g={};pend.forEach(l=>{const k=l.proveedor||'';(g[k]=g[k]||[]).push(l)});
   const ks=Object.keys(g).filter(Boolean).sort((a,b)=>norm(a).localeCompare(norm(b)));const sin=g[''];
   return `<div class="card" style="margin-bottom:16px"><div class="ch"><h2><span class="hem">📤</span> Enviar pedido al proveedor</h2></div><div class="cp-in">
-   ${ks.length?`<div class="row" style="gap:10px;flex-wrap:wrap">${ks.map(k=>{const pv=provBy(k);return `<button class="btn ${pv&&pv.tel?'wa':''}" data-act="pdEnviar" data-n="${esc(k)}">${pv&&pv.tel?ic('msg'):'📞'} ${pv&&pv.tel?'Enviar a':'Falta teléfono de'} ${esc(k)} <span class="badge" style="background:rgba(255,255,255,.25);color:inherit">${g[k].length}</span></button>`}).join('')}</div>`:''}
+   ${ks.length?`<div class="row" style="gap:10px;flex-wrap:wrap">${ks.map(k=>{const pv=provBy(k);return (pv&&pv.web?`<button class="btn p" data-act="pdWeb" data-n="${esc(k)}">🛒 Pedir en línea a ${esc(k)} <span class="badge" style="background:rgba(255,255,255,.25);color:inherit">${g[k].length}</span></button>`:'')+(pv&&pv.web&&!pv.tel?'':`<button class="btn ${pv&&pv.tel?'wa':''}" data-act="pdEnviar" data-n="${esc(k)}">${pv&&pv.tel?ic('msg'):'📞'} ${pv&&pv.tel?'Enviar a':'Falta teléfono de'} ${esc(k)} <span class="badge" style="background:rgba(255,255,255,.25);color:inherit">${g[k].length}</span></button>`)}).join('')}</div>`:''}
    ${sin?`<p class="small muted" style="margin:${ks.length?'12px':'0'} 0 0">⚠️ ${sin.length} repuesto${sin.length!==1?'s':''} sin proveedor: elíjalo en la columna <b>Proveedor</b> de la lista de abajo para poder enviarlo.</p>`:''}
    <p class="small muted" style="margin:10px 0 0">Se abre la vista previa con la lista ordenada; puede editarla antes de enviarla por WhatsApp.</p></div></div>`;
 }
+
+const provUrl=u=>{u=String(u||'').trim();if(!u)return '';if(!/^https?:\/\//i.test(u))u='https://'+u;return u};
+function copiar(t,msg){const ok=()=>toast(msg||'📋 Copiado');try{navigator.clipboard.writeText(t).then(ok,()=>{fb()})}catch(e){fb()}function fb(){const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){toast('No se pudo copiar')}a.remove()}}
+function pdWebLista(sel){return pdSort(sel).map((l,i)=>`${i+1}. ${l.cant??pdQty(l)} x ${l.nombre}${l.codProv?' — cód. '+l.codProv:l.sku?' — '+l.sku:''}`).join('\n')}
+function pdWeb(n){const pv=provBy(n);if(!pv||!pv.web)return;UI.pProv=n;const sel=pdSort(pdSelected());if(!sel.length){render();return toast('No hay repuestos marcados para '+n)}
+  const q=l=>pv.busca?pv.busca.replace('{q}',encodeURIComponent(l.codProv||l.nombre)):'';
+  openModal('🛒 Pedido en línea · '+n,`<p class="small muted" style="margin-top:0">Abra la tienda y agregue estos repuestos al carrito. ${pv.busca?'Con 🔎 se abre la búsqueda de cada uno.':'Toque el código para copiarlo y pegarlo en el buscador de la tienda.'}</p>
+   <div class="lines">${sel.map((l,i)=>`<div class="ln" style="gap:10px"><b style="min-width:34px;text-align:center;font-size:16px">${l.cant??pdQty(l)}×</b><div style="flex:1;min-width:0"><div style="font-weight:600" class="ell">${esc(l.nombre)}</div>${l.codProv||l.sku?`<button type="button" class="chipbtn" data-act="pdCopy" data-t="${esc(l.codProv||l.sku)}">📋 ${esc(l.codProv||l.sku)}</button>`:'<span class="small muted">sin código del proveedor</span>'}</div>${q(l)?`<a class="btn sm" href="${esc(q(l))}" target="_blank" rel="noopener">🔎</a>`:''}</div>`).join('')}</div>`,
+   `<button class="btn" data-act="pdCopyAll">📋 Copiar lista</button><span class="sp"></span><a class="btn p" href="${esc(pv.web)}" target="_blank" rel="noopener">🛒 Abrir tienda</a><button class="btn" data-act="pdWebOk">✅ Ya lo pedí</button>`,'sm');
+  PDW={n,sel}}
+let PDW=null;
 function pdEnviar(n){
   const pv=provBy(n);const i=provIdx(n);
   if(!pv||!pv.tel){toast('Agregue el teléfono de '+n+' para enviarle el pedido');if(i>=0)provEditForm(i);else{addProveedor(n,'').then(()=>{const j=provIdx(n);if(j>=0)provEditForm(j)})}return}
@@ -2646,7 +2657,7 @@ function vProveedor(i){
   const wa=waLink(p.tel,`Hola${p.contacto?' '+p.contacto:''}, le saluda ${CFG.nombre}. `);
   const inf=(e,l,v)=>v?`<div class="ln" style="padding:9px 0;display:flex;gap:8px;align-items:baseline"><span style="width:24px;flex-shrink:0;display:inline-block">${e}</span><span class="small muted" style="width:80px;flex-shrink:0;display:inline-block">${l}</span><span style="flex:1;min-width:0;font-weight:600;word-break:break-word">${esc(v)}</span></div>`:'';
   return `<div class="ph"><div class="row" style="gap:14px"><div class="ticon" style="width:54px;height:54px;font-size:27px">🏭</div><div><h1>${esc(p.n)}</h1><div class="sub">${reps.length} repuesto${reps.length!==1?'s':''} · ${peds.length} pedido${peds.length!==1?'s':''}</div></div></div>
-   <div class="row">${wa?`<a class="btn wa" href="${esc(wa)}" target="_blank" rel="noopener">${ic('msg')} WhatsApp</a>`:''}${p.tel?`<a class="btn" href="${provTelLink(p.tel)}">📞 Llamar</a>`:''}<button class="btn" data-act="provEdit" data-i="${i}">${ic('edit')} Editar</button><button class="btn d" data-act="provRm" data-i="${i}">${ic('trash')} Eliminar</button></div></div>
+   <div class="row">${wa?`<a class="btn wa" href="${esc(wa)}" target="_blank" rel="noopener">${ic('msg')} WhatsApp</a>`:''}${p.tel?`<a class="btn" href="${provTelLink(p.tel)}">📞 Llamar</a>`:''}${p.web?`<a class="btn p" href="${esc(p.web)}" target="_blank" rel="noopener">🛒 Tienda en línea</a>`:''}<button class="btn" data-act="provEdit" data-i="${i}">${ic('edit')} Editar</button><button class="btn d" data-act="provRm" data-i="${i}">${ic('trash')} Eliminar</button></div></div>
   <div class="grid g2">
    <div class="card"><div class="ch"><h2><span class="hem">📇</span> Datos</h2></div><div class="cp-in">${inf('📞','Teléfono',p.tel)+inf('👤','Contacto',p.contacto)+inf('✉️','Correo',p.correo)+inf('📍','Dirección',p.dir)+inf('📝','Notas',p.notas)||'<p class="muted small">Sin datos. Toque Editar para agregarlos.</p>'}</div></div>
    <div class="card"><div class="ch"><h2><span class="hem">🛒</span> Por pedirle ${L.length?`<span class="badge" style="background:var(--acc-l);color:var(--warn)">${L.length}</span>`:''}</h2>${L.length?`<button class="btn sm p" data-act="pdEnviar" data-n="${esc(p.n)}">📤 Enviar pedido</button>`:''}</div>
@@ -2662,6 +2673,8 @@ function provEditForm(i){
    <div class="f"><label>Nombre *</label><input name="n" value="${esc(p.n||'')}" required autocomplete="off" placeholder="Ej.: Repuestos El Agricultor"></div>
    <div class="fr"><div class="f"><label>Teléfono / WhatsApp</label><input name="tel" type="tel" inputmode="tel" value="${esc(p.tel||'')}" placeholder="8888 8888"></div><div class="f"><label>Persona de contacto</label><input name="contacto" value="${esc(p.contacto||'')}" autocomplete="off"></div></div>
    <div class="fr"><div class="f"><label>Correo</label><input name="correo" type="email" value="${esc(p.correo||'')}"></div><div class="f"><label>Dirección</label><input name="dir" value="${esc(p.dir||'')}"></div></div>
+   <div class="f"><label>🛒 Tienda en línea <span class="opt">(si el proveedor vende por internet)</span></label><input name="web" type="url" inputmode="url" value="${esc(p.web||'')}" placeholder="https://www.proveedor.com" autocomplete="off"></div>
+   <div class="f"><label>🔎 Enlace para buscar un repuesto <span class="opt">(opcional)</span></label><input name="busca" type="url" inputmode="url" value="${esc(p.busca||'')}" placeholder="https://www.proveedor.com/buscar?q={q}" autocomplete="off"><div class="small muted" style="margin-top:4px">En la tienda busque cualquier cosa, copie la dirección de la página de resultados y cambie lo que buscó por <b>{q}</b>. Así el sistema abre directo cada repuesto.</div></div>
    <div class="f"><label>Notas <span class="opt">(marcas que maneja, horario, crédito…)</span></label><textarea name="notas">${esc(p.notas||'')}</textarea></div></form>`,
    `${!nuevo?`<button class="btn d" data-act="provRm" data-i="${i}">${ic('trash')} Eliminar</button>`:''}<span class="sp"></span><button class="btn" data-act="close">Cancelar</button><button class="btn p" data-act="provSave" data-i="${nuevo?'':i}">${ic('check')} Guardar</button>`);
   setTimeout(()=>$('#fProv [name=n]')?.focus(),50);
@@ -2670,7 +2683,7 @@ async function provSave(i){
   const f=$('#fProv');const v=k=>(f.elements[k]?.value||'').trim();const n=v('n');if(!n)return toast('Escriba el nombre');
   const c=CAT();const ps=[...(c.proveedores||[])];const nuevo=i==null||i==='';
   const dup=ps.findIndex(p=>norm(p.n)===norm(n));if(dup>=0&&(nuevo||dup!==+i))return toast('Ya existe un proveedor con ese nombre');
-  const old=nuevo?null:ps[+i];const rec={...(old||{}),n,tel:v('tel'),contacto:v('contacto'),correo:v('correo'),dir:v('dir'),notas:v('notas')};
+  const old=nuevo?null:ps[+i];const rec={...(old||{}),n,tel:v('tel'),contacto:v('contacto'),correo:v('correo'),dir:v('dir'),notas:v('notas'),web:provUrl(v('web')),busca:provUrl(v('busca'))};
   if(nuevo)ps.push(rec);else ps[+i]=rec;c.proveedores=ps;if(!await saveCat(c))return;
   if(old&&norm(old.n)!==norm(n)){for(const r of provReps(old.n))await put('repuestos',{...r,proveedor:n});for(const x of arr(S.pedidos).filter(x=>norm(x.proveedor)===norm(old.n)))await put('pedidos',{...x,proveedor:n});if(norm(UI.pProv)===norm(old.n))UI.pProv=n}
   closeModal();render();toast(nuevo?'🏭 Proveedor agregado':'Cambios guardados');
@@ -3836,6 +3849,8 @@ const A={
  mantOk:async d=>{const b=S.boletas[d.id];if(!b)return;if(await put('boletas',{...b,mantAvisado:Date.now(),mantPor:quien()})){toast('Listo, recordatorio cerrado');render()}},
  consulta:d=>consultaModal(d.id),
  etiquetas:d=>etiquetasModal(d.id?[d.id]:[]),
+ pdWeb:d=>pdWeb(d.n),pdCopy:d=>copiar(d.t,'📋 Código copiado: '+d.t),pdCopyAll:()=>PDW&&copiar(pdWebLista(PDW.sel),'📋 Lista copiada'),
+ pdWebOk:()=>{UI.pProv=PDW?PDW.n:UI.pProv;confirmBox('¿Ya hizo el pedido en la tienda en línea? Se marca como pedido para recibirlo después y no pedirlo dos veces.',async()=>{closeModal();await pMark()},'Marcar como pedido')},
  stM:d=>{UI.stM=+d.m;render()},
  rbOn:()=>{try{localStorage.removeItem('tallerRobot')}catch(e){}rbPlace();render();toast('🤖 ¡Hola de nuevo!')},
  crGo:sinBloq(d=>crGo(d.id)),crPause:d=>crPause(d.id),crStop:d=>crStop(d.id),
