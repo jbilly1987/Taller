@@ -2032,7 +2032,7 @@ setInterval(rbPlace,800);
 /* ---------- conversación con el robot ---------- */
 const rbOL=(b,extra)=>{const e=eq(b.equipoId)||{},c=cli(b.clienteId)||{};return `<a class="rbl" data-act="open" data-page="orden" data-id="${b.id}"><b>${nb(b.numero)}</b> ${tipoEm(e.tipo)} ${esc(eqShort(e))} · ${esc(String(c.nombre||'').split(/\s+/).slice(0,2).join(' '))}${extra?` <span>${extra}</span>`:''}</a>`};
 const rbList=(L,f,max=6)=>L.slice(0,max).map(b=>rbOL(b,f?f(b):'')).join('')+(L.length>max?`<div class="small muted">…y ${L.length-max} más</div>`:'');
-const RB_CHIPS=[['recs','💡 ¿Qué me recomienda?'],['pend','📋 ¿Qué está pendiente?'],['mio','🔧 ¿Qué me toca?'],['atras','⏰ Atrasadas'],['deten','⏳ Detenidas'],['rep','📦 Repuestos que faltan'],['listas','✅ Listas para entregar'],['hoy','📊 Resumen de hoy'],['diag','🧠 ¿Qué suele fallar?'],['ayuda','❓ ¿Cómo se hace…?']];
+const RB_CHIPS=[['recs','💡 ¿Qué me recomienda?'],['reparar','🔧 ¿Qué hay por reparar?'],['pend','📋 ¿Qué está pendiente?'],['mio','🔧 ¿Qué me toca?'],['atras','⏰ Atrasadas'],['deten','⏳ Detenidas'],['rep','📦 Repuestos que faltan'],['listas','✅ Listas para entregar'],['hoy','📊 Resumen de hoy'],['diag','🧠 ¿Qué suele fallar?'],['ayuda','❓ ¿Cómo se hace…?']];
 function rbData(){const B=arr(S.boletas).filter(isOpen),t=today();
   const atr=B.filter(b=>b.fechaEstimada&&b.fechaEstimada<t&&b.estado!=='Listo para entregar').sort((a,z)=>a.fechaEstimada.localeCompare(z.fechaEstimada));
   const det=B.filter(b=>!['Listo para entregar','Esperando aprobación','Esperando repuestos'].includes(b.estado)&&daysSince(lastChange(b))>=num(CFG.diasSinMov)&&!(b.crono&&b.crono.t0)).sort((a,z)=>lastChange(a).localeCompare(lastChange(z)));
@@ -2058,6 +2058,7 @@ const RB_HELP=[
  [/pedido|proveedor|pedir/,'🛒 <b>Pedidos:</b> en el menú Pedidos está la lista por pedir, ordenada por proveedor, con botón para enviarla por WhatsApp o imprimirla.'],
  [/garant/,'🛡️ <b>Garantía:</b> si una máquina vuelve dentro de los días de garantía sale la etiqueta GARANTÍA. Reporte en Reportes → Regresos por garantía.'],
  [/usuario|personal|mecanico|recepcion|clave|pin/,'👥 <b>Usuarios:</b> Configuración → Personal. Ahí se agregan mecánicos y recepción, y quién es administrador.']];
+const nom2=()=>yoNombre()?', '+esc(yoNombre()):'';
 function rbAnswer(key,q){const D=rbData();const me=norm(yoNombre()),pu=puestoActual();
   const sec=(t,L,f,max)=>L.length?`<div class="rbsec"><div class="rbh">${t} <span>${L.length}</span></div>${rbList(L,f,max)}</div>`:'';
   const dias=b=>daysSince(lastChange(b))+' d';
@@ -2080,6 +2081,11 @@ function rbAnswer(key,q){const D=rbData();const me=norm(yoNombre()),pu=puestoAct
      ${low.length?`<div class="rbsec"><div class="rbh">📉 Bajo el mínimo <span>${low.length}</span></div>${low.slice(0,6).map(r=>`<a class="rbl" data-act="open" data-page="repuesto" data-id="${r.id}">${esc(r.nombre)} <span>quedan ${num(r.stock)}</span></a>`).join('')}</div>`:''}
      ${pe.length?`<div class="rbsec"><div class="rbh">🚚 Pedidos sin llegar <span>${pe.length}</span></div>${pe.slice(0,5).map(p=>`<a class="rbl" data-act="nav" data-page="pedidos">${esc(p.proveedor||'Proveedor')} <span>hace ${daysSince(iso(new Date(p.fecha)))} d</span></a>`).join('')}</div>`:''}
      ${sec('⏸️ Máquinas esperando repuesto',D.esp,dias)}`}
+  case 'reparar':{const L=D.B.filter(b=>b.estado!=='Listo para entregar');if(!L.length)return `¡No hay máquinas por reparar${nom2()}! 🎉`;
+    const ord=x=>x.sort((a,z)=>(a.prioridad==='Urgente'?0:1)-(z.prioridad==='Urgente'?0:1)||String(a.fechaEstimada||'9').localeCompare(String(z.fechaEstimada||'9'))||String(a.fechaIngreso).localeCompare(String(z.fechaIngreso)));
+    const ex=b=>[b.prioridad==='Urgente'?'🔥 urgente':'',b.tecnico?'🔧 '+b.tecnico:'👤 sin técnico',b.fechaEstimada?(b.fechaEstimada<today()?'⏰ ':'📆 ')+fdate(b.fechaEstimada):daysSince(b.fechaIngreso)+' d'].filter(Boolean).join(' · ');
+    const sinE=ord(L.filter(b=>['Recibido','En diagnóstico'].includes(b.estado))),enR=ord(L.filter(b=>['En reparación','Control de calidad'].includes(b.estado))),esp=ord(L.filter(b=>['Esperando repuestos','Esperando aprobación'].includes(b.estado)));
+    return `Hay <b>${L.length}</b> máquina${L.length!==1?'s':''} por reparar${D.lis.length?` (y ${D.lis.length} ya lista${D.lis.length!==1?'s':''} para entregar)`:''}:`+sec('🆕 Sin empezar',sinE,ex,8)+sec('🔧 En reparación',enR,ex,8)+sec('⏸️ Esperando repuesto o aprobación',esp,b=>b.estado.replace('Esperando ','esperando ')+' · '+daysSince(lastChange(b))+' d',8)}
   case 'listas':return D.lis.length?sec('✅ Listas para entregar',D.lis,b=>(b.recepRecibio?'en recepción · ':'en el taller · ')+dias(b),10):'No hay máquinas listas ahora mismo.';
   case 'hoy':{const t=today(),A=arr(S.boletas);const en=A.filter(b=>b.fechaIngreso===t),ent=A.filter(b=>b.estado==='Entregado'&&String(b.fechaEntrega||'').slice(0,10)===t);
     const lis=A.filter(b=>(b.historial||[]).some(h=>h.estado==='Listo para entregar'&&iso(new Date(h.t))===t)&&b.estado==='Listo para entregar');
@@ -2113,6 +2119,7 @@ function rbAnswer(key,q){const D=rbData();const me=norm(yoNombre()),pu=puestoAct
    const O=arr(S.boletas).filter(b=>C.some(c=>c.id===b.clienteId)||E.some(e=>e.id===b.equipoId)).sort((a,z)=>(isOpen(z)?1:0)-(isOpen(a)?1:0)||String(z.fechaIngreso).localeCompare(String(a.fechaIngreso)));
    if(O.length)return `Encontré esto:${rbList(O,b=>b.estado,8)}`;
    if(h)return h[1]}
+  if(/maquina|orden|trabajo|equipo|taller/.test(n))return rbAnswer('reparar');
   const rc=rbRecsHTML(4);
   return `No estoy seguro de qué busca${yoNombre()?', '+esc(yoNombre()):''} 🤔. Pruebe con un número de orden, un cliente, un repuesto o <i>"¿cómo…?"</i>.${rc?`<div class="rbh" style="margin-top:8px">Mientras tanto, esto es lo que yo haría:</div>${rc}`:''}`}
 
@@ -2282,6 +2289,8 @@ const RB_KB=[
  [/no corta|cadena|no afila|corta torcido/,'No corta bien',['Cadena sin filo o mal afilada','Tensión de la cadena incorrecta','Espada gastada o abierta','No le llega aceite a la cadena (bomba o conductos)']]];
 function rbBrain(n,D){const sec=(t,L,f,max)=>L.length?`<div class="rbsec"><div class="rbh">${t} <span>${L.length}</span></div>${rbList(L,f,max)}</div>`:'';
   const has=re=>re.test(n);const nom=yoNombre()?', '+esc(yoNombre()):'';
+  // máquinas por reparar / qué hay en el taller
+  if(/(para|por|que|hay que|tengo que|toca) (reparar|arreglar|revisar|hacer|trabajar)|(maquina|orden|trabajo|equipo)s? (hay|tengo|tenemos|quedan|faltan|pendiente|en el taller|sin terminar|abierta)|(que|cuales|cuantas) (maquina|orden|trabajo|equipo)|en el taller|sin terminar|que hay|que tenemos|lo que hay|en reparacion|trabajo hay|hay trabajo|que falta por/.test(n)&&!/(repuest|bujia|cadena|filtro|listas? para entregar|entregar|atrasad|detenid|pendient|hoy|ayer|semana|mes\b)/.test(n)&&!arr(S.equipos).some(e=>e.tipo&&norm(e.tipo).split(/[\s/]+/).some(w=>w.length>4&&n.includes(w.replace(/s$/,''))))&&![...new Set(arr(S.boletas).map(b=>b.tecnico).filter(Boolean))].some(t=>norm(t).split(' ').some(w=>w.length>2&&new RegExp('\\b'+w+'\\b').test(n))))return rbAnswer('reparar');
   // seguir con la orden anterior
   const ob=RBC.b&&S.boletas[RBC.b];
   if(ob&&/^(y |la |abr|abre|abrir|abrala|muestr|ver la|mandele|mande|escribale|avisele|llame|llamele|llamar|whatsapp|mensaje)/.test(n)&&!/\d/.test(n)&&n.split(' ').length<=6){
