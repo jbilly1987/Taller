@@ -13,9 +13,6 @@
 <title>Taller — Recepción y servicio técnico</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{
@@ -732,14 +729,14 @@ body.tvmode #view{padding:18px 22px!important;max-width:none!important}
 @media (max-width:1100px){.stkg{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:600px){.stkg{grid-template-columns:repeat(2,minmax(0,1fr))}.stkv{font-size:20px}}
 .rbkv{display:flex;justify-content:space-between;gap:10px;font-size:12.8px;padding:3px 0;border-bottom:1px dashed var(--line2)}.rbkv b{color:#2563eb}
-#rbFloat{position:fixed;inset:0;pointer-events:none;z-index:55;transition:opacity .3s}
-#rbFloat.away{opacity:0}
+#rbFloat{position:fixed;inset:0;pointer-events:none;z-index:55;transition:opacity .3s;contain:strict}
+#rbFloat.away{opacity:0}#rbFloat.away *{animation-play-state:paused!important}
 .rbbot{position:absolute;left:0;top:0;height:112px;width:145px;will-change:transform;pointer-events:none}
 .rbtilt{width:100%;height:100%;transition:transform .5s}
 .rbbob{width:100%;height:100%;animation:rbFloatY 2.6s ease-in-out infinite}
 @keyframes rbFloatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 .rbbot.fly .rbtilt{transform:rotate(7deg)}
-.rbsvg{width:100%;height:100%;overflow:visible;display:block;pointer-events:none;filter:drop-shadow(0 10px 14px rgba(15,23,42,.18))}
+.rbsvg{width:100%;height:100%;overflow:visible;display:block;pointer-events:none}
 .rbsvg *{transform-box:view-box}
 .rbsvg .rb-body,.rbsvg .rb-body *,.rbsvg .rb-af *{pointer-events:auto;cursor:pointer}
 .rbbub{position:absolute;left:0;top:0;transform-origin:center bottom;margin-top:-34px;max-width:min(320px,80vw);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid rgba(59,130,246,.3);background:rgba(255,255,255,.96);color:#1e293b;font:700 13px/1.2 inherit;padding:7px 13px;border-radius:14px 14px 14px 4px;box-shadow:0 8px 22px rgba(15,23,42,.14);opacity:0;pointer-events:none;transition:opacity .35s;cursor:pointer}
@@ -1951,6 +1948,7 @@ function robotSVG(){return `<svg class="rbsvg" viewBox="-60 -10 240 185" overflo
 <linearGradient id="rbBl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7dd3fc"/><stop offset="1" stop-color="#2563eb"/></linearGradient>
 <linearGradient id="rbT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#86efac"/><stop offset="1" stop-color="#16a34a"/></linearGradient>
 <radialGradient id="rbJ"><stop offset="0" stop-color="#e0f2fe"/><stop offset=".5" stop-color="#60a5fa"/><stop offset="1" stop-color="rgba(96,165,250,0)"/></radialGradient></defs>
+<ellipse class="rb-shadow" cx="62" cy="168" rx="22" ry="4" fill="rgba(15,23,42,.13)"/>
 <!-- islita flotante -->
 <g class="rb-isl"><path d="M26 162 q78 -12 156 0 q-6 16 -40 20 q-38 6 -76 0 q-34 -6 -40 -20z" fill="#a16207" opacity=".85"/><ellipse cx="104" cy="161" rx="79" ry="7" fill="#4ade80"/><path d="M34 158l2-6 2 6M60 156l2-7 2 7M150 156l2-7 2 7M176 158l2-6 2 6M90 155l2-6 2 6" stroke="#16a34a" stroke-width="1.6" fill="none"/></g>
 <!-- árbol -->
@@ -1981,6 +1979,7 @@ function robotSVG(){return `<svg class="rbsvg" viewBox="-60 -10 240 185" overflo
 </svg>`}
 let RB=null;
 const rbDur=()=>60e3+Math.random()*60e3;
+const RB_LOW=(navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=3;
 function rbBuild(){const f=document.createElement('div');f.id='rbFloat';
   f.innerHTML=`<div class="rbbot" id="rbBot"><div class="rbtilt"><div class="rbbob">${robotSVG()}</div></div></div><button class="rbbub" id="rbBub" type="button"></button>`;
   document.body.appendChild(f);
@@ -2000,28 +1999,29 @@ function rbPick(){const W=innerWidth,H=innerHeight,ph=W<=860,{w,h}=rbSize();
 function rbSetAct(a,silent){RB.act=a;RB.bot.dataset.act=a;RB.bot.classList.remove('cut','fell');
   if(!silent){RB.bot.classList.remove('swap');void RB.bot.offsetWidth;RB.bot.classList.add('swap');rbSay({t:RB_TXT[a]},4500)}}
 function rbHideBub(){RB.bub.className='rbbub';RB.bubOn=false;RB.tMsg=Date.now()+9000}
-function rbSay(m,ms){if(RB.chat)return;RB.alert=m;RB.bub.innerHTML=esc(m.t)+(m.go?' <b>›</b>':'');RB.bub.className='rbbub on'+(m.sev==='r'?' urg':'');RB.bubOn=true;RB.tHide=Date.now()+(ms||8000);if(m.sev==='r'){RB.bot.classList.remove('jump');void RB.bot.offsetWidth;RB.bot.classList.add('jump')}}
+function rbSay(m,ms){if(RB.chat)return;RB.alert=m;RB.bub.innerHTML=esc(m.t)+(m.go?' <b>›</b>':'');RB.bub.className='rbbub on'+(m.sev==='r'?' urg':'');RB.bubOn=true;RB.bubW=0;RB.tHide=Date.now()+(ms||8000);if(m.sev==='r'){RB.bot.classList.remove('jump');void RB.bot.offsetWidth;RB.bot.classList.add('jump')}}
 function rbMsgs(){const L=[];try{const k='rbDia'+today();if(!localStorage.getItem(k)){localStorage.setItem(k,'1');const D=rbData();const pro=arr(S.boletas).filter(b=>isOpen(b)&&b.fechaEstimada===today()).length;const h=new Date().getHours();return [{t:`${h<12?'¡Buenos días':h<19?'¡Buenas tardes':'¡Buenas noches'}${yoNombre()?' '+yoNombre():''}! ${D.B.length} en el taller${pro?`, ${pro} prometida${pro!==1?'s':''} para hoy`:''}${D.atr.length?`, ${D.atr.length} atrasada${D.atr.length!==1?'s':''}`:''}. Tóqueme y le digo qué hacer 💡`,sev:D.atr.length?'a':''}]}}catch(e){}try{alertas().filter(a=>a.sev!=='b').slice(0,6).forEach(a=>{const m=/data-page="([^"]+)"(?:\s+data-id="([^"]*)")?/.exec(a.act||'');L.push({t:String(a.title).replace(/<[^>]+>/g,'')+(a.detail?' · '+String(a.detail).split(' · ')[0]:''),sev:a.sev,go:m?{page:m[1],id:m[2]||undefined}:{page:'alertas'}})})}catch(e){}
   if(!L.length){const ab=arr(S.boletas).filter(isOpen).length;L.push({t:'¡Todo al día! 💪 Tóqueme si necesita algo'},{t:`${ab} máquina${ab!==1?'s':''} en el taller 🔧`})}
   else L.push({t:'¿Le ayudo? Tóqueme y pregúnteme 🙂'});
   try{const nm=yoNombre();rbRecs().slice(0,3).forEach(x=>L.splice(1,0,{t:`${nm?nm+', ':''}${x.em} ${x.txt}${x.b?' '+nb(x.b.numero):''}`,sev:x.pr<=2?'a':'',go:x.b?{page:'orden',id:x.b.id}:x.go}))}catch(e){}
   return L}
 function rbLoop(ts){if(!RB)return;requestAnimationFrame(rbLoop);if(document.hidden){RB.last=ts;return}
-  const dt=Math.min(.05,(ts-(RB.last||ts))/1000);RB.last=ts;const now=Date.now();const {w,h}=rbSize();const k=w/145;
-  const hideM=!!document.querySelector('#modal:not(.hidden)');RB.f.classList.toggle('away',hideM);
+  if(RB.ph!=='fly'&&ts-(RB.last||0)<180)return;if(RB.ph==='fly'&&ts-(RB.last||0)<30)return;
+  const dt=Math.min(.2,(ts-(RB.last||ts))/1000);RB.last=ts;const now=Date.now();if(!RB.sz||now-RB.szT>3000){RB.sz=rbSize();RB.szT=now}const {w,h}=RB.sz;const k=w/145;
+  if(now-(RB.mT||0)>500){RB.mT=now;const hideM=!!document.querySelector('#modal:not(.hidden)');if(hideM!==RB.away){RB.away=hideM;RB.f.classList.toggle('away',hideM)}}
   if(RB.ph==='fly'){const dx=RB.tx-RB.x,dy=RB.ty-RB.y,d=Math.hypot(dx,dy);const sp=(RB.chat?200:52)*k;
     if(Math.abs(dx)>3)RB.dir=RB.dirLock||(dx>0?1:-1);
     if(d<3){RB.ph=RB.chat?'chat':'work';RB.tPh=now;if(RB.act==='sierra'&&!RB.chat)RB.bot.classList.add('cut')}
     else{const s=Math.min(d,sp*dt);RB.x+=dx/d*s;RB.y+=dy/d*s}}
-  else if(RB.ph==='work'){const e=now-RB.tPh,lim=RB.act==='sierra'?11500:9000+Math.random()*30;
+  else if(RB.ph==='work'){const e=now-RB.tPh,lim=(RB.act==='sierra'?11500:9000)*(RB_LOW?2:1);
     if(RB.act==='sierra'&&e>6500&&!RB.bot.classList.contains('fell'))RB.bot.classList.add('fell');
     if(e>lim){if(RB.act==='sierra'){RB.bot.classList.remove('cut');const bt=RB.bot;setTimeout(()=>bt.classList.remove('fell'),800)}
       if(now>RB.tAct){let n;do{n=RB_ACTS[Math.floor(Math.random()*4)]}while(n===RB.act);rbSetAct(n);RB.tAct=now+rbDur()}
       rbPick();RB.ph='fly'}}
   else if(RB.ph==='chat'){if(!RB.chat){rbPick();RB.ph='fly'}}
-  RB.bot.classList.toggle('fly',RB.ph==='fly');RB.bot.classList.toggle('working',RB.ph==='work');RB.bot.classList.toggle('talk',RB.ph==='chat');
-  RB.bot.style.transform=`translate(${RB.x}px,${RB.y}px) scaleX(${RB.dir})`;
-  const bw=RB.bub.offsetWidth||200;const bx=Math.max(8,Math.min(innerWidth-bw-8,RB.x+w*.5-bw/2)),by=Math.max(60,RB.y-6);RB.bub.style.transform=`translate(${bx}px,${by}px)`;
+  if(RB.phC!==RB.ph){RB.phC=RB.ph;RB.bot.classList.toggle('fly',RB.ph==='fly');RB.bot.classList.toggle('working',RB.ph==='work');RB.bot.classList.toggle('talk',RB.ph==='chat')}
+  const tf=`translate(${Math.round(RB.x)}px,${Math.round(RB.y)}px) scaleX(${RB.dir})`;if(tf!==RB.tf){RB.tf=tf;RB.bot.style.transform=tf}
+  if(RB.bubOn){if(!RB.bubW)RB.bubW=RB.bub.offsetWidth||200;}const bw=RB.bubW||200;const bx=Math.max(8,Math.min(innerWidth-bw-8,RB.x+w*.5-bw/2)),by=Math.max(60,RB.y-6);if(RB.bubOn){const bt=`translate(${Math.round(bx)}px,${Math.round(by)}px)`;if(bt!==RB.bt){RB.bt=bt;RB.bub.style.transform=bt}}
   if(RB.bubOn&&now>RB.tHide)rbHideBub();
   if(!RB.bubOn&&!RB.chat&&now>RB.tMsg){const L=rbMsgs();rbSay(L[RB.msgI++%L.length])}}
 function rbPlace(){const on=robotOn()&&!document.querySelector('#login,#userScr,#splash');
@@ -2854,7 +2854,9 @@ function repPreview(k){
 }
 const stamp=()=>today()+'_'+pad(new Date().getHours())+pad(new Date().getMinutes());
 const fname=t=>norm(t).replace(/[^a-z0-9]+/g,'_');
+const LIBS={};function loadLib(u){return LIBS[u]||(LIBS[u]=new Promise((ok,ko)=>{const sc=document.createElement('script');sc.src=u;sc.onload=ok;sc.onerror=()=>{delete LIBS[u];ko()};document.head.appendChild(sc)}))}
 async function repXls(k){
+  if(typeof XLSX==='undefined'){toast('Preparando Excel…');try{await loadLib('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js')}catch(e){}}
   const R=REPORTS[k];const secs=R.build();
   if(typeof XLSX==='undefined'){ // respaldo: CSV
     const s=secs[0];const csv=[s.head,...s.rows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\r\n');
@@ -2865,6 +2867,7 @@ async function repXls(k){
   await saveFile(fname(R.t)+'_'+stamp()+'.xlsx',new Blob([XLSX.write(wb,{bookType:'xlsx',type:'array'})]));
 }
 async function repPdf(k){
+  if(!window.jspdf){toast('Preparando PDF…');try{await loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');await loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js')}catch(e){}}
   if(!window.jspdf||!window.jspdf.jsPDF)return toast('No se pudo cargar el generador de PDF. Revise la conexión e intente de nuevo.');
   const R=REPORTS[k];const secs=R.build();const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:secs[0].head.length>6?'landscape':'portrait',unit:'pt',format:'letter'});
