@@ -745,6 +745,7 @@ body.tvmode #view{padding:18px 22px!important;max-width:none!important}
 @keyframes rbLuz{0%{opacity:1;filter:brightness(1.3)}50%{opacity:.35;filter:none}}
 .rb-pom{transform-origin:24px -8px;animation:rbPom 2.6s ease-in-out infinite}
 @keyframes rbPom{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg)}}
+.rbc.on{background:#2563eb;color:#fff;border-color:#2563eb}
 .rbtico{font-weight:700;margin:2px 0 4px}
 #rbFloat{position:fixed;inset:0;pointer-events:none;z-index:55;transition:opacity .3s;contain:strict}
 #rbFloat.away{opacity:0}#rbFloat.away *{animation-play-state:paused!important}
@@ -2358,12 +2359,21 @@ function vNumeros(){const M=UI.stM;const now=new Date();const months=Array.from(
 /* ================== Voz del robot ================== */
 const rbVozOn=()=>{try{return localStorage.getItem('rbVoz')!=='0'}catch(e){return true}};
 let RBV=null;
+const RB_MALE=/(ra[uú]l|jorge|pablo|[aá]lvaro|gonzalo|diego|juan|carlos|enrique|andr[eé]s|jos[eé]|miguel|antonio|federico|gerardo|emilio|jaime|tom[aá]s|lorenzo|alonso|dario|male|hombre|masculin|x-esd|x-esc|eda?-network)/i;
+const RB_FEM=/(helena|laura|sabina|paulina|m[oó]nica|elvira|dalia|paloma|marisol|luc[ií]a|isabel|carmen|esperanza|female|mujer|femenin|x-ese|x-esf)/i;
+function rbVoces(){try{return speechSynthesis.getVoices().filter(v=>/^es/i.test(v.lang))}catch(e){return []}}
+function rbVoz(){const vs=rbVoces();let sel=null;try{sel=localStorage.getItem('rbVozNom')}catch(e){}
+  if(sel){const v=vs.find(x=>x.name===sel);if(v)return {v,male:!RB_FEM.test(v.name)}}
+  const lat=v=>!/es[-_]ES/i.test(v.lang);const m=vs.filter(v=>RB_MALE.test(v.name+' '+v.voiceURI)&&!RB_FEM.test(v.name));
+  const v=m.find(lat)||m[0];if(v)return {v,male:true};
+  const o=vs.find(v=>/es[-_]CR/i.test(v.lang))||vs.find(v=>lat(v)&&/google/i.test(v.name))||vs.find(lat)||vs[0]||null;return {v:o,male:false}}
+function rbVozMenu(){const vs=rbVoces();const cur=rbVoz().v;
+  return `🗣️ <b>Elija mi voz, mae.</b> Toque una para oírla. ${vs.length?'':'Este aparato no tiene voces en español instaladas.'}<div class="rbchips" style="margin-top:6px">${vs.map(v=>`<button type="button" class="rbc ${cur&&cur.name===v.name?'on':''}" data-rbvoz="${esc(v.name)}">${RB_MALE.test(v.name+' '+v.voiceURI)&&!RB_FEM.test(v.name)?'👨':RB_FEM.test(v.name)?'👩':'🗣️'} ${esc(v.name.replace(/Microsoft|Google|Online|\(Natural\)|-/g,' ').replace(/\s+/g,' ').trim().slice(0,30))} <span style="opacity:.6">${esc(v.lang)}</span></button>`).join('')}</div><div class="small muted" style="margin-top:6px">Si ninguna es de hombre, le pongo la voz más grave para que suene masculina.</div>`}
 function rbHablar(html){try{if(!('speechSynthesis' in window))return;speechSynthesis.cancel();
   const d=document.createElement('div');d.innerHTML=String(html).replace(/<a [^>]*class="rbl"[^>]*>(.*?)<\/a>/g,'. $1. ').replace(/<div/g,'. <div').replace(/<br>/g,'. ');
   let t=(d.textContent||'').replace(/OS-0*(\d+)/g,'orden $1').replace(/(\d+) d(?=[\s.,·)]|$)/g,'$1 días').replace(/[\u{1F000}-\u{1FAFF}\u{2190}-\u{21FF}\u{2300}-\u{23FF}\u{2460}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}›·]/gu,' ').replace(/(\s*\.\s*)+/g,'. ').replace(/\s+/g,' ').replace(/^\s*\.\s*/,'').trim();
   if(t.length>420){const c=t.slice(0,420);t=c.slice(0,Math.max(c.lastIndexOf('. '),200))+'. Y hay más en la pantalla.'}
-  const u=new SpeechSynthesisUtterance(t);u.lang='es-CR';u.rate=0.97;u.pitch=1.05;
-  const vs=speechSynthesis.getVoices().filter(v=>/^es/i.test(v.lang));u.voice=vs.find(v=>/es[-_]CR/i.test(v.lang))||vs.find(v=>/es[-_](419|US|MX|CO|PA|GT|HN|NI|SV)/i.test(v.lang)&&/google/i.test(v.name))||vs.find(v=>/es[-_](419|US|MX|CO|PA|GT|HN|NI|SV)/i.test(v.lang))||vs.find(v=>!/es[-_]ES/i.test(v.lang))||vs[0]||null;
+  const u=new SpeechSynthesisUtterance(t);u.lang='es-CR';const V=rbVoz();u.voice=V.v;u.rate=0.96;u.pitch=V.male?0.95:0.68;
   u.onstart=()=>RB&&RB.bot.classList.add('speak');u.onend=u.onerror=()=>RB&&RB.bot.classList.remove('speak');
   speechSynthesis.speak(u)}catch(e){}}
 function rbEscuchar(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;const btn=$('#rbMic');
@@ -2416,6 +2426,7 @@ function rbBrain(n,D){const sec=(t,L,f,max)=>L.length?`<div class="rbsec"><div c
   const has=re=>re.test(n);const nom=yoNombre()?', '+esc(yoNombre()):'';
   if(/(gorro|navid|luces|luce)/.test(n)&&/(quit|sac|apag|no quiero|fuera)/.test(n)){try{localStorage.setItem('rbXmas','off')}catch(e){}RB&&RB.f.classList.remove('xmas');return 'Listo, me quité el gorro y las luces 🎄➡️📦'}
   if(/(gorro|navid|luces|luce)/.test(n)&&/(pon|ponga|ponte|encend|quiero|usa)/.test(n)){try{localStorage.setItem('rbXmas','on')}catch(e){}RB&&RB.f.classList.add('xmas');return '¡Jo, jo, jo! 🎅 Ya tengo mi gorro y mis luces 🎄✨'}
+  if(/(voz|habla|hablar)/.test(n)&&/(cambi|elig|escog|hombre|masculin|otra|mujer)/.test(n))return rbVozMenu();
   // máquinas por reparar / qué hay en el taller
   if(/(para|por|que|hay que|tengo que|toca) (reparar|arreglar|revisar|hacer|trabajar)|(maquina|orden|trabajo|equipo)s? (hay|tengo|tenemos|quedan|faltan|pendiente|en el taller|sin terminar|abierta)|(que|cuales|cuantas) (maquina|orden|trabajo|equipo)|en el taller|sin terminar|que hay|que tenemos|lo que hay|en reparacion|trabajo hay|hay trabajo|que falta por/.test(n)&&!/(repuest|bujia|cadena|filtro|listas? para entregar|entregar|atrasad|detenid|pendient|hoy|ayer|semana|mes\b)/.test(n)&&!arr(S.equipos).some(e=>e.tipo&&norm(e.tipo).split(/[\s/]+/).some(w=>w.length>4&&n.includes(w.replace(/s$/,''))))&&![...new Set(arr(S.boletas).map(b=>b.tecnico).filter(Boolean))].some(t=>norm(t).split(' ').some(w=>w.length>2&&new RegExp('\\b'+w+'\\b').test(n))))return rbAnswer('reparar');
   // seguir con la orden anterior
@@ -2482,14 +2493,15 @@ let RBM=[];
 function rbChat(open){if(!RB)return;RB.chat=open;let p=$('#rbChat');
   if(!open){if(p)p.classList.remove('on');try{speechSynthesis.cancel()}catch(e){}if(RBV)try{RBV.stop()}catch(e){}RB.ph='fly';rbPick();return}
   if(!p){p=document.createElement('div');p.id='rbChat';document.body.appendChild(p);
-    p.innerHTML=`<div class="rbch"><div class="rbav">🤖</div><div style="flex:1;min-width:0"><b>Asistente del taller</b><div class="small muted">Pregúnteme lo que necesite</div></div><button type="button" class="rbhb ${rbVozOn()?'on':''}" id="rbVoz" title="Que el robot responda hablando">${rbVozOn()?'🔊':'🔈'}</button><button type="button" class="rbhb" id="rbOff" title="Ocultar el robot">🙈</button><button type="button" class="rbhb" id="rbClose" title="Cerrar">✕</button></div>
+    p.innerHTML=`<div class="rbch"><div class="rbav">🤖</div><div style="flex:1;min-width:0"><b>Asistente del taller</b><div class="small muted">Pregúnteme lo que necesite</div></div><button type="button" class="rbhb" id="rbVozSel" title="Elegir la voz">🗣️</button><button type="button" class="rbhb ${rbVozOn()?'on':''}" id="rbVoz" title="Que el robot responda hablando">${rbVozOn()?'🔊':'🔈'}</button><button type="button" class="rbhb" id="rbOff" title="Ocultar el robot">🙈</button><button type="button" class="rbhb" id="rbClose" title="Cerrar">✕</button></div>
      <div class="rbmsgs" id="rbMsgs"></div><div class="rbchips rbq">${RB_CHIPS.map(([k,l])=>`<button type="button" class="rbc" data-rbk="${k}">${l}</button>`).join('')}</div>
      <form class="rbin" id="rbForm"><button type="button" class="rbmic" id="rbMic" title="Hablarle al robot">🎤</button><input id="rbIn" placeholder="Escriba o toque 🎤 y hable…" autocomplete="off"><button class="btn p sm" type="submit">➤</button></form>`;
     p.querySelector('#rbMic').onclick=()=>rbEscuchar();
+    p.querySelector('#rbVozSel').onclick=()=>{RBM.push({me:0,h:rbVozMenu()});rbDraw()};
     p.querySelector('#rbVoz').onclick=e=>{const on=!rbVozOn();try{localStorage.setItem('rbVoz',on?'1':'0')}catch(x){}e.currentTarget.textContent=on?'🔊':'🔈';e.currentTarget.classList.toggle('on',on);if(on)rbHablar('Listo, ahora le respondo hablando.');else try{speechSynthesis.cancel()}catch(x){}};
     p.querySelector('#rbClose').onclick=()=>rbChat(false);
     p.querySelector('#rbOff').onclick=()=>{try{localStorage.setItem('tallerRobot','off')}catch(e){}rbPlace();render();toast('🤖 Robot oculto. Para verlo de nuevo, toque «🤖 Mostrar robot» en Inicio.')};
-    p.addEventListener('click',e=>{const k=e.target.closest('[data-rbk]'),q=e.target.closest('[data-rbq]');
+    p.addEventListener('click',e=>{const vz=e.target.closest('[data-rbvoz]');if(vz){e.stopPropagation();try{localStorage.setItem('rbVozNom',vz.dataset.rbvoz)}catch(x){}p.querySelectorAll('[data-rbvoz]').forEach(b=>b.classList.toggle('on',b===vz));rbHablar('¡Upe, mae! Así suena mi voz. ¡Pura vida!');return}const k=e.target.closest('[data-rbk]'),q=e.target.closest('[data-rbq]');
       if(k){e.stopPropagation();rbAsk(k.textContent,k.dataset.rbk)}else if(q){e.stopPropagation();rbAsk(q.dataset.rbq,null,q.dataset.rbq)}
       else if(e.target.closest('.rbl')&&innerWidth<=860)setTimeout(()=>rbChat(false),60)});
     p.querySelector('#rbForm').onsubmit=e=>{e.preventDefault();const i=$('#rbIn');const v=i.value.trim();if(!v)return;i.value='';rbAsk(v,null,v)}}
@@ -3898,8 +3910,9 @@ async function probarAviso(){
   try{new Notification(t,{body:b,icon:'icons/icon-192.png'})}catch(e){ping(t,b,()=>{})}
 }
 const vCmp=(a,b)=>{const A=String(a).split(/[.-]/).map(Number),B=String(b).split(/[.-]/).map(Number);for(let i=0;i<Math.max(A.length,B.length);i++){const d=(A[i]||0)-(B[i]||0);if(d)return d}return 0};
-const APP_VER='2026.11.18-12';
+const APP_VER='2026.11.18-13';
 const CAMBIOS=[
+ {v:'2026.11.18-13',t:['👨 El robot ahora busca una voz de hombre; si el aparato no tiene, usa la voz más grave','🗣️ Botón para elegir la voz del robot y probarla']},
  {v:'2026.11.18-12',t:['🇨🇷 El robot habla mucho más tico: diay, mae, upe, brete, qué torta, a cachete, cuál es la vara','🔊 Prefiere voz latinoamericana en vez de la de España']},
  {v:'2026.11.18-11',t:['🔒 Cada máquina es del mecánico que la recibe en el taller: el otro mecánico la ve pero no la puede modificar']},
  {v:'2026.11.18-10',t:['🛡️ Sección «Garantías» para el mecánico: ve las pendientes, en proceso y listas, y empieza a repararlas con un toque']},
