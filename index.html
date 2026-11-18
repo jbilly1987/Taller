@@ -3344,12 +3344,13 @@ function micToggle(sel,btn){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return toast('Este navegador no permite dictar. Use Chrome o Safari actualizado.');
   const ta=$(sel);if(!ta)return;const r=new SR();r.lang='es-CR';r.continuous=true;r.interimResults=true;r._sel=sel;
   const base=ta.value?ta.value.replace(/\s*$/,' '):'';let fin='';
+  let sil=null,habl=false;const tick=ms=>{clearTimeout(sil);sil=setTimeout(()=>{try{r.stop()}catch(e){}},ms)};
   const cap=t=>t.replace(/^\s+/,'').replace(/^./,c=>base&&!/[.!?]\s*$/.test(base)?c:c.toUpperCase());
-  r.onresult=e=>{let inter='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)fin+=(fin&&!/\s$/.test(fin)?' ':'')+t.trim();else inter+=' '+t}
+  r.onresult=e=>{habl=true;tick(3000);let inter='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)fin+=(fin&&!/\s$/.test(fin)?' ':'')+t.trim();else inter+=' '+t}
     const el=$(sel);if(!el)return;el.value=base+cap((fin+inter).trim());el.dispatchEvent(new Event('input',{bubbles:true}))};
-  const off=()=>{document.querySelectorAll('.mic.on').forEach(b=>b.classList.remove('on'));if(REC===r)REC=null;if(render._pend&&view.page==='orden')setTimeout(()=>{if(!REC)render()},300)};
+  const off=()=>{clearTimeout(sil);document.querySelectorAll('.mic.on').forEach(b=>b.classList.remove('on'));if(REC===r)REC=null;if(render._pend&&view.page==='orden')setTimeout(()=>{if(!REC)render()},300)};
   r.onend=off;r.onerror=e=>{off();if(e.error==='not-allowed'||e.error==='service-not-allowed')toast('Permita el micrófono para dictar (candado junto a la dirección → Micrófono).');else if(e.error==='no-speech')toast('No se escuchó nada. Toque 🎤 y hable.');else if(e.error==='network')toast('Para dictar se necesita internet.')};
-  try{r.start();REC=r;document.querySelectorAll(`.mic[data-t="${sel}"]`).forEach(b=>b.classList.add('on'));toast('🎤 Hable… toque 🎤 otra vez para terminar')}catch(e){toast('No se pudo iniciar el dictado')}
+  try{r.start();REC=r;tick(7000);document.querySelectorAll(`.mic[data-t="${sel}"]`).forEach(b=>b.classList.add('on'));toast('🎤 Hable… se detiene solo al quedarse callado 3 segundos')}catch(e){toast('No se pudo iniciar el dictado')}
 }
 /* ---------- Mano de obra ---------- */
 const MO_EM=[['diagn','🔍'],['manten','🧰'],['cadena','⛓️'],['afil','🪚'],['espada','🪚'],['carbur','⛽'],['combust','⛽'],['motor','⚙️'],['arranc','🔄'],['encend','⚡'],['bujía','⚡'],['embrag','🔩'],['transm','🔩'],['sold','🔥'],['fabric','🔥'],['eléctr','🔌'],['electr','🔌'],['prueba','✅'],['ajuste final','✅'],['limpi','🧽'],['pint','🎨'],['cambio','🔧']];
