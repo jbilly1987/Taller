@@ -1550,8 +1550,10 @@ function wireKanban(){
 const tecDueno=b=>b.tecnico||((b.historial||[]).slice().reverse().find(h=>h.estado==='Listo para entregar'&&h.por)||{}).por||'';
 const adminReal=()=>pinOn()?isAdmin():puestoActual()==='ambos';
 const yoNombre=()=>WHO||fbName()||'';
-const bloqueado=b=>!!(b&&b.estado==='Listo para entregar'&&tecDueno(b)&&norm(yoNombre())!==norm(tecDueno(b))&&!adminReal());
-const avisoBloq=b=>toast(`🔒 Este trabajo lo terminó ${tecDueno(b)}. Solo ${tecDueno(b)} o el administrador pueden modificarlo.`);
+const bloqTerm=b=>!!(b&&b.estado==='Listo para entregar'&&tecDueno(b)&&norm(yoNombre())!==norm(tecDueno(b))&&!adminReal());
+const bloqOtro=b=>!!(b&&isOpen(b)&&b.estado!=='Listo para entregar'&&b.tecnico&&puestoActual()==='taller'&&!adminReal()&&norm(yoNombre())!==norm(b.tecnico));
+const bloqueado=b=>bloqTerm(b)||bloqOtro(b);
+const avisoBloq=b=>toast(bloqOtro(b)?`🔒 Esta máquina la está viendo ${b.tecnico}. Solo ${b.tecnico} o el administrador pueden modificarla.`:`🔒 Este trabajo lo terminó ${tecDueno(b)}. Solo ${tecDueno(b)} o el administrador pueden modificarlo.`);
 const sinBloq=f=>(d,el)=>{const b=S.boletas[d.id];if(bloqueado(b))return avisoBloq(b);return f(d,el)};
 function vOrden(id){
   const b=S.boletas[id];if(!b)return backBtn()+`<div class="card">${emptyBox('clip','Orden no encontrada')}</div>`;
@@ -1562,7 +1564,7 @@ function vOrden(id){
   const lines=b.repuestos||[];const LK=bloqueado(b);
   return `${backBtn()}
   ${prevBanner(prevInfo(b))}
-  ${LK?`<div class="card" style="padding:12px 16px;margin-bottom:12px;display:flex;gap:12px;align-items:center;border-color:color-mix(in srgb,var(--blue) 40%,transparent);background:color-mix(in srgb,var(--blue) 8%,var(--surface))"><span style="font-size:24px">🔒</span><div><b>Trabajo terminado por ${esc(tecDueno(b))}</b><div class="small muted">Solo ${esc(tecDueno(b))} o el administrador pueden modificar el trabajo, los repuestos y la mano de obra.${esRecep()?' Recepción puede recibirla y entregarla.':''}</div></div></div>`:''}
+  ${LK?`<div class="card" style="padding:12px 16px;margin-bottom:12px;display:flex;gap:12px;align-items:center;border-color:color-mix(in srgb,var(--blue) 40%,transparent);background:color-mix(in srgb,var(--blue) 8%,var(--surface))"><span style="font-size:24px">🔒</span><div><b>${bloqOtro(b)?'La está viendo '+esc(b.tecnico):'Trabajo terminado por '+esc(tecDueno(b))}</b><div class="small muted">Solo ${esc(bloqOtro(b)?b.tecnico:tecDueno(b))} o el administrador pueden modificar el trabajo, los repuestos y la mano de obra.${bloqOtro(b)?' Usted la puede ver, pero no cambiarla.':esRecep()?' Recepción puede recibirla y entregarla.':''}</div></div></div>`:''}
   <div class="card">
    <div class="ohead"><div class="ticon" style="width:56px;height:56px;font-size:28px;border-radius:14px">${tipoEm(e.tipo)}</div>
     <div style="flex:1;min-width:220px"><div class="row" style="gap:8px"><span class="onum">${nb(b.numero)}</span>${badge(b.estado)}${b.prioridad==='Urgente'?'<span class="tag urg">URGENTE</span>':''}${garTag(b)}</div>
@@ -1570,7 +1572,7 @@ function vOrden(id){
      <div class="muted small">Recibido ${fdate(b.fechaIngreso)}${isOpen(b)?` · ${daysSince(b.fechaIngreso)} días en taller`:''}${b.fechaEstimada?` · Entrega prometida ${fdate(b.fechaEstimada)}`:''}${b.fechaEntrega?` · Entregado ${fdate(b.fechaEntrega)}`:''}</div></div>
     <div class="row"><button class="btn ${b.garantia?'garon':''}" data-act="garForm" data-id="${b.id}">🛡️ ${b.garantia?'En garantía':'Garantía'}</button><button class="btn" data-act="label" data-id="${b.id}">${ic('qr')} Etiqueta</button><button class="btn" data-act="print" data-id="${b.id}">${ic('print')} Imprimir</button>${FB_MODE?`<button class="btn" data-act="consulta" data-id="${b.id}">🔎 Consulta</button>`:''}${w?`<a class="btn wa" href="${esc(w)}" target="_blank" rel="noopener">${ic('msg')} WhatsApp</a>`:''}</div></div>
    ${garCard(b)}
-   ${(()=>{const n=nextStep(b);return n?`<div class="nstep ${n.act?'':'wait'}"><div class="ticon" style="width:38px;height:38px;font-size:16px">${ic(n.ic)}</div><div style="flex:1;min-width:180px"><div style="font-weight:800">${esc(n.t)}</div><div class="small muted">${esc(n.d)}</div></div>${n.act?`<button class="btn p" data-act="${n.act}" data-id="${b.id}">${esc(n.t)}</button>`:''}</div>`:''})()}
+   ${(()=>{const n=bloqOtro(b)?null:nextStep(b);return n?`<div class="nstep ${n.act?'':'wait'}"><div class="ticon" style="width:38px;height:38px;font-size:16px">${ic(n.ic)}</div><div style="flex:1;min-width:180px"><div style="font-weight:800">${esc(n.t)}</div><div class="small muted">${esc(n.d)}</div></div>${n.act?`<button class="btn p" data-act="${n.act}" data-id="${b.id}">${esc(n.t)}</button>`:''}</div>`:''})()}
    <div class="pipe">${PIPE.map((k,i)=>{const E=est(k);const cls=side?(i===0?'done':''):i<ci?'done':i===ci?'cur':'';return `<button class="pp ${cls}" style="--c:${E.c}" data-act="estado" data-id="${b.id}" data-e="${esc(k)}">${esc(k)}</button>`}).join('')}</div>
    <div class="row" style="padding:0 20px 16px;gap:6px"><span class="small muted">Otros estados:</span>${['Esperando aprobación','Esperando repuestos','Cancelado'].map(k=>`<button class="fchip ${b.estado===k?'on':''}" data-act="estado" data-id="${b.id}" data-e="${esc(k)}">${esc(k)}</button>`).join('')}</div>
   </div>
@@ -3818,9 +3820,10 @@ function nextStep(b){
   return null;
 }
 async function tRecibir(id){
-  const b=clone(S.boletas[id]);b.tallerRecibio={t:Date.now(),por:quien(),dev:DEV};if(b.estado==='Recibido')b.estado='En diagnóstico';
-  b.historial=[...(b.historial||[]),{t:Date.now(),estado:b.estado,nota:'El taller recibió la máquina',por:quien(),dev:DEV}];
-  if(await put('boletas',b)){toast('Recibida en el taller');render()}
+  const b=clone(S.boletas[id]);if(b.tecnico&&puestoActual()==='taller'&&!adminReal()&&norm(b.tecnico)!==norm(yoNombre()))return toast(`🔒 Esta máquina ya la tiene ${b.tecnico}`);
+  b.tallerRecibio={t:Date.now(),por:quien(),dev:DEV};if(b.estado==='Recibido')b.estado='En diagnóstico';const toma=!b.tecnico&&esTaller()&&yoNombre()&&puestoActual()!=='recepcion';if(toma)b.tecnico=yoNombre();
+  b.historial=[...(b.historial||[]),{t:Date.now(),estado:b.estado,nota:'El taller recibió la máquina'+(toma?' · queda a cargo de '+b.tecnico:''),por:quien(),dev:DEV}];
+  if(await put('boletas',b)){toast(toma?`🔧 Recibida · queda a cargo de ${b.tecnico}`:'Recibida en el taller');render()}
 }
 function rRecibir(id){
   const b=S.boletas[id];const acc=[...(b.accesorios||[]),...(b.accesoriosOtros?[b.accesoriosOtros]:[])];
@@ -3887,8 +3890,9 @@ async function probarAviso(){
   try{new Notification(t,{body:b,icon:'icons/icon-192.png'})}catch(e){ping(t,b,()=>{})}
 }
 const vCmp=(a,b)=>{const A=String(a).split(/[.-]/).map(Number),B=String(b).split(/[.-]/).map(Number);for(let i=0;i<Math.max(A.length,B.length);i++){const d=(A[i]||0)-(B[i]||0);if(d)return d}return 0};
-const APP_VER='2026.11.18-10';
+const APP_VER='2026.11.18-11';
 const CAMBIOS=[
+ {v:'2026.11.18-11',t:['🔒 Cada máquina es del mecánico que la recibe en el taller: el otro mecánico la ve pero no la puede modificar']},
  {v:'2026.11.18-10',t:['🛡️ Sección «Garantías» para el mecánico: ve las pendientes, en proceso y listas, y empieza a repararlas con un toque']},
  {v:'2026.11.18-9',t:['🛡️ Botón «Entra por garantía» en Inicio: reconoce la máquina y el cliente y llena todo solo','⏸️ Se puede dejar pendiente para reparar después, siempre como garantía']},
  {v:'2026.11.18-8',t:['🛡️ En la orden: botón Garantía para marcarla aunque ya esté en reparación (del taller, del fabricante o de la tienda)','🛡️ La garantía se ve en la orden, en las listas, para el cliente y en el reporte']},
@@ -4166,7 +4170,7 @@ const A={
  tRecibir:soloT(d=>tRecibir(d.id)),
  rRecibir:soloR(d=>rRecibir(d.id)),
  entregar:soloR(d=>estadoForm(d.id,'Entregado')),
- listo:soloT(d=>estadoForm(d.id,'Listo para entregar')),
+ listo:soloT(sinBloq(d=>estadoForm(d.id,'Listo para entregar'))),
  printEq:d=>printEquipo(d.id),printCli:d=>printCliente(d.id),
  pPrintAll:()=>printPedido(porPedir().filter(l=>!l.pend).map(l=>({...l,cant:pdQty(l),compatible:[l.compatible,l.proveedor?'Prov.: '+l.proveedor:''].filter(Boolean).join(' · ')})),'','Repuestos que hacen falta'),
  pPrint:()=>printPedido(pdSelected().map(l=>({...l,cant:pdQty(l)})),UI.pProv),
