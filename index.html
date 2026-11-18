@@ -1111,7 +1111,7 @@ const PEMO={recepcion:'🧾',taller:'🔧',ambos:'👑'};
 const PDESC={recepcion:'Recibe y entrega las máquinas',taller:'Repara y da mantenimiento',ambos:'Recepción y taller · todo el sistema'};
 let SES='';try{SES=sessionStorage.getItem('tallerSes')||''}catch(e){}
 function personal(){
-  const c=CAT();const L=(c.personal||[]).filter(p=>p&&p.n).map(p=>({n:p.n,puesto:p.puesto||'ambos',email:p.email||''}));
+  const c=CAT();const L=(c.personal||[]).filter(p=>p&&p.n).map(p=>({n:p.n,puesto:p.puesto||'ambos',email:p.email||'',u:p.u||'',ph:p.ph||''}));
   const has=n=>L.some(p=>norm(p.n)===norm(n));
   (c.tecnicos||[]).forEach(n=>{if(!has(n))L.push({n,puesto:'taller',email:''})});
   (c.personas||[]).forEach(n=>{if(!has(n))L.push({n,puesto:'ambos',email:''})});
@@ -1119,7 +1119,7 @@ function personal(){
   return L;
 }
 const persona=n=>n?personal().find(p=>norm(p.n)===norm(n)):null;
-async function savePersonal(L){const c=CAT();c.personal=L.map(p=>({n:p.n,puesto:p.puesto,email:(p.email||'').trim()}));
+async function savePersonal(L){const c=CAT();c.personal=L.map(p=>({n:p.n,puesto:p.puesto,email:(p.email||'').trim(),...(p.u?{u:String(p.u).trim()}:{}),...(p.ph?{ph:p.ph}:{})}));
   const mec=L.filter(p=>p.puesto!=='recepcion').map(p=>p.n);c.tecnicos=uniq([...(c.tecnicos||[]).filter(t=>!L.some(p=>norm(p.n)===norm(t)&&p.puesto==='recepcion')),...mec]);return saveCat(c)}
 function fbPerson(){if(typeof FB_MODE==='undefined'||!FB_MODE||!FBUSER)return null;return personal().find(p=>p.email&&norm(p.email)===norm(FBUSER.email))||null}
 function fbName(){return fbPerson()?.n||''}
@@ -1131,7 +1131,7 @@ function setWho(n){WHO=n||'';try{n?localStorage.setItem('tallerWho',n):localStor
 function userScreen(){
   closeModal();let o=$('#userScr');if(!o){o=document.createElement('div');o.id='userScr';document.body.appendChild(o)}
   const L=personal();const canAdd=!pinOn()||isAdmin();
-  const card=(n,pu,gen)=>`<button class="ucard" data-act="uPick" data-v="${esc(n)}" data-p="${pu}" ${gen?'data-g="1"':''}><span class="uav">${gen?PEMO[pu]:esc(initials(n))}</span><span class="un">${esc(gen?PLBL[pu]:n)}</span><span class="up">${PEMO[pu]} ${gen?PDESC[pu]:PLBL[pu]}</span></button>`;
+  const card=(n,pu,gen)=>`<button class="ucard" data-act="uPick" data-v="${esc(n)}" data-p="${pu}" ${gen?'data-g="1"':''}><span class="uav">${gen?PEMO[pu]:esc(initials(n))}</span><span class="un">${esc(gen?PLBL[pu]:n)}${!gen&&persona(n)?.ph?' 🔒':''}</span><span class="up">${PEMO[pu]} ${gen?PDESC[pu]:PLBL[pu]}</span></button>`;
   o.innerHTML=`<div class="ubox"><div class="usaw">${sawSVG()}</div><h1>¿Quién entra al sistema? 👋</h1><div class="bsig" style="font-size:18px;margin:2px 0 4px">ForBillyComputer</div><p class="muted small" style="margin:0 0 16px">${esc(CFG.nombre||'Taller')}</p>
    <div class="ugrid">${L.length?L.map(p=>card(p.n,p.puesto)).join(''):['recepcion','taller','ambos'].map(k=>card(PLBL[k],k,true)).join('')}</div>
    ${L.length?'':`<p class="small muted" style="margin:14px 0 0">💡 Para que aparezcan los nombres, agréguelos en <b>Configuración → Personal y puestos</b>.</p>`}
@@ -1139,8 +1139,9 @@ function userScreen(){
    ${pinOn()?'<p class="small muted" style="margin:14px 0 0">🔐 El Administrador general pide el PIN.</p>':''}
    ${'Notification' in window&&Notification.permission!=='granted'?'<p class="small muted" style="margin:10px 0 0">🔔 Al entrar, permita los <b>avisos</b> para enterarse de las máquinas nuevas.</p>':''}</div>`;
 }
-async function uEnter(n,pu,gen){
-  if(pu==='ambos'&&pinOn()&&!isAdmin()){return unlockForm(()=>uEnter(n,pu,gen))}
+async function uEnter(n,pu,gen,pwOk){
+  const pp=!gen&&persona(n);if(pp&&pp.ph&&!pwOk)return pwForm(pp,()=>{if(pu==='ambos'&&pinOn())setAdm(CFG.pinHash);uEnter(n,pu,gen,true)});
+  if(pu==='ambos'&&pinOn()&&!isAdmin()){return unlockForm(()=>uEnter(n,pu,gen,pwOk))}
   if(pu!=='ambos'&&pinOn())setAdm('');
   setWho(gen?PLBL[pu]:n);if(gen)setPuesto(pu);
   SES=n||pu;try{sessionStorage.setItem('tallerSes',SES)}catch(e){}
@@ -1158,6 +1159,37 @@ function whoPickOld(){
    `${WHO?'<button class="btn ghost" data-act="whoSet" data-v="">Nadie (dejar en blanco)</button>':''}<span class="sp"></span><button class="btn" data-act="close">${WHO?'Cerrar':'Más tarde'}</button>`,'sm');
 }
 const adminOnly=fn=>d=>{if(isAdmin())return fn(d);unlockForm(()=>fn(d))};
+
+/* ---------- editar persona: nombre, usuario y contraseña ---------- */
+const hashPw=p=>hashPin('pw:'+p);
+function perEdit(i){const L=personal();const p=L[i];if(!p)return;
+  openModal('✏️ Editar persona',`<form id="fPer" autocomplete="off">
+   ${fld('n','Nombre (como aparece en el sistema)',p.n,'text','required')}
+   ${fld('u','Usuario (para entrar)',p.u||'','text','autocapitalize="none" placeholder="Ej.: otto"')}
+   <div class="f"><label>Puesto</label><select name="puesto">${Object.entries(PLBL).map(([k,l])=>`<option value="${k}" ${p.puesto===k?'selected':''}>${PEMO[k]} ${l}</option>`).join('')}</select></div>
+   ${FB_MODE?fld('email','Correo de inicio de sesión (opcional)',p.email||'','email',''):''}
+   <div class="sect"><span class="fl">🔒 Contraseña ${p.ph?'<span class="opt">(ya tiene una; déjelo vacío para no cambiarla)</span>':'<span class="opt">(opcional)</span>'}</span>
+    <div class="fr"><div class="f"><label>Nueva contraseña</label><input name="pw" type="password" autocomplete="new-password"></div><div class="f"><label>Repetirla</label><input name="pw2" type="password" autocomplete="new-password"></div></div>
+    ${p.ph?'<label class="row small" style="gap:8px;cursor:pointer"><input type="checkbox" name="sinpw"> Quitar la contraseña</label>':''}
+    <p class="small muted" style="margin:6px 0 0">Si tiene contraseña, el sistema se la pide al elegir su nombre en <b>¿Quién entra?</b>. ${p.puesto==='ambos'?'Para el administrador, la contraseña también abre el modo administrador.':''}</p></div>
+   <div id="perErr" class="small" style="color:var(--red)"></div></form>`,
+   `<span class="sp"></span><button class="btn" data-act="close">Cancelar</button><button class="btn p" id="sv">${ic('check')} Guardar</button>`,'sm');
+  $('#sv').onclick=async()=>{const d=formData($('#fPer'));const err=t=>{$('#perErr').textContent=t};
+    const n=String(d.n||'').trim(),u=String(d.u||'').trim().toLowerCase();if(!n)return err('Escriba el nombre');
+    if(L.some((x,j)=>j!==i&&norm(x.n)===norm(n)))return err('Ya hay otra persona con ese nombre');
+    if(u&&L.some((x,j)=>j!==i&&String(x.u||'').toLowerCase()===u))return err('Ese usuario ya lo tiene otra persona');
+    if(d.pw||d.pw2){if(d.pw!==d.pw2)return err('Las contraseñas no coinciden');if(String(d.pw).length<4)return err('La contraseña debe tener al menos 4 caracteres')}
+    const old=p.n;const np={...p,n,u,puesto:d.puesto||p.puesto,email:FB_MODE?String(d.email||'').trim():p.email};
+    if(d.sinpw)np.ph='';else if(d.pw)np.ph=await hashPw(d.pw);
+    L[i]=np;const c=CAT();if(old!==n){c.tecnicos=(c.tecnicos||[]).map(t=>t===old?n:t);CATD=c}
+    if(!await savePersonal(L))return;
+    if(old!==n){const B=arr(S.boletas).filter(b=>b.tecnico===old);for(const b of B)await put('boletas',{...b,tecnico:n});if(WHO===old)setWho(n)}
+    closeModal();render();toast(`✅ ${n} actualizado${d.pw?' · contraseña guardada':''}`)}}
+function pwForm(p,ok){openModal('🔒 Hola, '+p.n,`<form id="fPw" autocomplete="off"><p class="muted" style="margin-top:0">${p.u?`Usuario: <b>${esc(p.u)}</b><br>`:''}Escriba su contraseña para entrar.</p>
+   <div class="f"><label>Contraseña</label><input name="pw" type="password" required autocomplete="current-password"></div><div id="pwErr" class="small" style="color:var(--red)"></div></form>`,
+   `<span class="sp"></span><button class="btn" data-act="close">Cancelar</button><button class="btn p" id="sv">Entrar</button>`,'sm');
+  const go2=async()=>{const v=$('#fPw [name=pw]').value;if(!v)return;if(await hashPw(v)!==p.ph){$('#pwErr').textContent='Contraseña incorrecta.';return}closeModal();ok()};
+  $('#sv').onclick=go2;$('#fPw').onsubmit=e=>{e.preventDefault();go2()};setTimeout(()=>$('#fPw [name=pw]')?.focus(),80)}
 function unlockForm(after){
   openModal('Entrar como administrador',`<form id="fPin"><p class="muted" style="margin-top:0">Ingrese el PIN para editar recepciones, eliminar registros y cambiar la configuración.</p>${fld('pin','PIN','','password','required inputmode="numeric" autocomplete="off"')}<div id="pinErr" class="err"></div></form>`,
   `<span class="sp"></span><button class="btn" data-act="close">Cancelar</button><button class="btn p" id="sv">Entrar</button>`,'sm');
@@ -3112,7 +3144,7 @@ function vAjustes(){
    ${FB_MODE?`<div class="card"><div class="ch"><h2>${hic('user')} Cuenta</h2></div><div class="cp-in"><p style="margin-top:0">Sesión iniciada como <b>${esc(FBUSER?.email||'')}</b>. Los datos se guardan en Firebase y se sincronizan entre todos los equipos que inicien sesión.</p><p>${fbPerson()?`Usted es <b>${esc(fbPerson().n)}</b> · ${PLBL[fbPerson().puesto]}.`:'<span style="color:var(--warn)">Este correo no está en <b>Personal y puestos</b>. Agréguelo ahí con su nombre y puesto.</span>'}</p><button class="btn" data-act="logout">${ic('logout')} Cerrar sesión</button></div></div>`:''}
    <div class="card"><div class="ch"><h2>${hic('users')} Personal y puestos</h2></div><div class="cp-in">
     <p class="small muted" style="margin-top:0">Cada persona trabaja en su puesto: <b>Recepcionista</b> recibe y entrega máquinas; <b>Mecánico</b> recibe en taller, revisa, repara y pone repuestos. Al elegir su nombre${FB_MODE?' o iniciar sesión con su correo':''}, la app se pone sola en su puesto.</p>
-    ${personal().length?`<div class="card" style="margin-bottom:12px"><div class="rows">${personal().map((p,i)=>`<div class="rw" style="cursor:default;flex-wrap:wrap;row-gap:8px"><div class="av">${esc(initials(p.n))}</div><div class="mn"><div class="t">${esc(p.n)}</div><div class="m">${PLBL[p.puesto]}${p.email?' · '+esc(p.email):''}</div></div><button class="ib" data-act="perDel" data-n="${esc(p.n)}" title="Quitar">${ic('trash')}</button><div class="row" style="width:100%;padding-left:54px"><select class="sel" data-perp="${i}">${Object.entries(PLBL).map(([k,l])=>`<option value="${k}" ${p.puesto===k?'selected':''}>${l}</option>`).join('')}</select>${FB_MODE?`<input class="inp" style="flex:1;min-width:160px" type="email" placeholder="Correo de inicio de sesión" value="${esc(p.email)}" data-pere="${i}">`:''}</div></div>`).join('')}</div></div>`:''}
+    ${personal().length?`<div class="card" style="margin-bottom:12px"><div class="rows">${personal().map((p,i)=>`<div class="rw" style="cursor:default;flex-wrap:wrap;row-gap:8px"><div class="av">${esc(initials(p.n))}</div><div class="mn"><div class="t">${esc(p.n)} ${p.ph?'<span title="Tiene contraseña">🔒</span>':''}</div><div class="m">${PLBL[p.puesto]}${p.u?' · 👤 '+esc(p.u):''}${p.email?' · '+esc(p.email):''}</div></div><button class="btn sm" data-act="perEdit" data-i="${i}">${ic('edit')} Editar</button><button class="ib" data-act="perDel" data-n="${esc(p.n)}" title="Quitar">${ic('trash')}</button><div class="row" style="width:100%;padding-left:54px"><select class="sel" data-perp="${i}">${Object.entries(PLBL).map(([k,l])=>`<option value="${k}" ${p.puesto===k?'selected':''}>${l}</option>`).join('')}</select>${FB_MODE?`<input class="inp" style="flex:1;min-width:160px" type="email" placeholder="Correo de inicio de sesión" value="${esc(p.email)}" data-pere="${i}">`:''}</div></div>`).join('')}</div></div>`:''}
     <div class="row"><input class="inp" id="perN" placeholder="Nombre" style="flex:1;min-width:130px"><select class="sel" id="perP">${Object.entries(PLBL).map(([k,l])=>`<option value="${k}">${l}</option>`).join('')}</select>${FB_MODE?'<input class="inp" id="perE" type="email" placeholder="Correo" style="width:180px">':''}<button class="btn p" data-act="perAdd">${ic('plus')} Agregar</button></div>
     ${!pinOn()?'<p class="small" style="color:var(--warn);margin-bottom:0">Cree un PIN de administrador (abajo) para que nadie pueda cambiarse de puesto por su cuenta.</p>':''}</div></div>
    <div class="card"><div class="ch"><h2>${hic('lock')} PIN de administrador</h2></div><div class="cp-in">
@@ -3910,8 +3942,9 @@ async function probarAviso(){
   try{new Notification(t,{body:b,icon:'icons/icon-192.png'})}catch(e){ping(t,b,()=>{})}
 }
 const vCmp=(a,b)=>{const A=String(a).split(/[.-]/).map(Number),B=String(b).split(/[.-]/).map(Number);for(let i=0;i<Math.max(A.length,B.length);i++){const d=(A[i]||0)-(B[i]||0);if(d)return d}return 0};
-const APP_VER='2026.11.18-13';
+const APP_VER='2026.11.18-14';
 const CAMBIOS=[
+ {v:'2026.11.18-14',t:['👥 Personal y puestos: botón Editar para cambiar nombre, usuario, puesto y contraseña de cada persona','🔒 Si una persona tiene contraseña, se la pide al entrar']},
  {v:'2026.11.18-13',t:['👨 El robot ahora busca una voz de hombre; si el aparato no tiene, usa la voz más grave','🗣️ Botón para elegir la voz del robot y probarla']},
  {v:'2026.11.18-12',t:['🇨🇷 El robot habla mucho más tico: diay, mae, upe, brete, qué torta, a cachete, cuál es la vara','🔊 Prefiere voz latinoamericana en vez de la de España']},
  {v:'2026.11.18-11',t:['🔒 Cada máquina es del mecánico que la recibe en el taller: el otro mecánico la ve pero no la puede modificar']},
@@ -4199,6 +4232,7 @@ const A={
  pdPrint:d=>{const P=S.pedidos[d.id];printPedido(P.items.map(i=>({...i,cond:i.condicion})),P.proveedor,'Pedido '+pdNum(P)+' · '+(P.proveedor||''))},
  whoSet:d=>{setWho(d.v);closeModal();render();toast(d.v?'Ahora está como '+d.v:'Sin nombre')},
  whoAdd:async()=>{const v=($('#whoNew')?.value||'').trim();if(!v)return;const pu=$('#whoPu')?.value||'ambos';const L=personal();if(!L.some(p=>norm(p.n)===norm(v)))L.push({n:v,puesto:pu,email:''});await savePersonal(L);setWho(v);closeModal();render();toast(`Ahora está como ${v} (${PLBL[pu]})`)},
+ perEdit:adminOnly(d=>perEdit(+d.i)),
  perAdd:adminOnly(async()=>{const n=($('#perN')?.value||'').trim();if(!n)return toast('Escriba el nombre');const L=personal();if(L.some(p=>norm(p.n)===norm(n)))return toast('Ya existe');L.push({n,puesto:$('#perP').value,email:($('#perE')?.value||'').trim()});if(await savePersonal(L)){toast(n+' agregado');render()}}),
  perDel:adminOnly(d=>confirmBox(`¿Quitar a ${esc(d.n)} del personal? Su historial se conserva.`,async()=>{const c=CAT();const L=personal().filter(p=>p.n!==d.n);c.tecnicos=(c.tecnicos||[]).filter(t=>t!==d.n);c.personas=(c.personas||[]).filter(t=>t!==d.n);c.usuarios=(c.usuarios||[]).filter(u=>u.nombre!==d.n);CATD=c;await savePersonal(L);if(WHO===d.n)setWho('');closeModal();render()},'Quitar')),
  ck:(d,el)=>{if(TR.checklist[d.k]===d.v)delete TR.checklist[d.k];else TR.checklist[d.k]=d.v;
