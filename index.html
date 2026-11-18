@@ -89,7 +89,12 @@ svg.i{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-
 .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
 .badge i{width:7px;height:7px;border-radius:50%;background:currentColor}
 .tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.02em}
-.tag.n{background:#dcfce7;color:#166534}.tag.u{background:#ffedd5;color:#9a3412}.tag.urg{background:var(--red-l);color:var(--red)}.tag.cons{background:#fef3c7;color:#92400e}.conssec{margin:4px 14px 12px;border:1px dashed #fcd34d;border-radius:14px;background:color-mix(in srgb,#fef3c7 35%,transparent)}.consh{padding:8px 12px 2px;font-weight:800;font-size:13px}.consh span{font-weight:500;color:var(--muted);font-size:12px;margin-left:6px}.cons-ck{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px dashed #fcd34d;border-radius:12px;margin:4px 0 10px;cursor:pointer;background:color-mix(in srgb,#fef3c7 30%,transparent)}.cons-ck input{margin-top:3px;width:18px;height:18px}.pdcods{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:3px}.chipbtn.prov{white-space:nowrap;border-style:solid;border-color:#93c5fd;background:#eff6ff;color:#1d4ed8;font-family:inherit}.chipbtn.prov b{font-family:ui-monospace,monospace}.cpin{border:1px dashed #93c5fd;border-radius:8px;padding:5px 8px;font:inherit;font-size:12.5px;width:min(240px,100%);background:var(--surface,#fff);color:inherit}
+.tag.n{background:#dcfce7;color:#166534}.tag.u{background:#ffedd5;color:#9a3412}.repbtn{background:linear-gradient(135deg,#ede9fe,#ddd6fe);color:#5b21b6;border-color:#c4b5fd;font-weight:800}.repbtn b{background:#7c3aed;color:#fff;border-radius:10px;padding:1px 9px;margin-left:4px}
+.repg{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.repc{cursor:pointer;padding:12px 14px;border-radius:16px;background:var(--surface-hi);border:1px solid var(--line2);border-left:5px solid #8b5cf6;transition:transform .15s,box-shadow .15s}
+.repc:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.08)}.repc.late{border-left-color:var(--red)}.repc.urg{border-left-color:#f97316}
+.repm{font-weight:800;font-size:16px;margin:4px 0 2px}.repf{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;margin-top:8px;color:var(--ink2)}
+.tag.urg{background:var(--red-l);color:var(--red)}.tag.cons{background:#fef3c7;color:#92400e}.conssec{margin:4px 14px 12px;border:1px dashed #fcd34d;border-radius:14px;background:color-mix(in srgb,#fef3c7 35%,transparent)}.consh{padding:8px 12px 2px;font-weight:800;font-size:13px}.consh span{font-weight:500;color:var(--muted);font-size:12px;margin-left:6px}.cons-ck{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px dashed #fcd34d;border-radius:12px;margin:4px 0 10px;cursor:pointer;background:color-mix(in srgb,#fef3c7 30%,transparent)}.cons-ck input{margin-top:3px;width:18px;height:18px}.pdcods{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:3px}.chipbtn.prov{white-space:nowrap;border-style:solid;border-color:#93c5fd;background:#eff6ff;color:#1d4ed8;font-family:inherit}.chipbtn.prov b{font-family:ui-monospace,monospace}.cpin{border:1px dashed #93c5fd;border-radius:8px;padding:5px 8px;font:inherit;font-size:12.5px;width:min(240px,100%);background:var(--surface,#fff);color:inherit}
 .chipbtn{border:1px dashed var(--line);background:var(--soft);border-radius:8px;padding:2px 8px;font:600 12px ui-monospace,monospace;cursor:pointer;margin-top:3px;color:inherit}.tag.gar{background:#fef3c7;color:#b45309;border:1px solid #fcd34d}
 .st-ok{background:#dcfce7;color:#166534}.st-low{background:#fef3c7;color:#92400e}.st-out{background:#fee2e2;color:#991b1b}
 .num{font-family:"JetBrains Mono",monospace;font-weight:600;color:var(--pri);font-size:13px}
@@ -1295,13 +1300,13 @@ async function initStore(){
 }
 
 /* ================== Shell / render ================== */
-const NAV=[['inicio','home','Inicio'],['alertas','bell','Alertas'],['ordenes','clip','Órdenes'],['clientes','users','Clientes'],['equipos','tractor','Equipos'],['repuestos','box','Repuestos'],['pedidos','cart','Pedidos'],['proveedores','factory','Proveedores'],['calendario','cal','Calendario'],['pantalla','tv','Pantalla del taller'],['respaldo','save','Respaldo'],['catalogo','tag','Catálogo'],['numeros','stats','Estadísticas'],['reportes','chart','Reportes'],['ajustes','gear','Configuración']];
-const TITLES={numeros:'Estadísticas',calendario:'Calendario de entregas',pantalla:'Pantalla del taller',conteo:'Conteo de inventario',respaldo:'Respaldo',proveedores:'Proveedores',proveedor:'Proveedor',alertas:'Alertas',pedidos:'Pedidos',inicio:'Inicio',ordenes:'Órdenes de servicio',orden:'Orden de servicio',clientes:'Clientes',cliente:'Cliente',equipos:'Equipos',equipo:'Equipo',repuestos:'Repuestos',repuesto:'Repuesto',catalogo:'Catálogo',reportes:'Reportes',ajustes:'Configuración'};
+const NAV=[['inicio','home','Inicio'],['alertas','bell','Alertas'],['ordenes','clip','Órdenes'],['reparacion','wrench','En reparación'],['clientes','users','Clientes'],['equipos','tractor','Equipos'],['repuestos','box','Repuestos'],['pedidos','cart','Pedidos'],['proveedores','factory','Proveedores'],['calendario','cal','Calendario'],['pantalla','tv','Pantalla del taller'],['respaldo','save','Respaldo'],['catalogo','tag','Catálogo'],['numeros','stats','Estadísticas'],['reportes','chart','Reportes'],['ajustes','gear','Configuración']];
+const TITLES={reparacion:'En reparación',numeros:'Estadísticas',calendario:'Calendario de entregas',pantalla:'Pantalla del taller',conteo:'Conteo de inventario',respaldo:'Respaldo',proveedores:'Proveedores',proveedor:'Proveedor',alertas:'Alertas',pedidos:'Pedidos',inicio:'Inicio',ordenes:'Órdenes de servicio',orden:'Orden de servicio',clientes:'Clientes',cliente:'Cliente',equipos:'Equipos',equipo:'Equipo',repuestos:'Repuestos',repuesto:'Repuesto',catalogo:'Catálogo',reportes:'Reportes',ajustes:'Configuración'};
 const PARENT={conteo:'repuestos',proveedor:'proveedores',orden:'ordenes',cliente:'clientes',equipo:'equipos',repuesto:'repuestos'};
 const setH=(el,h)=>{if(el&&el._h!==h){el.innerHTML=h;el._h=h}};
 function shell(){
   const p=PARENT[view.page]||view.page;const q=UI.q.trim();
-  const al=alertas();const cnt={ordenes:arr(S.boletas).filter(isOpen).length,alertas:al.filter(a=>a.sev!=='b').length,pedidos:porPedir().filter(l=>!l.pend).length};
+  const al=alertas();const cnt={reparacion:arr(S.boletas).filter(b=>['En reparación','Control de calidad'].includes(b.estado)).length,ordenes:arr(S.boletas).filter(isOpen).length,alertas:al.filter(a=>a.sev!=='b').length,pedidos:porPedir().filter(l=>!l.pend).length};
   setH($('#nav'),NAV.map(([k,i,l],ix)=>`${k==='catalogo'?'<div class="nl">Administración</div>':ix===0?'<div class="nl">Taller</div>':''}<button data-act="nav" data-page="${k}" class="${!q&&p===k?'on':''}">${nem(i)}<span>${l}</span>${cnt[k]?`<span class="nb" ${k==='alertas'&&al.some(a=>a.sev==='r')?'style="background:#dc2626;color:#fff"':''}>${cnt[k]}</span>`:''}</button>`).join(''));
   setH($('.recv'),ic('plus')+' Recibir máquina');{const b=$('#thBtn');if(b)b.textContent=document.documentElement.dataset.theme==='dark'?'☀️':'🌙'}
   $('#bizName').textContent=CFG.nombre||'Mi taller';
@@ -1324,7 +1329,7 @@ function render(){
   if(fid){try{ss=ae.selectionStart;se=ae.selectionEnd}catch(e){}}
   tryPend();
   const p=view.page;const q=UI.q.trim();
-  const F={numeros:vNumeros,calendario:vCalendario,pantalla:vPantalla,conteo:vConteo,respaldo:vRespaldo,proveedores:vProveedores,proveedor:()=>vProveedor(view.id),alertas:vAlertas,pedidos:vPedidos,inicio:vInicio,ordenes:vOrdenes,orden:()=>vOrden(view.id),clientes:vClientes,cliente:()=>vCliente(view.id),equipos:vEquipos,equipo:()=>vEquipo(view.id),repuestos:vRepuestos,repuesto:()=>vRepuesto(view.id),catalogo:vCatalogo,reportes:vReportes,ajustes:vAjustes};
+  const F={reparacion:vReparacion,numeros:vNumeros,calendario:vCalendario,pantalla:vPantalla,conteo:vConteo,respaldo:vRespaldo,proveedores:vProveedores,proveedor:()=>vProveedor(view.id),alertas:vAlertas,pedidos:vPedidos,inicio:vInicio,ordenes:vOrdenes,orden:()=>vOrden(view.id),clientes:vClientes,cliente:()=>vCliente(view.id),equipos:vEquipos,equipo:()=>vEquipo(view.id),repuestos:vRepuestos,repuesto:()=>vRepuesto(view.id),catalogo:vCatalogo,reportes:vReportes,ajustes:vAjustes};
   document.body.classList.toggle('tvmode',p==='pantalla'&&!q);
   const html=q?vBuscar(q):(F[p]||vInicio)();const key0=q?'q':p+(view.id||'');const same=html===v._h&&key0===render._k;
   if(!same){v.innerHTML=html;v._h=html}
@@ -1378,7 +1383,7 @@ function vInicio(){
   const recientes=bs.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,6);
   const h=new Date().getHours();
   return `<div class="card hero"><div class="hero-t"><h1><span class="gt">${h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches'}</span> <span class="wave">👋</span></h1><div class="sub">📅 ${new Date().toLocaleDateString('es-CR',{weekday:'long',day:'numeric',month:'long'})} · 🔧 ${ab.length} equipo${ab.length!==1?'s':''} en el taller</div>
-   <div class="row" style="margin-top:14px"><button class="btn p lg hide-m" data-act="recibir">${ic('plus')} Recibir máquina</button>${robotOn()?'':'<button class="btn" data-act="rbOn">🤖 Mostrar robot</button>'}</div></div><div class="hero-saw">${sawSVG()}</div></div>
+   <div class="row" style="margin-top:14px"><button class="btn p lg hide-m" data-act="recibir">${ic('plus')} Recibir máquina</button><button class="btn lg repbtn" data-act="nav" data-page="reparacion">🔧 En reparación <b>${ab.filter(b=>['En reparación','Control de calidad'].includes(b.estado)).length}</b></button>${robotOn()?'':'<button class="btn" data-act="rbOn">🤖 Mostrar robot</button>'}</div></div><div class="hero-saw">${sawSVG()}</div></div>
   ${bandejas()}
   <div class="grid g4 g5s">
    ${stat('wrench','#ede9fe','#8b5cf6',ab.length,'En el taller','data-act="filtro" data-f="activas"')}
@@ -2265,6 +2270,20 @@ function rbSmart(n,D){const sec=(t,L,f,max)=>L.length?`<div class="rbsec"><div c
     if(!L.length&&has(/^hay |quedan|queda|stock|existencia|tenemos/))return `No encontré repuestos con <b>${esc(ws.join(' '))}</b> en el inventario. 📦<a class="rbl" data-act="nav" data-page="repuestos">Ver todos los repuestos ›</a>`}
   return null}
 
+/* ================== Máquinas en reparación ================== */
+function vReparacion(){const B=arr(S.boletas).filter(b=>['En reparación','Control de calidad'].includes(b.estado));const me=norm(yoNombre());
+  const pr=b=>(b.prioridad==='Urgente'?0:1);const ord=L=>L.sort((a,z)=>pr(a)-pr(z)||String(a.fechaEstimada||'9').localeCompare(String(z.fechaEstimada||'9'))||String(a.fechaIngreso).localeCompare(String(z.fechaIngreso)));
+  const g={};B.forEach(b=>{const k=b.tecnico||'Sin técnico';(g[k]=g[k]||[]).push(b)});
+  const ks=Object.keys(g).sort((a,z)=>(norm(z)===me)-(norm(a)===me)||(a==='Sin técnico')-(z==='Sin técnico')||g[z].length-g[a].length);
+  const sig=arr(S.boletas).filter(b=>['Recibido','En diagnóstico'].includes(b.estado)).length,esp=arr(S.boletas).filter(b=>b.estado==='Esperando repuestos').length;
+  const card=b=>{const e=eq(b.equipoId)||{},c=cli(b.clienteId)||{};const d=daysSince(b.fechaIngreso),lc=daysSince(lastChange(b));const late=b.fechaEstimada&&b.fechaEstimada<today();const run=b.crono&&b.crono.t0;
+    return `<div class="repc ${late?'late':''} ${b.prioridad==='Urgente'?'urg':''}" data-act="open" data-page="orden" data-id="${b.id}">
+     <div class="row" style="justify-content:space-between;gap:8px"><b class="mono" style="color:var(--pri)">${nb(b.numero)}</b><span>${b.prioridad==='Urgente'?'<span class="tag urg">URGENTE</span>':''}${garTag(b)}${b.estado==='Control de calidad'?'<span class="tag" style="background:#e0f2fe;color:#0369a1">🔎 Control de calidad</span>':''}</span></div>
+     <div class="repm">${tipoEm(e.tipo)} ${esc(eqShort(e))}</div><div class="small muted ell">👤 ${esc(c.nombre||'')}</div>
+     ${b.diagnostico||(b.fallas||[]).length?`<div class="small ell" style="margin-top:4px">⚠️ ${esc(b.diagnostico||(b.fallas||[]).join(', '))}</div>`:''}
+     <div class="repf"><span>📥 ${d} día${d!==1?'s':''}</span>${b.fechaEstimada?`<span style="${late?'color:var(--red);font-weight:700':''}">${late?'⏰ Atrasada':'📆'} ${fdate(b.fechaEstimada)}</span>`:''}${run?'<span style="color:#16a34a;font-weight:700">⏱️ trabajando</span>':lc>=num(CFG.diasSinMov)?`<span style="color:#ea580c">⏳ ${lc} d sin avanzar</span>`:''}</div></div>`};
+  return `<div class="ph"><div><h1>En reparación 🔧</h1><div class="sub">${B.length} máquina${B.length!==1?'s':''} en el banco de trabajo${sig?` · ${sig} por empezar`:''}${esp?` · ${esp} esperando repuesto`:''}</div></div><div class="row">${sig?`<button class="btn" data-act="filtro" data-f="Recibido">🆕 Por empezar (${sig})</button>`:''}<button class="btn" data-act="nav" data-page="ordenes">📋 Todas las órdenes</button></div></div>
+  ${B.length?ks.map(k=>`<div class="card" style="margin-bottom:14px"><div class="ch"><h2><span class="hem">${k==='Sin técnico'?'👤':'👷'}</span> ${esc(k)}${norm(k)===me?' <span class="badge" style="background:var(--pri-l);color:var(--pri)">usted</span>':''} <span class="muted" style="font-weight:500">${g[k].length}</span></h2></div><div class="cp-in"><div class="repg">${ord(g[k]).map(card).join('')}</div></div></div>`).join(''):`<div class="card">${emptyBox('🔧','No hay máquinas en reparación ahora','Cuando una orden pase a «En reparación» aparece aquí.')}</div>`}`}
 /* ================== Estadísticas ================== */
 if(UI.stM==null)UI.stM=12;
 const MESES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
@@ -3798,15 +3817,16 @@ async function probarAviso(){
   try{if(navigator.serviceWorker&&navigator.serviceWorker.controller){const r=await navigator.serviceWorker.ready;await r.showNotification(t,{body:b,icon:'icons/icon-192.png',vibrate:[120,80,120],tag:'prueba'});return}}catch(e){}
   try{new Notification(t,{body:b,icon:'icons/icon-192.png'})}catch(e){ping(t,b,()=>{})}
 }
-const APP_VER='2026.11.18-6';
+const APP_VER='2026.11.18-7';
 const CAMBIOS=[
+ {v:'2026.11.18-7',t:['🔧 Nueva sección «En reparación» en el menú y botón en Inicio','👑 Los avisos de actualización ahora solo le salen al administrador']},
  {v:'2026.11.18-6',t:['🔔 El aviso de versión nueva ahora aparece siempre, también en celular y computadora','✨ La tarjeta de novedades sale después de elegir el usuario']},
  {v:'2026.11.18-5',t:['🧴 Nuevo: Consumibles del taller (lo que sale de la bolsa del negocio) en las órdenes','📊 Reporte nuevo: Consumibles del taller']},
  {v:'2026.11.18-4',t:['🤙 El robot ahora también dice «mae»: ¡Pura vida, mae!']},
  {v:'2026.11.18-3',t:['🤖🇨🇷 El robot ahora le responde por escrito y hablando, a lo tico: ¡Pura vida!','🔊 La voz viene encendida (se apaga con el botón 🔊 en la ventana del robot)']},
  {v:'2026.11.18-2',t:['🔄 Ahora el sistema le avisa cuando hay una versión nueva y se actualiza solo','✨ Después de actualizar le muestra qué cambió']},
  {v:'2026.11.18-1',t:['🎤 El dictado por voz se detiene solo a los 3 segundos de silencio','🛒 Pedido en línea con el código del proveedor visible']}];
-function newVersion(){const busy=()=>{const a=document.activeElement;return a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)||($('#modal')&&!$('#modal').classList.contains('hidden'))||!!REC};
+function newVersion(){if(!adminReal())return quietUpdate();const busy=()=>{const a=document.activeElement;return a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)||($('#modal')&&!$('#modal').classList.contains('hidden'))||!!REC};
   const go2=()=>{try{flushTrab&&flushTrab()}catch(e){}setTimeout(()=>location.reload(),250)};
   if(document.hidden)return go2();
   if($('#newv'))return;let n=10;const d=document.createElement('div');d.id='newv';
@@ -3816,7 +3836,10 @@ function newVersion(){const busy=()=>{const a=document.activeElement;return a&&/
   const t=setInterval(()=>{const el=$('#newvT');if(!el){clearInterval(t);return}if(busy()){el.textContent='Se actualiza cuando termine lo que está haciendo';return}n--;el.textContent=n>0?`Se actualiza en ${n} s…`:'Actualizando…';if(n<=0){clearInterval(t);go2()}},1000);
   d.querySelector('#newvY').onclick=()=>{clearInterval(t);go2()};
   d.querySelector('#newvL').onclick=()=>{clearInterval(t);d.remove();setTimeout(newVersion,10*60e3)}}
-function quéCambió(){if(document.querySelector('#userScr,#splash,#login')||document.hidden)return setTimeout(quéCambió,1500);try{const prev=localStorage.getItem('appVer');localStorage.setItem('appVer',APP_VER);if(!prev||prev===APP_VER)return;
+function quietUpdate(){const busy=()=>{const a=document.activeElement;return a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)||($('#modal')&&!$('#modal').classList.contains('hidden'))||!!REC};
+  const go2=()=>{try{flushTrab&&flushTrab()}catch(e){}location.reload()};if(document.hidden||!busy())return setTimeout(go2,300);
+  const t=setInterval(()=>{if(document.hidden||!busy()){clearInterval(t);go2()}},2000)}
+function quéCambió(){if(!adminReal()){try{localStorage.setItem('appVer',APP_VER)}catch(e){}return}if(document.querySelector('#userScr,#splash,#login')||document.hidden)return setTimeout(quéCambió,1500);try{const prev=localStorage.getItem('appVer');localStorage.setItem('appVer',APP_VER);if(!prev||prev===APP_VER)return;
   const L=CAMBIOS.filter(c=>c.v>prev).flatMap(c=>c.t).slice(0,6);
   const d=document.createElement('div');d.id='upd';d.innerHTML=`<div style="display:flex;gap:10px;align-items:center;margin-bottom:6px"><span style="font-size:22px">✨</span><b style="flex:1">Sistema actualizado</b><button class="ib" style="border:0;background:none;font-size:16px;cursor:pointer;color:inherit">✕</button></div>${L.length?L.map(x=>`<div class="small" style="margin:3px 0">${esc(x)}</div>`).join(''):'<div class="small">Mejoras y arreglos.</div>'}`;
   d.style.cssText='position:fixed;top:calc(74px + env(safe-area-inset-top));right:14px;z-index:9998;padding:14px 16px;border-radius:18px;background:var(--surface-hi,#fff);box-shadow:0 14px 40px rgba(0,0,0,.18);width:min(360px,calc(100vw - 28px));border:1px solid rgba(34,197,94,.35);animation:rise .4s both';
