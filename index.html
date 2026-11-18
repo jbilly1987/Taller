@@ -95,6 +95,7 @@ svg.i{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-
 .repc:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.08)}.repc.late{border-left-color:var(--red)}.repc.urg{border-left-color:#f97316}
 .repm{font-weight:800;font-size:16px;margin:4px 0 2px}.repf{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;margin-top:8px;color:var(--ink2)}
 .btn.garbtn{background:linear-gradient(135deg,#fef3c7,#fde68a)!important;color:#92400e!important;border-color:#fcd34d!important;font-weight:800}
+.repc.gar{border-left-color:#f59e0b}.btn.garbtn b.gn{background:#d97706;color:#fff;border-radius:10px;padding:1px 9px;margin-left:4px}
 .garsel{display:flex;gap:12px;align-items:center;padding:12px;border-radius:14px;background:var(--soft);border:1px solid var(--line2);margin-bottom:12px}
 .garbox{display:flex;gap:12px;align-items:center;margin:12px 18px 6px;padding:12px 14px;border-radius:16px;background:linear-gradient(120deg,#fef3c7,#fde68a55);border:1px solid #fcd34d;color:#78350f}
 .btn.garon{background:#fef3c7!important;border-color:#fcd34d!important;color:#92400e!important;font-weight:800}
@@ -955,7 +956,7 @@ const IC={
 };
 const ic=(n,cls='')=>`<svg class="i ${cls}" viewBox="0 0 24 24">${IC[n]||''}</svg>`;
 /* ---------- emojis y motosierra ---------- */
-const EMO={stats:'📊',entr:'🤝',cal:'📆',tv:'📺',star:'⭐',save:'💾',factory:'🏭',home:'🏠',bell:'🔔',clip:'📋',users:'👥',user:'👤',tractor:'🚜',box:'📦',cart:'🛒',tag:'🏷️',chart:'📊',gear:'⚙️',inbox:'📥',wrench:'🔧',check:'✅',clock:'⏳',truck:'🚚',lock:'🔐',dl:'💾',search:'🔍',alert:'⚠️',msg:'💬',print:'🖨️',file:'📄',activity:'📈',qr:'🔳',kanban:'🗂️',list:'📝',repeat:'🔁',shield:'🛡️',pin:'📍',phone:'📞'};
+const EMO={shieldg:'🛡️',stats:'📊',entr:'🤝',cal:'📆',tv:'📺',star:'⭐',save:'💾',factory:'🏭',home:'🏠',bell:'🔔',clip:'📋',users:'👥',user:'👤',tractor:'🚜',box:'📦',cart:'🛒',tag:'🏷️',chart:'📊',gear:'⚙️',inbox:'📥',wrench:'🔧',check:'✅',clock:'⏳',truck:'🚚',lock:'🔐',dl:'💾',search:'🔍',alert:'⚠️',msg:'💬',print:'🖨️',file:'📄',activity:'📈',qr:'🔳',kanban:'🗂️',list:'📝',repeat:'🔁',shield:'🛡️',pin:'📍',phone:'📞'};
 const hic=n=>EMO[n]?`<span class="hem">${EMO[n]}</span>`:ic(n);
 const nem=n=>EMO[n]?`<span class="nem">${EMO[n]}</span>`:ic(n);
 function sawSVG(cls=''){return `<svg class="saw ${cls}" viewBox="0 0 250 110" aria-hidden="true"><defs><linearGradient id="sgB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdba74"/><stop offset=".45" stop-color="#f97316"/><stop offset="1" stop-color="#c2410c"/></linearGradient><linearGradient id="sgBar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1f5f9"/><stop offset="1" stop-color="#94a3b8"/></linearGradient></defs>
@@ -1304,13 +1305,13 @@ async function initStore(){
 }
 
 /* ================== Shell / render ================== */
-const NAV=[['inicio','home','Inicio'],['alertas','bell','Alertas'],['ordenes','clip','Órdenes'],['reparacion','wrench','En reparación'],['clientes','users','Clientes'],['equipos','tractor','Equipos'],['repuestos','box','Repuestos'],['pedidos','cart','Pedidos'],['proveedores','factory','Proveedores'],['calendario','cal','Calendario'],['pantalla','tv','Pantalla del taller'],['respaldo','save','Respaldo'],['catalogo','tag','Catálogo'],['numeros','stats','Estadísticas'],['reportes','chart','Reportes'],['ajustes','gear','Configuración']];
-const TITLES={reparacion:'En reparación',numeros:'Estadísticas',calendario:'Calendario de entregas',pantalla:'Pantalla del taller',conteo:'Conteo de inventario',respaldo:'Respaldo',proveedores:'Proveedores',proveedor:'Proveedor',alertas:'Alertas',pedidos:'Pedidos',inicio:'Inicio',ordenes:'Órdenes de servicio',orden:'Orden de servicio',clientes:'Clientes',cliente:'Cliente',equipos:'Equipos',equipo:'Equipo',repuestos:'Repuestos',repuesto:'Repuesto',catalogo:'Catálogo',reportes:'Reportes',ajustes:'Configuración'};
+const NAV=[['inicio','home','Inicio'],['alertas','bell','Alertas'],['ordenes','clip','Órdenes'],['reparacion','wrench','En reparación'],['garantias','shieldg','Garantías'],['clientes','users','Clientes'],['equipos','tractor','Equipos'],['repuestos','box','Repuestos'],['pedidos','cart','Pedidos'],['proveedores','factory','Proveedores'],['calendario','cal','Calendario'],['pantalla','tv','Pantalla del taller'],['respaldo','save','Respaldo'],['catalogo','tag','Catálogo'],['numeros','stats','Estadísticas'],['reportes','chart','Reportes'],['ajustes','gear','Configuración']];
+const TITLES={garantias:'Garantías',reparacion:'En reparación',numeros:'Estadísticas',calendario:'Calendario de entregas',pantalla:'Pantalla del taller',conteo:'Conteo de inventario',respaldo:'Respaldo',proveedores:'Proveedores',proveedor:'Proveedor',alertas:'Alertas',pedidos:'Pedidos',inicio:'Inicio',ordenes:'Órdenes de servicio',orden:'Orden de servicio',clientes:'Clientes',cliente:'Cliente',equipos:'Equipos',equipo:'Equipo',repuestos:'Repuestos',repuesto:'Repuesto',catalogo:'Catálogo',reportes:'Reportes',ajustes:'Configuración'};
 const PARENT={conteo:'repuestos',proveedor:'proveedores',orden:'ordenes',cliente:'clientes',equipo:'equipos',repuesto:'repuestos'};
 const setH=(el,h)=>{if(el&&el._h!==h){el.innerHTML=h;el._h=h}};
 function shell(){
   const p=PARENT[view.page]||view.page;const q=UI.q.trim();
-  const al=alertas();const cnt={reparacion:arr(S.boletas).filter(b=>['En reparación','Control de calidad'].includes(b.estado)).length,ordenes:arr(S.boletas).filter(isOpen).length,alertas:al.filter(a=>a.sev!=='b').length,pedidos:porPedir().filter(l=>!l.pend).length};
+  const al=alertas();const cnt={garantias:arr(S.boletas).filter(b=>isOpen(b)&&esGar(b)).length,reparacion:arr(S.boletas).filter(b=>['En reparación','Control de calidad'].includes(b.estado)).length,ordenes:arr(S.boletas).filter(isOpen).length,alertas:al.filter(a=>a.sev!=='b').length,pedidos:porPedir().filter(l=>!l.pend).length};
   setH($('#nav'),NAV.map(([k,i,l],ix)=>`${k==='catalogo'?'<div class="nl">Administración</div>':ix===0?'<div class="nl">Taller</div>':''}<button data-act="nav" data-page="${k}" class="${!q&&p===k?'on':''}">${nem(i)}<span>${l}</span>${cnt[k]?`<span class="nb" ${k==='alertas'&&al.some(a=>a.sev==='r')?'style="background:#dc2626;color:#fff"':''}>${cnt[k]}</span>`:''}</button>`).join(''));
   setH($('.recv'),ic('plus')+' Recibir máquina');{const b=$('#thBtn');if(b)b.textContent=document.documentElement.dataset.theme==='dark'?'☀️':'🌙'}
   $('#bizName').textContent=CFG.nombre||'Mi taller';
@@ -1333,7 +1334,7 @@ function render(){
   if(fid){try{ss=ae.selectionStart;se=ae.selectionEnd}catch(e){}}
   tryPend();
   const p=view.page;const q=UI.q.trim();
-  const F={reparacion:vReparacion,numeros:vNumeros,calendario:vCalendario,pantalla:vPantalla,conteo:vConteo,respaldo:vRespaldo,proveedores:vProveedores,proveedor:()=>vProveedor(view.id),alertas:vAlertas,pedidos:vPedidos,inicio:vInicio,ordenes:vOrdenes,orden:()=>vOrden(view.id),clientes:vClientes,cliente:()=>vCliente(view.id),equipos:vEquipos,equipo:()=>vEquipo(view.id),repuestos:vRepuestos,repuesto:()=>vRepuesto(view.id),catalogo:vCatalogo,reportes:vReportes,ajustes:vAjustes};
+  const F={garantias:vGarantias,reparacion:vReparacion,numeros:vNumeros,calendario:vCalendario,pantalla:vPantalla,conteo:vConteo,respaldo:vRespaldo,proveedores:vProveedores,proveedor:()=>vProveedor(view.id),alertas:vAlertas,pedidos:vPedidos,inicio:vInicio,ordenes:vOrdenes,orden:()=>vOrden(view.id),clientes:vClientes,cliente:()=>vCliente(view.id),equipos:vEquipos,equipo:()=>vEquipo(view.id),repuestos:vRepuestos,repuesto:()=>vRepuesto(view.id),catalogo:vCatalogo,reportes:vReportes,ajustes:vAjustes};
   document.body.classList.toggle('tvmode',p==='pantalla'&&!q);
   const html=q?vBuscar(q):(F[p]||vInicio)();const key0=q?'q':p+(view.id||'');const same=html===v._h&&key0===render._k;
   if(!same){v.innerHTML=html;v._h=html}
@@ -1387,7 +1388,7 @@ function vInicio(){
   const recientes=bs.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,6);
   const h=new Date().getHours();
   return `<div class="card hero"><div class="hero-t"><h1><span class="gt">${h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches'}</span> <span class="wave">👋</span></h1><div class="sub">📅 ${new Date().toLocaleDateString('es-CR',{weekday:'long',day:'numeric',month:'long'})} · 🔧 ${ab.length} equipo${ab.length!==1?'s':''} en el taller</div>
-   <div class="row" style="margin-top:14px"><button class="btn p lg hide-m" data-act="recibir">${ic('plus')} Recibir máquina</button><button class="btn lg garbtn" data-act="garRecibir">🛡️ Entra por garantía</button><button class="btn lg repbtn" data-act="nav" data-page="reparacion">🔧 En reparación <b>${ab.filter(b=>['En reparación','Control de calidad'].includes(b.estado)).length}</b></button>${robotOn()?'':'<button class="btn" data-act="rbOn">🤖 Mostrar robot</button>'}</div></div><div class="hero-saw">${sawSVG()}</div></div>
+   <div class="row" style="margin-top:14px"><button class="btn p lg hide-m" data-act="recibir">${ic('plus')} Recibir máquina</button>${esRecep()?`<button class="btn lg garbtn" data-act="garRecibir">🛡️ Entra por garantía</button>`:''}${esTaller()?(()=>{const n=ab.filter(esGar).length;return `<button class="btn lg garbtn" data-act="nav" data-page="garantias">🛡️ Garantías${n?` <b class="gn">${n}</b>`:''}</button>`})():''}<button class="btn lg repbtn" data-act="nav" data-page="reparacion">🔧 En reparación <b>${ab.filter(b=>['En reparación','Control de calidad'].includes(b.estado)).length}</b></button>${robotOn()?'':'<button class="btn" data-act="rbOn">🤖 Mostrar robot</button>'}</div></div><div class="hero-saw">${sawSVG()}</div></div>
   ${bandejas()}
   <div class="grid g4 g5s">
    ${stat('wrench','#ede9fe','#8b5cf6',ab.length,'En el taller','data-act="filtro" data-f="activas"')}
@@ -2275,6 +2276,24 @@ function rbSmart(n,D){const sec=(t,L,f,max)=>L.length?`<div class="rbsec"><div c
     if(!L.length&&has(/^hay |quedan|queda|stock|existencia|tenemos/))return `No encontré repuestos con <b>${esc(ws.join(' '))}</b> en el inventario. 📦<a class="rbl" data-act="nav" data-page="repuestos">Ver todos los repuestos ›</a>`}
   return null}
 
+
+/* ================== Garantías (para el taller) ================== */
+function vGarantias(){const A=arr(S.boletas).filter(b=>isOpen(b)&&esGar(b));const me=norm(yoNombre());
+  const pend=A.filter(b=>b.pendGar&&['Recibido','En diagnóstico'].includes(b.estado)),
+        lis=A.filter(b=>b.estado==='Listo para entregar'),
+        act=A.filter(b=>!pend.includes(b)&&!lis.includes(b));
+  const ord=L=>L.sort((a,z)=>(norm(z.tecnico)===me)-(norm(a.tecnico)===me)||String(a.fechaIngreso).localeCompare(String(z.fechaIngreso)));
+  const card=b=>{const e=eq(b.equipoId)||{},c=cli(b.clienteId)||{};const g=b.garantia||{};const pi=prevInfo(b);const d=daysSince(b.fechaIngreso);
+    return `<div class="repc gar" data-act="open" data-page="orden" data-id="${b.id}">
+     <div class="row" style="justify-content:space-between;gap:8px"><b class="mono" style="color:var(--pri)">${nb(b.numero)}</b>${badge(b.estado)}</div>
+     <div class="repm">${tipoEm(e.tipo)} ${esc(eqShort(e))}</div><div class="small muted ell">👤 ${esc(c.nombre||'')}</div>
+     <div class="small" style="margin-top:4px;font-weight:700;color:#92400e">🛡️ ${esc(GAR_T[g.tipo]||'Garantía del taller')}${g.prev||(pi&&pi.p&&pi.p.numero)?` · antes ${esc(g.prev||nb(pi.p.numero))}`:''}${pi&&pi.p&&pi.p.tecnico?` (🔧 ${esc(pi.p.tecnico)})`:''}</div>
+     ${b.falla||(b.fallas||[]).length?`<div class="small ell" style="margin-top:3px">⚠️ ${esc(b.falla||fallaTxt(b))}</div>`:''}
+     <div class="repf"><span>📥 ${d} día${d!==1?'s':''}</span>${b.tecnico?`<span>🔧 ${esc(b.tecnico)}</span>`:'<span>👤 sin técnico</span>'}</div>
+     ${b.pendGar&&pend.includes(b)?`<button class="btn sm p" style="margin-top:8px;width:100%" data-act="garActivar" data-id="${b.id}">🔧 Empezar a reparar</button>`:''}</div>`};
+  const sec=(t,em,L,note)=>`<div class="card" style="margin-bottom:14px"><div class="ch"><h2><span class="hem">${em}</span> ${t} <span class="muted" style="font-weight:500">${L.length}</span></h2></div><div class="cp-in">${note?`<p class="small muted" style="margin-top:0">${note}</p>`:''}${L.length?`<div class="repg">${ord(L).map(card).join('')}</div>`:'<p class="small muted" style="margin:0">Ninguna.</p>'}</div></div>`;
+  return `<div class="ph"><div><h1>Garantías 🛡️</h1><div class="sub">${A.length} máquina${A.length!==1?'s':''} por garantía en el taller</div></div>${esRecep()?`<button class="btn garbtn" data-act="garRecibir">🛡️ Entra por garantía</button>`:''}</div>
+   ${A.length?sec('Pendientes de reparar','⏸️',pend,'Recibidas por garantía que quedaron para después. Toque «Empezar a reparar» cuando la vaya a trabajar.')+sec('En proceso','🔧',act)+sec('Listas','✅',lis):`<div class="card">${emptyBox('🛡️','No hay máquinas por garantía','Cuando una entre por garantía aparece aquí para el taller.')}</div>`}`}
 /* ================== Máquinas en reparación ================== */
 function vReparacion(){const B=arr(S.boletas).filter(b=>['En reparación','Control de calidad'].includes(b.estado));const me=norm(yoNombre());
   const pr=b=>(b.prioridad==='Urgente'?0:1);const ord=L=>L.sort((a,z)=>pr(a)-pr(z)||String(a.fechaEstimada||'9').localeCompare(String(z.fechaEstimada||'9'))||String(a.fechaIngreso).localeCompare(String(z.fechaIngreso)));
@@ -3867,8 +3886,10 @@ async function probarAviso(){
   try{if(navigator.serviceWorker&&navigator.serviceWorker.controller){const r=await navigator.serviceWorker.ready;await r.showNotification(t,{body:b,icon:'icons/icon-192.png',vibrate:[120,80,120],tag:'prueba'});return}}catch(e){}
   try{new Notification(t,{body:b,icon:'icons/icon-192.png'})}catch(e){ping(t,b,()=>{})}
 }
-const APP_VER='2026.11.18-9';
+const vCmp=(a,b)=>{const A=String(a).split(/[.-]/).map(Number),B=String(b).split(/[.-]/).map(Number);for(let i=0;i<Math.max(A.length,B.length);i++){const d=(A[i]||0)-(B[i]||0);if(d)return d}return 0};
+const APP_VER='2026.11.18-10';
 const CAMBIOS=[
+ {v:'2026.11.18-10',t:['🛡️ Sección «Garantías» para el mecánico: ve las pendientes, en proceso y listas, y empieza a repararlas con un toque']},
  {v:'2026.11.18-9',t:['🛡️ Botón «Entra por garantía» en Inicio: reconoce la máquina y el cliente y llena todo solo','⏸️ Se puede dejar pendiente para reparar después, siempre como garantía']},
  {v:'2026.11.18-8',t:['🛡️ En la orden: botón Garantía para marcarla aunque ya esté en reparación (del taller, del fabricante o de la tienda)','🛡️ La garantía se ve en la orden, en las listas, para el cliente y en el reporte']},
  {v:'2026.11.18-7',t:['🔧 Nueva sección «En reparación» en el menú y botón en Inicio','👑 Los avisos de actualización ahora solo le salen al administrador']},
@@ -3892,12 +3913,12 @@ function quietUpdate(){const busy=()=>{const a=document.activeElement;return a&&
   const go2=()=>{try{flushTrab&&flushTrab()}catch(e){}location.reload()};if(document.hidden||!busy())return setTimeout(go2,300);
   const t=setInterval(()=>{if(document.hidden||!busy()){clearInterval(t);go2()}},2000)}
 function quéCambió(){if(!adminReal()){try{localStorage.setItem('appVer',APP_VER)}catch(e){}return}if(document.querySelector('#userScr,#splash,#login')||document.hidden)return setTimeout(quéCambió,1500);try{const prev=localStorage.getItem('appVer');localStorage.setItem('appVer',APP_VER);if(!prev||prev===APP_VER)return;
-  const L=CAMBIOS.filter(c=>c.v>prev).flatMap(c=>c.t).slice(0,6);
+  const L=CAMBIOS.filter(c=>vCmp(c.v,prev)>0).flatMap(c=>c.t).slice(0,6);
   const d=document.createElement('div');d.id='upd';d.innerHTML=`<div style="display:flex;gap:10px;align-items:center;margin-bottom:6px"><span style="font-size:22px">✨</span><b style="flex:1">Sistema actualizado</b><button class="ib" style="border:0;background:none;font-size:16px;cursor:pointer;color:inherit">✕</button></div>${L.length?L.map(x=>`<div class="small" style="margin:3px 0">${esc(x)}</div>`).join(''):'<div class="small">Mejoras y arreglos.</div>'}`;
   d.style.cssText='position:fixed;top:calc(74px + env(safe-area-inset-top));right:14px;z-index:9998;padding:14px 16px;border-radius:18px;background:var(--surface-hi,#fff);box-shadow:0 14px 40px rgba(0,0,0,.18);width:min(360px,calc(100vw - 28px));border:1px solid rgba(34,197,94,.35);animation:rise .4s both';
   document.body.appendChild(d);d.querySelector('button').onclick=()=>d.remove();setTimeout(()=>d.remove(),15000)}catch(e){}}
 setTimeout(quéCambió,2500);
-async function checkVer(){if(!GH_BUILD_OK())return;try{const r=await fetch('version.json',{cache:'no-store'});if(!r.ok)return;const j=await r.json();if(j&&j.v&&j.v!==APP_VER&&j.v>APP_VER)newVersion()}catch(e){}}
+async function checkVer(){if(!GH_BUILD_OK())return;try{const r=await fetch('version.json',{cache:'no-store'});if(!r.ok)return;const j=await r.json();if(j&&j.v&&vCmp(j.v,APP_VER)>0)newVersion()}catch(e){}}
 function GH_BUILD_OK(){return location.protocol.startsWith('http')&&!/localhost|127\.0\.0\.1/.test(location.hostname)}
 setTimeout(checkVer,8000);setInterval(checkVer,3*60e3);document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkVer()});
 if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.open)go({page:'orden',id:e.data.open})});
@@ -3969,7 +3990,7 @@ const A={
  mantOk:async d=>{const b=S.boletas[d.id];if(!b)return;if(await put('boletas',{...b,mantAvisado:Date.now(),mantPor:quien()})){toast('Listo, recordatorio cerrado');render()}},
  consulta:d=>consultaModal(d.id),
  etiquetas:d=>etiquetasModal(d.id?[d.id]:[]),
- garForm:sinBloq(d=>garForm(d.id)),garActivar:async d=>{const b=clone(S.boletas[d.id]);delete b.pendGar;b.historial=[...(b.historial||[]),{t:Date.now(),estado:b.estado,nota:'🛡️ Garantía pendiente → se empieza a reparar',por:quien(),dev:DEV}];if(await put('boletas',b)){render();toast('🔧 Lista para reparar')}},garRecibir:soloR(()=>{closeMore&&closeMore();garRecibir()}),
+ garForm:sinBloq(d=>garForm(d.id)),garActivar:async d=>{const b=clone(S.boletas[d.id]);delete b.pendGar;if(!b.tecnico&&esTaller()&&yoNombre())b.tecnico=yoNombre();b.historial=[...(b.historial||[]),{t:Date.now(),estado:b.estado,nota:'🛡️ Garantía pendiente → se empieza a reparar',por:quien(),dev:DEV}];if(await put('boletas',b)){render();toast('🔧 Lista para reparar')}},garRecibir:soloR(()=>{closeMore&&closeMore();garRecibir()}),
  grPick:d=>{GR.sel=d.id;const b=S.boletas[d.id];const pi=b?daysBetween(String(b.fechaEntrega||today()).slice(0,10),today()):0;GR.tipo=pi<=num(b.garantiaDias??CFG.garantia)?'taller':'fabricante';grDraw()},grBack:()=>{GR.sel=null;grDraw()},
  grTipo:d=>{GR.falla=($('#grFalla')||{}).value??GR.falla;GR.tipo=d.v;grDraw()},grPend:d=>{GR.falla=($('#grFalla')||{}).value??GR.falla;GR.pend=d.v==='1';grDraw()},
  grSeguir:()=>grSeguir(false),grNueva:()=>{GR.sel=null;GR.tipo='fabricante';grSeguir(true)},garTipo:d=>{GF.tipo=d.v;GF.draw()},garSave:()=>garSave(),
