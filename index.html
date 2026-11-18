@@ -3798,8 +3798,9 @@ async function probarAviso(){
   try{if(navigator.serviceWorker&&navigator.serviceWorker.controller){const r=await navigator.serviceWorker.ready;await r.showNotification(t,{body:b,icon:'icons/icon-192.png',vibrate:[120,80,120],tag:'prueba'});return}}catch(e){}
   try{new Notification(t,{body:b,icon:'icons/icon-192.png'})}catch(e){ping(t,b,()=>{})}
 }
-const APP_VER='2026.11.18-5';
+const APP_VER='2026.11.18-6';
 const CAMBIOS=[
+ {v:'2026.11.18-6',t:['🔔 El aviso de versión nueva ahora aparece siempre, también en celular y computadora','✨ La tarjeta de novedades sale después de elegir el usuario']},
  {v:'2026.11.18-5',t:['🧴 Nuevo: Consumibles del taller (lo que sale de la bolsa del negocio) en las órdenes','📊 Reporte nuevo: Consumibles del taller']},
  {v:'2026.11.18-4',t:['🤙 El robot ahora también dice «mae»: ¡Pura vida, mae!']},
  {v:'2026.11.18-3',t:['🤖🇨🇷 El robot ahora le responde por escrito y hablando, a lo tico: ¡Pura vida!','🔊 La voz viene encendida (se apaga con el botón 🔊 en la ventana del robot)']},
@@ -3815,12 +3816,15 @@ function newVersion(){const busy=()=>{const a=document.activeElement;return a&&/
   const t=setInterval(()=>{const el=$('#newvT');if(!el){clearInterval(t);return}if(busy()){el.textContent='Se actualiza cuando termine lo que está haciendo';return}n--;el.textContent=n>0?`Se actualiza en ${n} s…`:'Actualizando…';if(n<=0){clearInterval(t);go2()}},1000);
   d.querySelector('#newvY').onclick=()=>{clearInterval(t);go2()};
   d.querySelector('#newvL').onclick=()=>{clearInterval(t);d.remove();setTimeout(newVersion,10*60e3)}}
-function quéCambió(){try{const prev=localStorage.getItem('appVer');localStorage.setItem('appVer',APP_VER);if(!prev||prev===APP_VER)return;
+function quéCambió(){if(document.querySelector('#userScr,#splash,#login')||document.hidden)return setTimeout(quéCambió,1500);try{const prev=localStorage.getItem('appVer');localStorage.setItem('appVer',APP_VER);if(!prev||prev===APP_VER)return;
   const L=CAMBIOS.filter(c=>c.v>prev).flatMap(c=>c.t).slice(0,6);
   const d=document.createElement('div');d.id='upd';d.innerHTML=`<div style="display:flex;gap:10px;align-items:center;margin-bottom:6px"><span style="font-size:22px">✨</span><b style="flex:1">Sistema actualizado</b><button class="ib" style="border:0;background:none;font-size:16px;cursor:pointer;color:inherit">✕</button></div>${L.length?L.map(x=>`<div class="small" style="margin:3px 0">${esc(x)}</div>`).join(''):'<div class="small">Mejoras y arreglos.</div>'}`;
   d.style.cssText='position:fixed;top:calc(74px + env(safe-area-inset-top));right:14px;z-index:9998;padding:14px 16px;border-radius:18px;background:var(--surface-hi,#fff);box-shadow:0 14px 40px rgba(0,0,0,.18);width:min(360px,calc(100vw - 28px));border:1px solid rgba(34,197,94,.35);animation:rise .4s both';
   document.body.appendChild(d);d.querySelector('button').onclick=()=>d.remove();setTimeout(()=>d.remove(),15000)}catch(e){}}
 setTimeout(quéCambió,2500);
+async function checkVer(){if(!GH_BUILD_OK())return;try{const r=await fetch('version.json',{cache:'no-store'});if(!r.ok)return;const j=await r.json();if(j&&j.v&&j.v!==APP_VER&&j.v>APP_VER)newVersion()}catch(e){}}
+function GH_BUILD_OK(){return location.protocol.startsWith('http')&&!/localhost|127\.0\.0\.1/.test(location.hostname)}
+setTimeout(checkVer,8000);setInterval(checkVer,3*60e3);document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkVer()});
 if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.open)go({page:'orden',id:e.data.open})});
 const PK={
   nueva:{em:'📥',c:'#0ea5e9',c2:'#06b6d4',lbl:'Nueva máquina',notes:[659,880,1175]},
