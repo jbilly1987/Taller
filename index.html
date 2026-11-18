@@ -745,6 +745,7 @@ body.tvmode #view{padding:18px 22px!important;max-width:none!important}
 @keyframes rbLuz{0%{opacity:1;filter:brightness(1.3)}50%{opacity:.35;filter:none}}
 .rb-pom{transform-origin:24px -8px;animation:rbPom 2.6s ease-in-out infinite}
 @keyframes rbPom{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg)}}
+.rbtico{font-weight:700;margin:2px 0 4px}
 #rbFloat{position:fixed;inset:0;pointer-events:none;z-index:55;transition:opacity .3s;contain:strict}
 #rbFloat.away{opacity:0}#rbFloat.away *{animation-play-state:paused!important}
 .rbbot{position:absolute;left:0;top:0;height:112px;width:145px;will-change:transform;pointer-events:none}
@@ -2090,6 +2091,7 @@ function rbSay(m,ms){if(RB.chat)return;RB.alert=m;RB.bub.innerHTML=esc(m.t)+(m.g
 function rbMsgs(){const L=[];try{const k='rbDia'+today();if(!localStorage.getItem(k)){localStorage.setItem(k,'1');const D=rbData();const pro=arr(S.boletas).filter(b=>isOpen(b)&&b.fechaEstimada===today()).length;const h=new Date().getHours();return [{t:`${h<12?'¡Buenos días':h<19?'¡Buenas tardes':'¡Buenas noches'}${yoNombre()?' '+yoNombre():''}! ${D.B.length} en el taller${pro?`, ${pro} prometida${pro!==1?'s':''} para hoy`:''}${D.atr.length?`, ${D.atr.length} atrasada${D.atr.length!==1?'s':''}`:''}. Tóqueme y le digo qué hacer 💡`,sev:D.atr.length?'a':''}]}}catch(e){}try{alertas().filter(a=>a.sev!=='b').slice(0,6).forEach(a=>{const m=/data-page="([^"]+)"(?:\s+data-id="([^"]*)")?/.exec(a.act||'');L.push({t:String(a.title).replace(/<[^>]+>/g,'')+(a.detail?' · '+String(a.detail).split(' · ')[0]:''),sev:a.sev,go:m?{page:m[1],id:m[2]||undefined}:{page:'alertas'}})})}catch(e){}
   if(!L.length){const ab=arr(S.boletas).filter(isOpen).length;L.push({t:'¡Todo pura vida! 💪 Tóqueme si ocupa algo'},{t:`${ab} máquina${ab!==1?'s':''} en el taller 🔧`})}
   else L.push({t:['¿Ocupa algo? Tóqueme y pregúnteme 🙂','Diay mae, ¿le ayudo con algo? 🙂','¡Upe, mae! Aquí estoy para lo que ocupe 🤖'][Math.floor(Math.random()*3)]});
+  L.push({t:RB_PICK(['¡A darle al brete, mae! 💪','Diay mae, ¿cuál es la vara? 🤙','¡Tuanis el día! Tóqueme si ocupa algo','¡Qué chiva estar aquí! 🤖','Upe, si ocupa algo me avisa, mae'])});
   if(RB&&RB.f.classList.contains('xmas'))L.push({t:['¡Jo, jo, jo! 🎅 Feliz Navidad','🎄 Que no falten las máquinas listas para Navidad','🎁 ¿Ya revisó lo pendiente antes de las fiestas?'][Math.floor(Math.random()*3)]});
   try{const nm=yoNombre();rbRecs().slice(0,3).forEach(x=>L.splice(1,0,{t:`${nm?nm+', ':''}${x.em} ${x.txt}${x.b?' '+nb(x.b.numero):''}`,sev:x.pr<=2?'a':'',go:x.b?{page:'orden',id:x.b.id}:x.go}))}catch(e){}
   return L}
@@ -2235,7 +2237,7 @@ function rbRecs(){const D=rbData(),me=norm(yoNombre()),pu=puestoActual(),adm=adm
     arr(S.boletas).filter(b=>{const e=encDe(b);return e&&num(e.s)<=2&&Date.now()-num(e.t)<14*864e5}).slice(0,2).forEach(b=>add(3,'⭐','Cliente poco satisfecho, llámelo:',b))}
   const seen=new Set();return R.filter(x=>{const k=x.b?x.b.id:x.txt;if(seen.has(k))return false;seen.add(k);return true}).sort((a,z)=>a.pr-z.pr)}
 function rbRecsHTML(max,intro){const L=rbRecs().slice(0,max||6);if(!L.length)return '';
-  return `${intro?'<div class="rbh" style="margin-top:6px">💡 Le recomiendo:</div>':''}${L.map(x=>x.b?`<div class="rbrec">${x.em} ${esc(x.txt)}</div>${rbOL(x.b)}`:`<a class="rbl" data-act="nav" data-page="${x.go.page}">${x.em} ${esc(x.txt)} <span>›</span></a>`).join('')}`}
+  return `${intro?'<div class="rbh" style="margin-top:6px">💡 Diay mae, yo haría esto:</div>':''}${L.map(x=>x.b?`<div class="rbrec">${x.em} ${esc(x.txt)}</div>${rbOL(x.b)}`:`<a class="rbl" data-act="nav" data-page="${x.go.page}">${x.em} ${esc(x.txt)} <span>›</span></a>`).join('')}`}
 const RB_STOP=new Set('el la los las un una unos unas de del al a en y o que hay tengo tiene tenemos quedan queda cuanto cuantos cuantas cuanta me mi mis su sus por para con sin es son esta estan cual cuales donde como se lo le les hay ya stock existencia inventario repuesto repuestos busca buscar quiero saber dime digame favor porfa porfavor'.split(' '));
 const rbWords=n=>n.split(' ').filter(w=>w.length>2&&!RB_STOP.has(w));
 function rbSmart(n,D){const sec=(t,L,f,max)=>L.length?`<div class="rbsec"><div class="rbh">${t} <span>${L.length}</span></div>${rbList(L,f,max)}</div>`:'';
@@ -2360,8 +2362,8 @@ function rbHablar(html){try{if(!('speechSynthesis' in window))return;speechSynth
   const d=document.createElement('div');d.innerHTML=String(html).replace(/<a [^>]*class="rbl"[^>]*>(.*?)<\/a>/g,'. $1. ').replace(/<div/g,'. <div').replace(/<br>/g,'. ');
   let t=(d.textContent||'').replace(/OS-0*(\d+)/g,'orden $1').replace(/(\d+) d(?=[\s.,·)]|$)/g,'$1 días').replace(/[\u{1F000}-\u{1FAFF}\u{2190}-\u{21FF}\u{2300}-\u{23FF}\u{2460}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}›·]/gu,' ').replace(/(\s*\.\s*)+/g,'. ').replace(/\s+/g,' ').replace(/^\s*\.\s*/,'').trim();
   if(t.length>420){const c=t.slice(0,420);t=c.slice(0,Math.max(c.lastIndexOf('. '),200))+'. Y hay más en la pantalla.'}
-  const u=new SpeechSynthesisUtterance(t);u.lang='es-CR';u.rate=1;u.pitch=1.1;
-  const vs=speechSynthesis.getVoices().filter(v=>/^es/i.test(v.lang));u.voice=vs.find(v=>/es[-_]CR/i.test(v.lang))||vs.find(v=>/419|MX|US|CO|PA|GT|HN|NI|SV/i.test(v.lang))||vs[0]||null;
+  const u=new SpeechSynthesisUtterance(t);u.lang='es-CR';u.rate=0.97;u.pitch=1.05;
+  const vs=speechSynthesis.getVoices().filter(v=>/^es/i.test(v.lang));u.voice=vs.find(v=>/es[-_]CR/i.test(v.lang))||vs.find(v=>/es[-_](419|US|MX|CO|PA|GT|HN|NI|SV)/i.test(v.lang)&&/google/i.test(v.name))||vs.find(v=>/es[-_](419|US|MX|CO|PA|GT|HN|NI|SV)/i.test(v.lang))||vs.find(v=>!/es[-_]ES/i.test(v.lang))||vs[0]||null;
   u.onstart=()=>RB&&RB.bot.classList.add('speak');u.onend=u.onerror=()=>RB&&RB.bot.classList.remove('speak');
   speechSynthesis.speak(u)}catch(e){}}
 function rbEscuchar(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;const btn=$('#rbMic');
@@ -2463,13 +2465,19 @@ function rbBrain(n,D){const sec=(t,L,f,max)=>L.length?`<div class="rbsec"><div c
   if(has(/quien eres|como te llamas|que eres|que sabes hacer|que puedes hacer/))return `Soy el asistente del taller 🤖. Sé lo que está pendiente, qué le toca a cada uno, busco órdenes, clientes y repuestos, le digo qué suele fallar según su historial, cuento lo que entró o se entregó en cualquier fecha y le explico cómo se usa el sistema. Si me pregunta por una orden, después me puede decir <i>"ábrala"</i> o <i>"mándele WhatsApp"</i>.`;
   return null}
 
-function rbTico(h){h=String(h||'');if(!h||/^¡Upe|^Diay|^¡Pura vida|^¡Con mucho gusto|^¡Diay|^¡Tranquilo|^Listo|^Vamos|^Abro|^Hoy es|^¿Por qué|^Le dije|^Mi jefe|^¿Qué le dijo/.test(h))return h;
-  const pos=/👍|🎉|💪|al día|^No hay |No tiene nada|no tiene máquinas/.test(h)&&h.length<220;const r=Math.random();
-  if(pos){h=h.replace(/\s*👍\s*$/,'');return h+(/[.!?…>]$/.test(h.trim())?'':'.')+[' ¡Qué chiva, mae! 👍',' ¡Pura vida, mae! 🤙',' ¡Tuanis! 👌',' ¡Diay mae, todo bien! 🤙'][Math.floor(r*4)]}
-  const ini=['Diay, ','Mae, ','Diay mae, ','Mire mae, ','Vea, ','Upe mae, ','',''][Math.floor(r*8)];
-  if(ini&&/^[A-ZÁÉÍÓÚÑ¿]/.test(h)&&!/^<|^🧠|^📅|^⭐|^💾|^📦|^🔧|^Hay /.test(h))h=ini+h.charAt(0).toLowerCase()+h.slice(1);
-  else if(ini&&/^Hay /.test(h))h=ini+'h'+h.slice(1);
-  return h}
+const RB_PICK=a=>a[Math.floor(Math.random()*a.length)];
+const RB_VOCAB=[[/\bNo le entendí bien\b/g,'No le agarré la idea'],[/\bproblema\b/g,'torta'],[/\bun momento\b/g,'un toque'],[/\brápido\b/g,'rapidito'],[/\bnecesita\b/g,'ocupa'],[/\bnecesito\b/g,'ocupo'],[/\bmuy bien\b/gi,'tuanis'],[/\bExcelente\b/g,'¡A cachete!'],[/\bTodo está al día\b/g,'Todo está a cachete'],[/\btrabajo hay\b/g,'brete hay'],[/\bpor hacer\b/g,'de brete']];
+function rbTicoTxt(h){return String(h).split(/(<[^>]+>)/).map(x=>x.startsWith('<')?x:RB_VOCAB.reduce((t,[re,w])=>t.replace(re,w),x)).join('')}
+function rbTico(h){h=String(h||'');if(!h)return h;
+  if(/^¡Upe|^Diay|^¡Pura vida|^¡Con mucho gusto|^¡Diay|^¡Tranquilo|^Listo|^Vamos|^Abro|^Hoy es|^¿Por qué|^Le dije|^Mi jefe|^¿Qué le dijo/.test(h))return rbTicoTxt(h);
+  h=rbTicoTxt(h);const plain=h.replace(/<[^>]+>/g,' ');
+  const pos=/👍|🎉|💪|al día|a cachete|^No hay |No tiene nada|no tiene máquinas|No falta/.test(plain)&&plain.length<240;
+  const bad=/⏰|Atrasad|atrasad|abandonad|sin avanzar|⏳/.test(plain)&&!pos;
+  if(pos){h=h.replace(/\s*👍\s*$/,'');return RB_PICK(['Diay mae, ','Vea mae, ','Upe, ',''])+h.charAt(0).toLowerCase()+h.slice(1)+(/[.!?…>]$/.test(h.trim())?'':'.')+RB_PICK([' ¡Qué chiva, mae! 👍',' ¡Pura vida, mae! 🤙',' ¡Tuanis! 👌',' ¡Todo a cachete, mae! 🤙'])}
+  const intro=bad?RB_PICK(['¡Qué torta, mae! Vea:','Diay mae, ojo con esto:','Upe mae, hay que ponerle a esto:','Mae, hay que meterle brete a esto:']):RB_PICK(['Diay mae, vea:','Upe mae, aquí le va:','Mire mae:','Vea pues:','Diay, aquí está, mae:','¡Pura vida! Vea:']);
+  const out=RB_PICK(['',' ¡Pura vida! 🤙','','¿Ocupa algo más, mae?','']);
+  if(/^[A-ZÁÉÍÓÚÑ¿]/.test(h)&&!/^<|^\p{Extended_Pictographic}/u.test(h)){const w=intro.replace(/[:]$/,',');return w+' '+h.charAt(0).toLowerCase()+h.slice(1)+(out?`<div class="rbtico">${out}</div>`:'')}
+  return `<div class="rbtico">${intro}</div>`+h+(out?`<div class="rbtico">${out}</div>`:'')}
 let RBM=[];
 function rbChat(open){if(!RB)return;RB.chat=open;let p=$('#rbChat');
   if(!open){if(p)p.classList.remove('on');try{speechSynthesis.cancel()}catch(e){}if(RBV)try{RBV.stop()}catch(e){}RB.ph='fly';rbPick();return}
@@ -2485,7 +2493,7 @@ function rbChat(open){if(!RB)return;RB.chat=open;let p=$('#rbChat');
       if(k){e.stopPropagation();rbAsk(k.textContent,k.dataset.rbk)}else if(q){e.stopPropagation();rbAsk(q.dataset.rbq,null,q.dataset.rbq)}
       else if(e.target.closest('.rbl')&&innerWidth<=860)setTimeout(()=>rbChat(false),60)});
     p.querySelector('#rbForm').onsubmit=e=>{e.preventDefault();const i=$('#rbIn');const v=i.value.trim();if(!v)return;i.value='';rbAsk(v,null,v)}}
-  if(!RBM.length){const D=rbData();const h=new Date().getHours();RBM.push({me:0,h:`${h<12?'¡Buenos días':h<19?'¡Buenas tardes':'¡Buenas noches'}${yoNombre()?', '+esc(yoNombre()):''}! 👋 ${D.B.length?`Hay <b>${D.B.length}</b> máquina${D.B.length!==1?'s':''} en el taller${D.atr.length?`, <b style="color:#e11d48">${D.atr.length} atrasada${D.atr.length!==1?'s':''}</b>`:''}${D.det.length?`, <b style="color:#ea580c">${D.det.length} detenida${D.det.length!==1?'s':''}</b>`:''}.`:'No hay máquinas en el taller.'} ${rbRecsHTML(3,true)}¿Qué ocupa, mae? ¡Pura vida! 🤙`});if(rbVozOn())setTimeout(()=>rbHablar(RBM[0].h),400)}
+  if(!RBM.length){const D=rbData();const h=new Date().getHours();RBM.push({me:0,h:`¡Upe, mae! ${h<12?'¡Buenos días':h<19?'¡Buenas tardes':'¡Buenas noches'}${yoNombre()?', '+esc(yoNombre()):''}! 👋 ${D.B.length?`Hay <b>${D.B.length}</b> máquina${D.B.length!==1?'s':''} en el taller${D.atr.length?`, <b style="color:#e11d48">${D.atr.length} atrasada${D.atr.length!==1?'s':''}</b>`:''}${D.det.length?`, <b style="color:#ea580c">${D.det.length} detenida${D.det.length!==1?'s':''}</b>`:''}.`:'No hay máquinas en el taller.'} ${rbRecsHTML(3,true)}¿Cuál es la vara, mae? ¿Qué ocupa? 🤙`});if(rbVozOn())setTimeout(()=>rbHablar(RBM[0].h.split('<div')[0]+' ¿Cuál es la vara, mae?'),400)}
   rbDraw();p.classList.add('on');rbHideBub();RB.ph='fly';setTimeout(()=>{if(RB&&RB.chat)rbPick()},60)}
 function rbAsk(label,key,q,voz){RBM.push({me:1,n:yoNombre()||quien()||'Usted',h:esc(label)+(voz?' 🎤':'')});const ans=rbTico(rbAnswer(key,q)||'…');rbCtx(ans);RBM.push({me:0,h:ans});if(voz||rbVozOn())rbHablar(ans);RBM=RBM.slice(-30);rbDraw();
   if(RB){RB.bot.classList.remove('wave');void RB.bot.offsetWidth;RB.bot.classList.add('wave')}}
@@ -3890,8 +3898,9 @@ async function probarAviso(){
   try{new Notification(t,{body:b,icon:'icons/icon-192.png'})}catch(e){ping(t,b,()=>{})}
 }
 const vCmp=(a,b)=>{const A=String(a).split(/[.-]/).map(Number),B=String(b).split(/[.-]/).map(Number);for(let i=0;i<Math.max(A.length,B.length);i++){const d=(A[i]||0)-(B[i]||0);if(d)return d}return 0};
-const APP_VER='2026.11.18-11';
+const APP_VER='2026.11.18-12';
 const CAMBIOS=[
+ {v:'2026.11.18-12',t:['🇨🇷 El robot habla mucho más tico: diay, mae, upe, brete, qué torta, a cachete, cuál es la vara','🔊 Prefiere voz latinoamericana en vez de la de España']},
  {v:'2026.11.18-11',t:['🔒 Cada máquina es del mecánico que la recibe en el taller: el otro mecánico la ve pero no la puede modificar']},
  {v:'2026.11.18-10',t:['🛡️ Sección «Garantías» para el mecánico: ve las pendientes, en proceso y listas, y empieza a repararlas con un toque']},
  {v:'2026.11.18-9',t:['🛡️ Botón «Entra por garantía» en Inicio: reconoce la máquina y el cliente y llena todo solo','⏸️ Se puede dejar pendiente para reparar después, siempre como garantía']},
