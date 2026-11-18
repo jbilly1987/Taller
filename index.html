@@ -94,6 +94,8 @@ svg.i{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-
 .repc{cursor:pointer;padding:12px 14px;border-radius:16px;background:var(--surface-hi);border:1px solid var(--line2);border-left:5px solid #8b5cf6;transition:transform .15s,box-shadow .15s}
 .repc:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.08)}.repc.late{border-left-color:var(--red)}.repc.urg{border-left-color:#f97316}
 .repm{font-weight:800;font-size:16px;margin:4px 0 2px}.repf{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;margin-top:8px;color:var(--ink2)}
+.garbox{display:flex;gap:12px;align-items:center;margin:12px 18px 6px;padding:12px 14px;border-radius:16px;background:linear-gradient(120deg,#fef3c7,#fde68a55);border:1px solid #fcd34d;color:#78350f}
+.btn.garon{background:#fef3c7!important;border-color:#fcd34d!important;color:#92400e!important;font-weight:800}
 .tag.urg{background:var(--red-l);color:var(--red)}.tag.cons{background:#fef3c7;color:#92400e}.conssec{margin:4px 14px 12px;border:1px dashed #fcd34d;border-radius:14px;background:color-mix(in srgb,#fef3c7 35%,transparent)}.consh{padding:8px 12px 2px;font-weight:800;font-size:13px}.consh span{font-weight:500;color:var(--muted);font-size:12px;margin-left:6px}.cons-ck{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px dashed #fcd34d;border-radius:12px;margin:4px 0 10px;cursor:pointer;background:color-mix(in srgb,#fef3c7 30%,transparent)}.cons-ck input{margin-top:3px;width:18px;height:18px}.pdcods{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:3px}.chipbtn.prov{white-space:nowrap;border-style:solid;border-color:#93c5fd;background:#eff6ff;color:#1d4ed8;font-family:inherit}.chipbtn.prov b{font-family:ui-monospace,monospace}.cpin{border:1px dashed #93c5fd;border-radius:8px;padding:5px 8px;font:inherit;font-size:12.5px;width:min(240px,100%);background:var(--surface,#fff);color:inherit}
 .chipbtn{border:1px dashed var(--line);background:var(--soft);border-radius:8px;padding:2px 8px;font:600 12px ui-monospace,monospace;cursor:pointer;margin-top:3px;color:inherit}.tag.gar{background:#fef3c7;color:#b45309;border:1px solid #fcd34d}
 .st-ok{background:#dcfce7;color:#166534}.st-low{background:#fef3c7;color:#92400e}.st-out{background:#fee2e2;color:#991b1b}
@@ -1452,7 +1454,7 @@ function pubEstado(b){
   const doc={n:nb(b.numero),eq:eqShort(e),tipo:e.tipo||'',marca:e.marca||'',modelo:e.modelo||'',est:b.estado,hist:H,fi:b.fechaIngreso||'',fe:b.fechaEstimada||'',
    cli:String(c.nombre||'').split(/\s+/)[0]||'',taller:{n:CFG.nombre||'',tel:CFG.telefono||'',dir:CFG.direccion||'',hor:CFG.horario||''},
    trabajos:(b.trabajos||[]).slice(0,12),mo:(b.manoObra||[]).map(l=>l.d).filter(Boolean).slice(0,12),rep:(b.repuestos||[]).filter(l=>!l.consumible).map(l=>({n:l.nombre,c:num(l.cant)||1,u:l.condicion==='Usado'||l.cond==='Usado'})).slice(0,20),
-   pz:pzList(b).map(x=>({l:x.l,s:x.st})),pr:b.prueba?Object.entries(b.prueba.items||{}).filter(([k,v])=>v==='ok').map(([k])=>k).slice(0,10):[],diag:b.diagnostico||'',fallas:(b.fallas||[]).slice(0,8),garantia:b.estado==='Entregado'?num(b.garantiaDias??CFG.garantia):0,ent:b.fechaEntrega||'',
+   pz:pzList(b).map(x=>({l:x.l,s:x.st})),gar:b.garantia?(GAR_T[b.garantia.tipo]||'Garantía'):'',pr:b.prueba?Object.entries(b.prueba.items||{}).filter(([k,v])=>v==='ok').map(([k])=>k).slice(0,10):[],diag:b.diagnostico||'',fallas:(b.fallas||[]).slice(0,8),garantia:b.estado==='Entregado'?num(b.garantiaDias??CFG.garantia):0,ent:b.fechaEntrega||'',
    hx:arr(S.boletas).filter(x=>x.id!==b.id&&x.equipoId===b.equipoId&&x.estado==='Entregado').sort((a,z)=>String(z.fechaIngreso).localeCompare(String(a.fechaIngreso))).slice(0,10).map(x=>({n:nb(x.numero),fi:x.fechaIngreso||'',fe:String(x.fechaEntrega||'').slice(0,10),f:[...(x.fallas||[])].slice(0,4),d:String(x.diagnostico||'').slice(0,160),t:[...(x.trabajos||[]),...(x.manoObra||[]).map(l=>l.d)].filter(Boolean).slice(0,8),r:(x.repuestos||[]).map(l=>l.nombre).filter(Boolean).slice(0,8)})),
    cola:colaPos(b),up:Date.now()};
   const sig=JSON.stringify({...doc,up:0});if(PUBSIG[b.tok]===sig)return;PUBSIG[b.tok]=sig;
@@ -1563,7 +1565,8 @@ function vOrden(id){
     <div style="flex:1;min-width:220px"><div class="row" style="gap:8px"><span class="onum">${nb(b.numero)}</span>${badge(b.estado)}${b.prioridad==='Urgente'?'<span class="tag urg">URGENTE</span>':''}${garTag(b)}</div>
      <div class="otitle">${esc(eqName(e))}</div>
      <div class="muted small">Recibido ${fdate(b.fechaIngreso)}${isOpen(b)?` · ${daysSince(b.fechaIngreso)} días en taller`:''}${b.fechaEstimada?` · Entrega prometida ${fdate(b.fechaEstimada)}`:''}${b.fechaEntrega?` · Entregado ${fdate(b.fechaEntrega)}`:''}</div></div>
-    <div class="row"><button class="btn" data-act="label" data-id="${b.id}">${ic('qr')} Etiqueta</button><button class="btn" data-act="print" data-id="${b.id}">${ic('print')} Imprimir</button>${FB_MODE?`<button class="btn" data-act="consulta" data-id="${b.id}">🔎 Consulta</button>`:''}${w?`<a class="btn wa" href="${esc(w)}" target="_blank" rel="noopener">${ic('msg')} WhatsApp</a>`:''}</div></div>
+    <div class="row"><button class="btn ${b.garantia?'garon':''}" data-act="garForm" data-id="${b.id}">🛡️ ${b.garantia?'En garantía':'Garantía'}</button><button class="btn" data-act="label" data-id="${b.id}">${ic('qr')} Etiqueta</button><button class="btn" data-act="print" data-id="${b.id}">${ic('print')} Imprimir</button>${FB_MODE?`<button class="btn" data-act="consulta" data-id="${b.id}">🔎 Consulta</button>`:''}${w?`<a class="btn wa" href="${esc(w)}" target="_blank" rel="noopener">${ic('msg')} WhatsApp</a>`:''}</div></div>
+   ${garCard(b)}
    ${(()=>{const n=nextStep(b);return n?`<div class="nstep ${n.act?'':'wait'}"><div class="ticon" style="width:38px;height:38px;font-size:16px">${ic(n.ic)}</div><div style="flex:1;min-width:180px"><div style="font-weight:800">${esc(n.t)}</div><div class="small muted">${esc(n.d)}</div></div>${n.act?`<button class="btn p" data-act="${n.act}" data-id="${b.id}">${esc(n.t)}</button>`:''}</div>`:''})()}
    <div class="pipe">${PIPE.map((k,i)=>{const E=est(k);const cls=side?(i===0?'done':''):i<ci?'done':i===ci?'cur':'';return `<button class="pp ${cls}" style="--c:${E.c}" data-act="estado" data-id="${b.id}" data-e="${esc(k)}">${esc(k)}</button>`}).join('')}</div>
    <div class="row" style="padding:0 20px 16px;gap:6px"><span class="small muted">Otros estados:</span>${['Esperando aprobación','Esperando repuestos','Cancelado'].map(k=>`<button class="fchip ${b.estado===k?'on':''}" data-act="estado" data-id="${b.id}" data-e="${esc(k)}">${esc(k)}</button>`).join('')}</div>
@@ -2530,7 +2533,21 @@ async function fiSave(){const d=formData($('#fFi'));if(!String(d.modelo||'').tri
   const c=CAT();c.fichas=[...(c.fichas||[]).filter(x=>x.id!==f.id),f];if(await saveCat(c)){FI=null;closeModal();render();toast('📘 Ficha guardada')}}
 
 /* ================== Garantía y abandono ================== */
-const garTag=b=>{if(!b||!isOpen(b))return '';const pi=prevInfo(b);return pi&&pi.enGar?'<span class="tag gar">🛡️ GARANTÍA</span>':''};
+const GAR_T={taller:'Garantía del taller',fabricante:'Garantía del fabricante',tienda:'Garantía de la tienda'};
+const esGar=b=>!!(b&&(b.garantia||(isOpen(b)&&(()=>{const pi=prevInfo(b);return pi&&pi.enGar})())));
+const garTag=b=>{if(!b)return '';if(b.garantia)return `<span class="tag gar" title="${esc(GAR_T[b.garantia.tipo]||'Garantía')}">🛡️ GARANTÍA</span>`;if(!isOpen(b))return '';const pi=prevInfo(b);return pi&&pi.enGar?'<span class="tag gar">🛡️ GARANTÍA</span>':''};
+function garCard(b){const g=b.garantia;if(!g)return '';return `<div class="garbox"><div style="font-size:26px">🛡️</div><div style="flex:1;min-width:0"><div style="font-weight:800">Por garantía · ${esc(GAR_T[g.tipo]||'Garantía')}</div>${g.nota?`<div class="small">${esc(g.nota)}</div>`:''}<div class="small muted">Marcada por ${esc(g.por||'')} · ${fts(g.t)}</div></div><button class="btn sm" data-act="garForm" data-id="${b.id}">${ic('edit')} Cambiar</button></div>`}
+let GF=null;
+function garForm(id){const b=S.boletas[id];if(!b)return;const g=b.garantia||{};GF={id,tipo:g.tipo||'taller'};const pi=prevInfo(b);
+  const draw=()=>openModal('🛡️ Máquina por garantía',`<p class="small muted" style="margin-top:0">Márquela si el cliente viene a reclamar garantía. Queda visible en la orden, en las listas y en el reporte de garantías.</p>
+   ${pi&&pi.p?`<div class="small" style="padding:8px 10px;border-radius:10px;background:var(--soft);margin-bottom:10px">🔁 Vino antes: <b>${nb(pi.p.numero)}</b> · entregada ${pi.dias!=null?'hace '+pi.dias+' días':''}${pi.p.tecnico?' · 🔧 '+esc(pi.p.tecnico):''}</div>`:''}
+   <div class="picks">${Object.entries({taller:['🔧','Garantía del taller','Vuelve por un trabajo que hicimos nosotros'],fabricante:['🏭','Garantía del fabricante','Stihl, Husqvarna, Honda… la máquina es nueva o está en garantía de fábrica'],tienda:['🏪','Garantía de la tienda','La compró en un almacén y la garantía la cubre la tienda']}).map(([k,[em,t,d]])=>`<button type="button" class="pick ${GF.tipo===k?'on':''}" data-act="garTipo" data-v="${k}"><div class="ticon" style="width:40px;height:40px;font-size:20px">${em}</div><div style="flex:1;min-width:0;text-align:left"><div style="font-weight:700">${t}</div><div class="small muted">${d}</div></div>${GF.tipo===k?ic('check'):''}</button>`).join('')}</div>
+   <div class="f" style="margin-top:10px"><label>Detalle <span class="opt">(factura, orden anterior, qué se reclama…)</span></label><textarea id="garNota" rows="2">${esc(g.nota||'')}</textarea></div>`,
+   `${b.garantia?`<button class="btn d" data-act="garQuitar" data-id="${id}">Quitar garantía</button>`:''}<span class="sp"></span><button class="btn" data-act="close">Cancelar</button><button class="btn p" data-act="garSave">🛡️ Guardar</button>`,'sm');
+  GF.draw=()=>{const n=$('#garNota');GF.nota=n?n.value:GF.nota;draw();if(GF.nota!=null&&$('#garNota'))$('#garNota').value=GF.nota};draw()}
+async function garSave(){const b=S.boletas[GF.id];if(!b)return;const nota=($('#garNota')||{}).value||'';
+  const g={tipo:GF.tipo,nota:nota.trim(),por:quien(),t:Date.now()};
+  if(await put('boletas',{...b,garantia:g,historial:[...(b.historial||[]),{t:Date.now(),estado:b.estado,nota:`🛡️ Marcada como ${GAR_T[g.tipo]}${g.nota?': '+g.nota:''}`,por:quien(),dev:DEV}]})){closeModal();render();toast('🛡️ Orden marcada por garantía')}}
 function waAband(b){const c=cli(b.clienteId)||{},e=eq(b.equipoId);const d=daysSince(lastChange(b));
   return `Hola ${c.nombre||''}, le saluda ${CFG.nombre}. Le recordamos que su equipo ${eqShort(e)} (orden ${nb(b.numero)}) está listo desde hace ${d} días y todavía no se ha retirado. 🙏 Le agradecemos pasar por él lo antes posible, ya que el espacio en el taller es limitado. Si necesita coordinar otro día, con gusto le atendemos.`}
 
@@ -2922,10 +2939,11 @@ const REPORTS={
    const L=Object.entries(o).sort((a,z)=>z[1]-a[1]);const tot=L.reduce((a,x)=>a+x[1],0);
    return [{title:`🧴 ${tot} unidad${tot!==1?'es':''} de consumibles en ${new Set(Object.values(ords).flatMap(x=>[...x])).size} órdenes`,head:['Consumible','Cantidad','Órdenes'],num:[1,2],rows:L.map(([k,v])=>[k,v,ords[k].size])}]}},
  garantias:{t:'Regresos por garantía',i:'shield',d:'Máquinas que volvieron dentro de la garantía, y de qué técnico era el trabajo anterior.',build(){
-   const G=arr(S.boletas).filter(b=>inRange(b.fechaIngreso)).map(b=>({b,pi:prevInfo(b)})).filter(x=>x.pi&&x.pi.enGar);
+   const G=arr(S.boletas).filter(b=>inRange(b.fechaIngreso)).map(b=>({b,pi:prevInfo(b)||{p:{},dias:'—'}})).filter(x=>x.b.garantia?(x.b.garantia.tipo==='taller'):(x.pi&&x.pi.enGar));
+   const GO=arr(S.boletas).filter(b=>inRange(b.fechaIngreso)&&b.garantia&&b.garantia.tipo!=='taller');
    const ent={};arr(S.boletas).filter(b=>b.estado==='Entregado'&&inRange(b.fechaEntrega||b.fechaIngreso)).forEach(b=>{const k=b.tecnico||'Sin asignar';ent[k]=(ent[k]||0)+1});
    const tc={};G.forEach(({pi})=>{const k=pi.p.tecnico||'Sin asignar';tc[k]=(tc[k]||0)+1});
-   return [{title:`${G.length} regreso${G.length!==1?'s':''} por garantía`,head:['Técnico del trabajo anterior','Regresos','Entregadas','% que regresa'],num:[1,2,3],rows:Object.entries(tc).sort((a,z)=>z[1]-a[1]).map(([k,n])=>[k,n,ent[k]||0,ent[k]?Math.round(n/ent[k]*100)+'%':'—'])},{title:'Detalle',head:['Volvió','Orden','Cliente','Máquina','Orden anterior','Técnico anterior','Días después','Falla ahora'],num:[6],rows:G.sort((a,z)=>String(z.b.fechaIngreso).localeCompare(String(a.b.fechaIngreso))).map(({b,pi})=>[fdate(b.fechaIngreso),nb(b.numero),cli(b.clienteId)?.nombre||'',eqShort(eq(b.equipoId)),nb(pi.p.numero),pi.p.tecnico||'',pi.dias,fallaTxt(b)])}]}},
+   return [{title:`${G.length} regreso${G.length!==1?'s':''} por garantía`,head:['Técnico del trabajo anterior','Regresos','Entregadas','% que regresa'],num:[1,2,3],rows:Object.entries(tc).sort((a,z)=>z[1]-a[1]).map(([k,n])=>[k,n,ent[k]||0,ent[k]?Math.round(n/ent[k]*100)+'%':'—'])},{title:'Detalle',head:['Volvió','Orden','Cliente','Máquina','Orden anterior','Técnico anterior','Días después','Falla ahora'],num:[6],rows:G.sort((a,z)=>String(z.b.fechaIngreso).localeCompare(String(a.b.fechaIngreso))).map(({b,pi})=>[fdate(b.fechaIngreso),nb(b.numero),cli(b.clienteId)?.nombre||'',eqShort(eq(b.equipoId)),pi.p.numero?nb(pi.p.numero):'—',pi.p.tecnico||'',pi.dias,fallaTxt(b)])},{title:`🏭 Garantías de fábrica o de tienda: ${GO.length}`,head:['Fecha','Orden','Cliente','Máquina','Tipo','Detalle'],num:[],rows:GO.map(b=>[fdate(b.fechaIngreso),nb(b.numero),cli(b.clienteId)?.nombre||'',eqShort(eq(b.equipoId)),GAR_T[b.garantia.tipo],b.garantia.nota||''])}]}},
  satisf:{t:'Satisfacción de clientes',i:'star',d:'Calificaciones que dejaron los clientes al recibir su máquina.',build(){
    const L=arr(S.boletas).filter(b=>encDe(b)&&inRange(b.fechaIngreso)).map(b=>({b,e:encDe(b)}));const n=L.length,avg=n?Math.round(L.reduce((a,x)=>a+num(x.e.s),0)/n*10)/10:0;
    const tc={};L.forEach(({b,e})=>{const k=b.tecnico||'Sin asignar';const o=tc[k]||(tc[k]=[0,0]);o[0]++;o[1]+=num(e.s)});
@@ -3817,8 +3835,9 @@ async function probarAviso(){
   try{if(navigator.serviceWorker&&navigator.serviceWorker.controller){const r=await navigator.serviceWorker.ready;await r.showNotification(t,{body:b,icon:'icons/icon-192.png',vibrate:[120,80,120],tag:'prueba'});return}}catch(e){}
   try{new Notification(t,{body:b,icon:'icons/icon-192.png'})}catch(e){ping(t,b,()=>{})}
 }
-const APP_VER='2026.11.18-7';
+const APP_VER='2026.11.18-8';
 const CAMBIOS=[
+ {v:'2026.11.18-8',t:['🛡️ En la orden: botón Garantía para marcarla aunque ya esté en reparación (del taller, del fabricante o de la tienda)','🛡️ La garantía se ve en la orden, en las listas, para el cliente y en el reporte']},
  {v:'2026.11.18-7',t:['🔧 Nueva sección «En reparación» en el menú y botón en Inicio','👑 Los avisos de actualización ahora solo le salen al administrador']},
  {v:'2026.11.18-6',t:['🔔 El aviso de versión nueva ahora aparece siempre, también en celular y computadora','✨ La tarjeta de novedades sale después de elegir el usuario']},
  {v:'2026.11.18-5',t:['🧴 Nuevo: Consumibles del taller (lo que sale de la bolsa del negocio) en las órdenes','📊 Reporte nuevo: Consumibles del taller']},
@@ -3917,6 +3936,8 @@ const A={
  mantOk:async d=>{const b=S.boletas[d.id];if(!b)return;if(await put('boletas',{...b,mantAvisado:Date.now(),mantPor:quien()})){toast('Listo, recordatorio cerrado');render()}},
  consulta:d=>consultaModal(d.id),
  etiquetas:d=>etiquetasModal(d.id?[d.id]:[]),
+ garForm:sinBloq(d=>garForm(d.id)),garTipo:d=>{GF.tipo=d.v;GF.draw()},garSave:()=>garSave(),
+ garQuitar:d=>confirmBox('¿Quitar la marca de garantía de esta orden?',async()=>{const b=clone(S.boletas[d.id]);delete b.garantia;b.historial=[...(b.historial||[]),{t:Date.now(),estado:b.estado,nota:'🛡️ Se quitó la garantía',por:quien(),dev:DEV}];if(await put('boletas',b)){closeModal();render();toast('Garantía quitada')}},'Quitar'),
  consTg:sinBloq(async d=>{const b=clone(S.boletas[d.id]);const l=(b.repuestos||[])[+d.i];if(!l)return;l.consumible=!l.consumible;if(!l.consumible)delete l.consumible;b.historial=[...(b.historial||[]),{t:Date.now(),estado:b.estado,nota:`${l.nombre}: ${l.consumible?'marcado como consumible del taller':'ya no es consumible'}`,por:quien(),dev:DEV}];if(await put('boletas',b)){render();toast(l.consumible?'🧴 Anotado como consumible del taller':'Quitado de consumibles')}}),
  pdWeb:d=>pdWeb(d.n),pdCopy:d=>copiar(d.t,'📋 Código copiado: '+d.t),pdCopyAll:()=>PDW&&copiar(pdWebLista(PDW.sel),'📋 Lista copiada'),
  pdWebOk:()=>{UI.pProv=PDW?PDW.n:UI.pProv;confirmBox('¿Ya hizo el pedido en la tienda en línea? Se marca como pedido para recibirlo después y no pedirlo dos veces.',async()=>{closeModal();await pMark()},'Marcar como pedido')},
