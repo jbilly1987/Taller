@@ -89,7 +89,7 @@ svg.i{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-
 .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
 .badge i{width:7px;height:7px;border-radius:50%;background:currentColor}
 .tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.02em}
-.tag.n{background:#dcfce7;color:#166534}.tag.u{background:#ffedd5;color:#9a3412}.tag.urg{background:var(--red-l);color:var(--red)}.pdcods{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:3px}.chipbtn.prov{white-space:nowrap;border-style:solid;border-color:#93c5fd;background:#eff6ff;color:#1d4ed8;font-family:inherit}.chipbtn.prov b{font-family:ui-monospace,monospace}.cpin{border:1px dashed #93c5fd;border-radius:8px;padding:5px 8px;font:inherit;font-size:12.5px;width:min(240px,100%);background:var(--surface,#fff);color:inherit}
+.tag.n{background:#dcfce7;color:#166534}.tag.u{background:#ffedd5;color:#9a3412}.tag.urg{background:var(--red-l);color:var(--red)}.tag.cons{background:#fef3c7;color:#92400e}.conssec{margin:4px 14px 12px;border:1px dashed #fcd34d;border-radius:14px;background:color-mix(in srgb,#fef3c7 35%,transparent)}.consh{padding:8px 12px 2px;font-weight:800;font-size:13px}.consh span{font-weight:500;color:var(--muted);font-size:12px;margin-left:6px}.cons-ck{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px dashed #fcd34d;border-radius:12px;margin:4px 0 10px;cursor:pointer;background:color-mix(in srgb,#fef3c7 30%,transparent)}.cons-ck input{margin-top:3px;width:18px;height:18px}.pdcods{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:3px}.chipbtn.prov{white-space:nowrap;border-style:solid;border-color:#93c5fd;background:#eff6ff;color:#1d4ed8;font-family:inherit}.chipbtn.prov b{font-family:ui-monospace,monospace}.cpin{border:1px dashed #93c5fd;border-radius:8px;padding:5px 8px;font:inherit;font-size:12.5px;width:min(240px,100%);background:var(--surface,#fff);color:inherit}
 .chipbtn{border:1px dashed var(--line);background:var(--soft);border-radius:8px;padding:2px 8px;font:600 12px ui-monospace,monospace;cursor:pointer;margin-top:3px;color:inherit}.tag.gar{background:#fef3c7;color:#b45309;border:1px solid #fcd34d}
 .st-ok{background:#dcfce7;color:#166534}.st-low{background:#fef3c7;color:#92400e}.st-out{background:#fee2e2;color:#991b1b}
 .num{font-family:"JetBrains Mono",monospace;font-weight:600;color:var(--pri);font-size:13px}
@@ -1446,7 +1446,7 @@ function pubEstado(b){
   const c=cli(b.clienteId)||{},e=eq(b.equipoId)||{};const H=[];(b.historial||[]).forEach(h=>{if(h.estado&&(!H.length||H[H.length-1].e!==h.estado))H.push({e:h.estado,t:h.t||0})});
   const doc={n:nb(b.numero),eq:eqShort(e),tipo:e.tipo||'',marca:e.marca||'',modelo:e.modelo||'',est:b.estado,hist:H,fi:b.fechaIngreso||'',fe:b.fechaEstimada||'',
    cli:String(c.nombre||'').split(/\s+/)[0]||'',taller:{n:CFG.nombre||'',tel:CFG.telefono||'',dir:CFG.direccion||'',hor:CFG.horario||''},
-   trabajos:(b.trabajos||[]).slice(0,12),mo:(b.manoObra||[]).map(l=>l.d).filter(Boolean).slice(0,12),rep:(b.repuestos||[]).map(l=>({n:l.nombre,c:num(l.cant)||1,u:l.condicion==='Usado'||l.cond==='Usado'})).slice(0,20),
+   trabajos:(b.trabajos||[]).slice(0,12),mo:(b.manoObra||[]).map(l=>l.d).filter(Boolean).slice(0,12),rep:(b.repuestos||[]).filter(l=>!l.consumible).map(l=>({n:l.nombre,c:num(l.cant)||1,u:l.condicion==='Usado'||l.cond==='Usado'})).slice(0,20),
    pz:pzList(b).map(x=>({l:x.l,s:x.st})),pr:b.prueba?Object.entries(b.prueba.items||{}).filter(([k,v])=>v==='ok').map(([k])=>k).slice(0,10):[],diag:b.diagnostico||'',fallas:(b.fallas||[]).slice(0,8),garantia:b.estado==='Entregado'?num(b.garantiaDias??CFG.garantia):0,ent:b.fechaEntrega||'',
    hx:arr(S.boletas).filter(x=>x.id!==b.id&&x.equipoId===b.equipoId&&x.estado==='Entregado').sort((a,z)=>String(z.fechaIngreso).localeCompare(String(a.fechaIngreso))).slice(0,10).map(x=>({n:nb(x.numero),fi:x.fechaIngreso||'',fe:String(x.fechaEntrega||'').slice(0,10),f:[...(x.fallas||[])].slice(0,4),d:String(x.diagnostico||'').slice(0,160),t:[...(x.trabajos||[]),...(x.manoObra||[]).map(l=>l.d)].filter(Boolean).slice(0,8),r:(x.repuestos||[]).map(l=>l.nombre).filter(Boolean).slice(0,8)})),
    cola:colaPos(b),up:Date.now()};
@@ -1576,7 +1576,7 @@ function vOrden(id){
     <div class="card"><div class="ch"><h2>${hic('wrench')} Trabajo del taller</h2>${LK?`<span class="small muted">🔒 Solo ${esc(tecDueno(b))}</span>`:esTaller()?`<button class="btn sm" id="svTrab" data-act="saveTrab" data-id="${b.id}" disabled>✅ Guardado</button>`:`<span class="small muted">${ic('lock')} Lo llena el taller</span>`}</div>
      <div class="cp-in" id="${LK?'trabRO':'trabBox'}">${esTaller()&&!LK?trabForm(b):trabRO(b)}</div></div>
     <div class="card ${LK?'lk':''}"><div class="ch"><h2>${hic('box')} Repuestos utilizados</h2><button class="btn sm" data-act="ppAdd" data-id="${b.id}" title="Pedir un repuesto que no hay">${ic('cart')} Falta</button><button class="btn sm p" data-act="addRep" data-id="${b.id}">${ic('plus')} Agregar</button></div>
-     ${lines.length?`<div class="lines">${lines.map((l,i)=>`<div class="ln"><div style="flex:1;min-width:0"><div style="font-weight:600" class="ell">${esc(l.nombre)}</div><div class="small muted"><span class="mono">${esc(l.sku||'Sin código')}</span> · <span class="tag ${l.condicion==='Usado'?'u':'n'}">${esc(condLbl(l.condicion))}</span></div></div><div class="qty"><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="-1">${ic('minus')}</button><span>${num(l.cant)}</span><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="1">${ic('plus')}</button></div><button class="ib" data-act="rmLine" data-id="${b.id}" data-i="${i}" title="Quitar">${ic('trash')}</button></div>`).join('')}</div>`:emptyBox('box','Sin repuestos','Agregue los repuestos nuevos o de segunda que se instalen; se descuentan del inventario.')}</div>
+     ${lines.length?(()=>{const RW=(l,i)=>`<div class="ln"><div style="flex:1;min-width:0"><div style="font-weight:600" class="ell">${esc(l.nombre)}</div><div class="small muted"><span class="mono">${esc(l.sku||'Sin código')}</span> · <span class="tag ${l.condicion==='Usado'?'u':'n'}">${esc(condLbl(l.condicion))}</span>${l.consumible?' · <span class="tag cons">🧴 del taller</span>':''}</div></div><div class="qty"><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="-1">${ic('minus')}</button><span>${num(l.cant)}</span><button data-act="qty" data-id="${b.id}" data-i="${i}" data-d="1">${ic('plus')}</button></div><button class="ib" data-act="consTg" data-id="${b.id}" data-i="${i}" title="${l.consumible?'Quitar de consumibles':'Marcar como consumible del taller'}" style="${l.consumible?'':'opacity:.45'}">🧴</button><button class="ib" data-act="rmLine" data-id="${b.id}" data-i="${i}" title="Quitar">${ic('trash')}</button></div>`;const N=lines.map((l,i)=>[l,i]).filter(([l])=>!l.consumible),C=lines.map((l,i)=>[l,i]).filter(([l])=>l.consumible);return (N.length?`<div class="lines">${N.map(([l,i])=>RW(l,i)).join('')}</div>`:'')+(C.length?`<div class="conssec"><div class="consh">🧴 Consumibles del taller <span>salen de la bolsa del negocio</span></div><div class="lines">${C.map(([l,i])=>RW(l,i)).join('')}</div></div>`:'')})():emptyBox('box','Sin repuestos','Agregue los repuestos nuevos o de segunda que se instalen; se descuentan del inventario.')}</div>
     ${moCard(b)}
     ${pruebaCard(b)}
     ${fichaCard(e)}
@@ -1665,7 +1665,7 @@ async function moveStock(rid,diff,b){
 async function addLine(bid,r,cant){
   const b=clone(S.boletas[bid]);b.repuestos=b.repuestos||[];
   const ex=b.repuestos.find(l=>l.repuestoId===r.id);
-  if(ex)ex.cant=num(ex.cant)+cant;else b.repuestos.push({repuestoId:r.id,sku:r.sku,nombre:r.nombre,condicion:r.condicion||'Nuevo',cant});
+  if(ex)ex.cant=num(ex.cant)+cant;else b.repuestos.push({repuestoId:r.id,sku:r.sku,nombre:r.nombre,condicion:r.condicion||'Nuevo',cant,...(r.consumible?{consumible:true}:{})});
   b.historial=[...(b.historial||[]),{t:Date.now(),estado:b.estado,nota:`Instaló ${cant}× ${r.nombre}`,por:quien(),dev:DEV}];
   await moveStock(r.id,cant,b);await put('boletas',b);
   {const k=pzMatch(r.nombre+' '+(r.sku||''),m3dKind((eq(b.equipoId)||{}).tipo,[(eq(b.equipoId)||{}).marca,(eq(b.equipoId)||{}).modelo].join(' ')));if(k)setTimeout(()=>toast(`🧩 ${pzKeys(m3dKind((eq(b.equipoId)||{}).tipo,[(eq(b.equipoId)||{}).marca,(eq(b.equipoId)||{}).modelo].join(' ')))[k]} marcada en verde en la vista 3D`),900)}
@@ -2898,6 +2898,10 @@ const REPORTS={
  recibidos:{t:'Equipos recibidos',i:'inbox',d:'Todas las órdenes del período con cliente, equipo, falla, técnico y estado.',build(){
    const bs=arr(S.boletas).filter(b=>inRange(b.fechaIngreso)).sort((a,b)=>num(a.numero)-num(b.numero));
    return [{head:['Orden','Fecha','Cliente','Teléfono','Tipo','Marca','Modelo','Serie','Falla','Técnico','Estado','Días'],num:[11],rows:bs.map(b=>{const c=cli(b.clienteId)||{},e=eq(b.equipoId)||{};return [nb(b.numero),fdate(b.fechaIngreso),c.nombre||'',c.telefono||'',e.tipo||'',e.marca||'',e.modelo||'',e.serie||'',fallaTxt(b),b.tecnico||'',b.estado,daysBetween(b.fechaIngreso,b.fechaEntrega||today())]})}]}},
+ consumibles:{t:'Consumibles del taller',i:'box',d:'Lo que salió de la bolsa del negocio (aceite, grasa, limpiador…) en las reparaciones.',build(){
+   const o={},ords={};arr(S.boletas).filter(b=>inRange(b.fechaIngreso)).forEach(b=>(b.repuestos||[]).filter(l=>l.consumible).forEach(l=>{const k=l.nombre||'?';o[k]=(o[k]||0)+(num(l.cant)||1);(ords[k]=ords[k]||new Set()).add(b.id)}));
+   const L=Object.entries(o).sort((a,z)=>z[1]-a[1]);const tot=L.reduce((a,x)=>a+x[1],0);
+   return [{title:`🧴 ${tot} unidad${tot!==1?'es':''} de consumibles en ${new Set(Object.values(ords).flatMap(x=>[...x])).size} órdenes`,head:['Consumible','Cantidad','Órdenes'],num:[1,2],rows:L.map(([k,v])=>[k,v,ords[k].size])}]}},
  garantias:{t:'Regresos por garantía',i:'shield',d:'Máquinas que volvieron dentro de la garantía, y de qué técnico era el trabajo anterior.',build(){
    const G=arr(S.boletas).filter(b=>inRange(b.fechaIngreso)).map(b=>({b,pi:prevInfo(b)})).filter(x=>x.pi&&x.pi.enGar);
    const ent={};arr(S.boletas).filter(b=>b.estado==='Entregado'&&inRange(b.fechaEntrega||b.fechaIngreso)).forEach(b=>{const k=b.tecnico||'Sin asignar';ent[k]=(ent[k]||0)+1});
@@ -3262,12 +3266,14 @@ function repForm(id){
     <div class="fr"><div class="f"><label>🏷️ Nuestro código / SKU</label><input data-rf="sku" value="${esc(RF.sku||'')}" style="text-transform:uppercase"></div><div class="f"><label>🏭 Código del proveedor <span class="opt">(opcional)</span></label><input data-rf="codProv" value="${esc(RF.codProv||'')}" placeholder="Como lo llama su proveedor" style="text-transform:uppercase"></div></div>
     <div class="f"><label>Nombre</label><input data-rf="nombre" value="${esc(RF.nombre||'')}" placeholder="Ej. Carburador, bujía…"></div>
     <div class="f"><label>▥ Código de barras <span class="opt">(opcional)</span></label><div class="row" style="gap:8px;flex-wrap:nowrap"><input id="rf_codBarras" data-rf="codBarras" value="${esc(RF.codBarras||'')}" placeholder="Escanéelo con la cámara" style="flex:1;min-width:0"><button type="button" class="btn" data-act="rfScan">📷</button></div></div>
+    <label class="cons-ck"><input type="checkbox" id="rfCons" ${RF.consumible?'checked':''}> <span>🧴 <b>Consumible del taller</b><br><span class="small muted">Sale de la bolsa del negocio (aceite, grasa, limpiador, gasolina de prueba, bridas…). En las órdenes se anota aparte.</span></span></label>
     <div class="sect"><span class="fl">Categoría</span>${chipPick('r_cat')}</div>
     <div class="fr"><div class="f"><label>Compatible con <span class="opt">(marcas / modelos)</span></label><input data-rf="compatible" value="${esc(RF.compatible||'')}" placeholder="Ej. Stihl MS 250, MS 230"></div><div class="f"><label>Marca del repuesto</label><input data-rf="marca" value="${esc(RF.marca||'')}" placeholder="Original, genérico…"></div></div>
     <div class="f"><label>Detalles <span class="opt">(medidas, n.º de parte, estado si es usado)</span></label><textarea data-rf="descripcion">${esc(RF.descripcion||'')}</textarea></div>
     <div class="fr">${id?'':`<div class="f"><label>Cantidad inicial</label><input type="number" min="0" data-rf="stock" value="${esc(RF.stock)}"></div>`}<div class="f"><label>Avisar cuando queden</label><input type="number" min="0" data-rf="stockMin" value="${esc(RF.stockMin)}"></div><div class="f"><label>Ubicación</label><input data-rf="ubicacion" value="${esc(RF.ubicacion||'')}" placeholder="Estante A3"></div></div>
     <div class="sect"><span class="fl">Proveedor <span class="opt">(a quién se le pide)</span></span>${chipPick('r_prov')}</div>${id?'<p class="small muted">Para cambiar la cantidad use “Entrada” o “Ajustar”, así queda registrado.</p>':''}`};
   CPR._rf=re;re();
+  document.addEventListener('change',function cc(e){if(e.target&&e.target.id==='rfCons'){RF.consumible=e.target.checked}if(!$('#fRp'))document.removeEventListener('change',cc)});
   $('#sv').onclick=async()=>{RF.sku=String(RF.sku||'').trim().toUpperCase();RF.codProv=String(RF.codProv||'').trim().toUpperCase();RF.nombre=String(RF.nombre||'').trim();
     if(!RF.sku||!RF.nombre)return $('#rpErr').textContent='Falta el código o el nombre.';
     const dup=arr(S.repuestos).find(x=>x.sku===RF.sku&&x.id!==RF.id);if(dup)return $('#rpErr').textContent='Ya existe '+RF.sku+' ('+dup.nombre+').';
@@ -3792,8 +3798,9 @@ async function probarAviso(){
   try{if(navigator.serviceWorker&&navigator.serviceWorker.controller){const r=await navigator.serviceWorker.ready;await r.showNotification(t,{body:b,icon:'icons/icon-192.png',vibrate:[120,80,120],tag:'prueba'});return}}catch(e){}
   try{new Notification(t,{body:b,icon:'icons/icon-192.png'})}catch(e){ping(t,b,()=>{})}
 }
-const APP_VER='2026.11.18-4';
+const APP_VER='2026.11.18-5';
 const CAMBIOS=[
+ {v:'2026.11.18-5',t:['🧴 Nuevo: Consumibles del taller (lo que sale de la bolsa del negocio) en las órdenes','📊 Reporte nuevo: Consumibles del taller']},
  {v:'2026.11.18-4',t:['🤙 El robot ahora también dice «mae»: ¡Pura vida, mae!']},
  {v:'2026.11.18-3',t:['🤖🇨🇷 El robot ahora le responde por escrito y hablando, a lo tico: ¡Pura vida!','🔊 La voz viene encendida (se apaga con el botón 🔊 en la ventana del robot)']},
  {v:'2026.11.18-2',t:['🔄 Ahora el sistema le avisa cuando hay una versión nueva y se actualiza solo','✨ Después de actualizar le muestra qué cambió']},
@@ -3883,6 +3890,7 @@ const A={
  mantOk:async d=>{const b=S.boletas[d.id];if(!b)return;if(await put('boletas',{...b,mantAvisado:Date.now(),mantPor:quien()})){toast('Listo, recordatorio cerrado');render()}},
  consulta:d=>consultaModal(d.id),
  etiquetas:d=>etiquetasModal(d.id?[d.id]:[]),
+ consTg:sinBloq(async d=>{const b=clone(S.boletas[d.id]);const l=(b.repuestos||[])[+d.i];if(!l)return;l.consumible=!l.consumible;if(!l.consumible)delete l.consumible;b.historial=[...(b.historial||[]),{t:Date.now(),estado:b.estado,nota:`${l.nombre}: ${l.consumible?'marcado como consumible del taller':'ya no es consumible'}`,por:quien(),dev:DEV}];if(await put('boletas',b)){render();toast(l.consumible?'🧴 Anotado como consumible del taller':'Quitado de consumibles')}}),
  pdWeb:d=>pdWeb(d.n),pdCopy:d=>copiar(d.t,'📋 Código copiado: '+d.t),pdCopyAll:()=>PDW&&copiar(pdWebLista(PDW.sel),'📋 Lista copiada'),
  pdWebOk:()=>{UI.pProv=PDW?PDW.n:UI.pProv;confirmBox('¿Ya hizo el pedido en la tienda en línea? Se marca como pedido para recibirlo después y no pedirlo dos veces.',async()=>{closeModal();await pMark()},'Marcar como pedido')},
  stM:d=>{UI.stM=+d.m;render()},
