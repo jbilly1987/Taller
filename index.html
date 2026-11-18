@@ -89,7 +89,8 @@ svg.i{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-
 .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
 .badge i{width:7px;height:7px;border-radius:50%;background:currentColor}
 .tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.02em}
-.tag.n{background:#dcfce7;color:#166534}.tag.u{background:#ffedd5;color:#9a3412}.tag.urg{background:var(--red-l);color:var(--red)}.chipbtn{border:1px dashed var(--line);background:var(--soft);border-radius:8px;padding:2px 8px;font:600 12px ui-monospace,monospace;cursor:pointer;margin-top:3px;color:inherit}.tag.gar{background:#fef3c7;color:#b45309;border:1px solid #fcd34d}
+.tag.n{background:#dcfce7;color:#166534}.tag.u{background:#ffedd5;color:#9a3412}.tag.urg{background:var(--red-l);color:var(--red)}.pdcods{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:3px}.chipbtn.prov{border-style:solid;border-color:#93c5fd;background:#eff6ff;color:#1d4ed8;font-family:inherit}.chipbtn.prov b{font-family:ui-monospace,monospace}.cpin{border:1px dashed #93c5fd;border-radius:8px;padding:5px 8px;font:inherit;font-size:12.5px;width:min(240px,100%);background:var(--surface,#fff);color:inherit}
+.chipbtn{border:1px dashed var(--line);background:var(--soft);border-radius:8px;padding:2px 8px;font:600 12px ui-monospace,monospace;cursor:pointer;margin-top:3px;color:inherit}.tag.gar{background:#fef3c7;color:#b45309;border:1px solid #fcd34d}
 .st-ok{background:#dcfce7;color:#166534}.st-low{background:#fef3c7;color:#92400e}.st-out{background:#fee2e2;color:#991b1b}
 .num{font-family:"JetBrains Mono",monospace;font-weight:600;color:var(--pri);font-size:13px}
 .ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1855,13 +1856,16 @@ function pdEnvioPanel(L){
 
 const provUrl=u=>{u=String(u||'').trim();if(!u)return '';if(!/^https?:\/\//i.test(u))u='https://'+u;return u};
 function copiar(t,msg){const ok=()=>toast(msg||'📋 Copiado');try{navigator.clipboard.writeText(t).then(ok,()=>{fb()})}catch(e){fb()}function fb(){const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){toast('No se pudo copiar')}a.remove()}}
-function pdWebLista(sel){return pdSort(sel).map((l,i)=>`${i+1}. ${l.cant??pdQty(l)} x ${l.nombre}${l.codProv?' — cód. '+l.codProv:l.sku?' — '+l.sku:''}`).join('\n')}
+function pdWebLista(sel){return pdSort(sel).map((l,i)=>`${i+1}. ${l.cant??pdQty(l)} x ${l.nombre}${l.codProv?' — cód. proveedor '+l.codProv:''}${l.sku?' (nuestro '+l.sku+')':''}`).join('\n')}
 function pdWeb(n){const pv=provBy(n);if(!pv||!pv.web)return;UI.pProv=n;const sel=pdSort(pdSelected());if(!sel.length){render();return toast('No hay repuestos marcados para '+n)}
   const q=l=>pv.busca&&pv.busca.includes('{q}')?pv.busca.replace('{q}',encodeURIComponent(l.codProv||l.nombre)):'';
   openModal('🛒 Pedido en línea · '+n,`<p class="small muted" style="margin-top:0">Abra la tienda y agregue estos repuestos al carrito. ${pv.busca&&pv.busca.includes('{q}')?'Con 🔎 se abre la búsqueda de cada uno.':'Toque el código para copiarlo y pegarlo en el buscador de la tienda.'}</p>
-   <div class="lines">${sel.map((l,i)=>`<div class="ln" style="gap:10px"><b style="min-width:34px;text-align:center;font-size:16px">${l.cant??pdQty(l)}×</b><div style="flex:1;min-width:0"><div style="font-weight:600" class="ell">${esc(l.nombre)}</div>${l.codProv||l.sku?`<button type="button" class="chipbtn" data-act="pdCopy" data-t="${esc(l.codProv||l.sku)}">📋 ${esc(l.codProv||l.sku)}</button>`:'<span class="small muted">sin código del proveedor</span>'}</div>${q(l)?`<a class="btn sm" href="${esc(q(l))}" target="_blank" rel="noopener">🔎</a>`:''}</div>`).join('')}</div>`,
+   <div class="lines">${sel.map((l,i)=>`<div class="ln" style="gap:10px"><b style="min-width:34px;text-align:center;font-size:16px">${l.cant??pdQty(l)}×</b><div style="flex:1;min-width:0"><div style="font-weight:600" class="ell">${esc(l.nombre)}</div>
+     <div class="pdcods">${l.codProv?`<button type="button" class="chipbtn prov" data-act="pdCopy" data-t="${esc(l.codProv)}">🏭 Cód. proveedor: <b>${esc(l.codProv)}</b> 📋</button>`:(l.repuestoId?`<input class="cpin" data-rid="${l.repuestoId}" placeholder="🏭 Agregar código del proveedor" autocomplete="off">`:'<span class="small muted">sin código del proveedor</span>')}
+     ${l.sku?`<span class="small muted">Nuestro: ${esc(l.sku)}</span>`:''}</div></div>${q(l)?`<a class="btn sm" href="${esc(q(l))}" target="_blank" rel="noopener">🔎</a>`:''}</div>`).join('')}</div>`,
    `<button class="btn" data-act="pdCopyAll">📋 Copiar lista</button><span class="sp"></span><a class="btn p" href="${esc(pv.web)}" target="_blank" rel="noopener">🛒 Abrir tienda</a><button class="btn" data-act="pdWebOk">✅ Ya lo pedí</button>`,'sm');
-  PDW={n,sel}}
+  PDW={n,sel};
+  document.querySelectorAll('.cpin').forEach(inp=>{const sv=async()=>{const v=inp.value.trim();const r=S.repuestos[inp.dataset.rid];if(!v||!r||inp._ok)return;inp._ok=1;if(await put('repuestos',{...r,codProv:v})){toast('🏭 Código del proveedor guardado');pdWeb(n)}};inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sv()}});inp.addEventListener('change',sv)})}
 let PDW=null;
 function pdEnviar(n){
   const pv=provBy(n);const i=provIdx(n);
