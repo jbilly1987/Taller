@@ -1240,7 +1240,7 @@ async function initFirebase(){
   try{await fs.enablePersistence({synchronizeTabs:true})}catch(e){}
   FBAUTH=firebase.auth();
   FBAUTH.onAuthStateChanged(u=>{FBUSER=u;if(!u){stopSubs();showLogin();return}hideLogin();if(!DB){DB=fs;subscribe(fs)}render()});
-  try{if('serviceWorker' in navigator){const had=!!navigator.serviceWorker.controller;navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>{const up=()=>{try{reg.update()}catch(e){}};document.addEventListener('visibilitychange',()=>{if(!document.hidden)up()});setInterval(up,15*60e3)}).catch(()=>{});
+  try{if('serviceWorker' in navigator){const had=!!navigator.serviceWorker.controller;navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>{const up=()=>{try{reg.update()}catch(e){}};document.addEventListener('visibilitychange',()=>{if(!document.hidden)up()});setInterval(up,5*60e3)}).catch(()=>{});
     let done=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!had||done)return;done=true;newVersion()})}}catch(e){}
 }
 function stopSubs(){UNSUB.forEach(u=>{try{u()}catch(e){}});UNSUB=[];DB=null;connected=false;S={clientes:{},equipos:{},repuestos:{},boletas:{},movimientos:{},pedidos:{},porpedir:{}}}
@@ -3782,10 +3782,26 @@ async function probarAviso(){
   try{if(navigator.serviceWorker&&navigator.serviceWorker.controller){const r=await navigator.serviceWorker.ready;await r.showNotification(t,{body:b,icon:'icons/icon-192.png',vibrate:[120,80,120],tag:'prueba'});return}}catch(e){}
   try{new Notification(t,{body:b,icon:'icons/icon-192.png'})}catch(e){ping(t,b,()=>{})}
 }
-function newVersion(){const busy=()=>{const a=document.activeElement;return a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)||($('#modal')&&!$('#modal').classList.contains('hidden'))};
-  if(document.hidden||!busy()){try{flushTrab&&flushTrab()}catch(e){}return setTimeout(()=>location.reload(),300)}
-  if($('#newv'))return;const d=document.createElement('div');d.id='newv';d.innerHTML='🔄 Hay una versión nueva del sistema <button class="btn sm p">Actualizar</button>';d.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom));z-index:9999;display:flex;gap:10px;align-items:center;padding:10px 12px 10px 16px;border-radius:16px;background:var(--surface-hi,#fff);box-shadow:0 12px 34px rgba(0,0,0,.18);font-weight:700;font-size:14px;white-space:nowrap';
-  d.querySelector('button').onclick=()=>{try{flushTrab&&flushTrab()}catch(e){}location.reload()};document.body.appendChild(d)}
+const APP_VER='2026.11.18-2';
+const CAMBIOS=[
+ {v:'2026.11.18-2',t:['🔄 Ahora el sistema le avisa cuando hay una versión nueva y se actualiza solo','✨ Después de actualizar le muestra qué cambió']},
+ {v:'2026.11.18-1',t:['🎤 El dictado por voz se detiene solo a los 3 segundos de silencio','🛒 Pedido en línea con el código del proveedor visible']}];
+function newVersion(){const busy=()=>{const a=document.activeElement;return a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)||($('#modal')&&!$('#modal').classList.contains('hidden'))||!!REC};
+  const go2=()=>{try{flushTrab&&flushTrab()}catch(e){}setTimeout(()=>location.reload(),250)};
+  if(document.hidden)return go2();
+  if($('#newv'))return;let n=10;const d=document.createElement('div');d.id='newv';
+  d.innerHTML='<span style="font-size:20px">🔄</span><div style="flex:1;min-width:0"><b>Hay una versión nueva del sistema</b><div class="small muted" id="newvT">Se actualiza en 10 s…</div></div><button class="btn sm" id="newvL">Después</button><button class="btn sm p" id="newvY">Actualizar</button>';
+  d.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom));z-index:9999;display:flex;gap:10px;align-items:center;padding:12px 14px;border-radius:18px;background:var(--surface-hi,#fff);box-shadow:0 14px 40px rgba(0,0,0,.2);font-size:14px;width:min(460px,calc(100vw - 20px));border:1px solid var(--glass-b)';
+  document.body.appendChild(d);
+  const t=setInterval(()=>{const el=$('#newvT');if(!el){clearInterval(t);return}if(busy()){el.textContent='Se actualiza cuando termine lo que está haciendo';return}n--;el.textContent=n>0?`Se actualiza en ${n} s…`:'Actualizando…';if(n<=0){clearInterval(t);go2()}},1000);
+  d.querySelector('#newvY').onclick=()=>{clearInterval(t);go2()};
+  d.querySelector('#newvL').onclick=()=>{clearInterval(t);d.remove();setTimeout(newVersion,10*60e3)}}
+function quéCambió(){try{const prev=localStorage.getItem('appVer');localStorage.setItem('appVer',APP_VER);if(!prev||prev===APP_VER)return;
+  const L=CAMBIOS.filter(c=>c.v>prev).flatMap(c=>c.t).slice(0,6);
+  const d=document.createElement('div');d.id='upd';d.innerHTML=`<div style="display:flex;gap:10px;align-items:center;margin-bottom:6px"><span style="font-size:22px">✨</span><b style="flex:1">Sistema actualizado</b><button class="ib" style="border:0;background:none;font-size:16px;cursor:pointer;color:inherit">✕</button></div>${L.length?L.map(x=>`<div class="small" style="margin:3px 0">${esc(x)}</div>`).join(''):'<div class="small">Mejoras y arreglos.</div>'}`;
+  d.style.cssText='position:fixed;top:calc(74px + env(safe-area-inset-top));right:14px;z-index:9998;padding:14px 16px;border-radius:18px;background:var(--surface-hi,#fff);box-shadow:0 14px 40px rgba(0,0,0,.18);width:min(360px,calc(100vw - 28px));border:1px solid rgba(34,197,94,.35);animation:rise .4s both';
+  document.body.appendChild(d);d.querySelector('button').onclick=()=>d.remove();setTimeout(()=>d.remove(),15000)}catch(e){}}
+setTimeout(quéCambió,2500);
 if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.open)go({page:'orden',id:e.data.open})});
 const PK={
   nueva:{em:'📥',c:'#0ea5e9',c2:'#06b6d4',lbl:'Nueva máquina',notes:[659,880,1175]},
