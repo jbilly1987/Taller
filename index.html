@@ -96,6 +96,7 @@ svg.i{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-
 .repm{font-weight:800;font-size:16px;margin:4px 0 2px}.repf{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;margin-top:8px;color:var(--ink2)}
 .btn.garbtn{background:linear-gradient(135deg,#fef3c7,#fde68a)!important;color:#92400e!important;border-color:#fcd34d!important;font-weight:800}
 .repc.gar{border-left-color:#f59e0b}.btn.garbtn b.gn{background:#d97706;color:#fff;border-radius:10px;padding:1px 9px;margin-left:4px}
+.btn.salbtn{background:linear-gradient(135deg,#dcfce7,#bbf7d0)!important;color:#166534!important;border-color:#86efac!important;font-weight:800}
 .garsel{display:flex;gap:12px;align-items:center;padding:12px;border-radius:14px;background:var(--soft);border:1px solid var(--line2);margin-bottom:12px}
 .garbox{display:flex;gap:12px;align-items:center;margin:12px 18px 6px;padding:12px 14px;border-radius:16px;background:linear-gradient(120deg,#fef3c7,#fde68a55);border:1px solid #fcd34d;color:#78350f}
 .btn.garon{background:#fef3c7!important;border-color:#fcd34d!important;color:#92400e!important;font-weight:800}
@@ -1997,6 +1998,32 @@ const provReps=n=>arr(S.repuestos).filter(r=>norm(r.proveedor)===norm(n));
 function provTelLink(t){const d=String(t||'').replace(/\D/g,'');return d?'tel:+'+(d.length===8?'506'+d:d):''}
 
 
+
+/* ---------- Salida rápida: venta en mostrador u otros ---------- */
+const SAL_MOT=[['venta','🛒 Venta en mostrador'],['taller','🧰 Uso del taller'],['danado','💥 Dañado o perdido'],['devprov','↩️ Devolución al proveedor'],['otro','📝 Otro']];
+let SQ=null;
+function salidaForm(id){SQ={items:id?[{id,cant:1}]:[],mot:'venta',cli:'',nota:'',q:''};sqDraw()}
+function sqDraw(){const q=norm(SQ.q).trim();const res=q?arr(S.repuestos).filter(r=>norm([r.nombre,r.sku,r.codBarras,r.codProv].join(' ')).includes(q)).slice(0,8):[];
+  openModal('💸 Salida de repuestos',`<p class="small muted" style="margin-top:0">Para lo que sale <b>sin orden</b>: venta en mostrador, uso del taller, dañado… Se rebaja del inventario al momento.</p>
+   <div class="row" style="gap:6px;flex-wrap:nowrap"><input class="inp" id="sqQ" placeholder="Buscar o escanear repuesto…" value="${esc(SQ.q)}" style="flex:1" autocomplete="off"><button type="button" class="btn" data-act="sqScan" title="Escanear código">📷</button></div>
+   ${res.length?`<div class="rows" style="border:1px solid var(--line2);border-radius:12px;margin-top:6px">${res.map(r=>`<div class="rw" data-act="sqAdd" data-id="${r.id}"><div class="mn"><div class="t ell">${esc(r.nombre)}</div><div class="s">${esc(r.sku||'')} · hay ${num(r.stock)}</div></div>${ic('plus')}</div>`).join('')}</div>`:''}
+   ${SQ.items.length?`<div class="lines" style="margin-top:10px">${SQ.items.map((x,i)=>{const r=rep(x.id)||{};const poco=num(r.stock)<x.cant;return `<div class="ln"><div style="flex:1;min-width:0"><div class="ell" style="font-weight:600">${esc(r.nombre||'?')}</div><div class="small ${poco?'':'muted'}" style="${poco?'color:var(--red)':''}">${esc(r.sku||'')} · hay ${num(r.stock)}${poco?' · ⚠️ no alcanza':''}</div></div><div class="qty"><button type="button" data-act="sqQ" data-i="${i}" data-d="-1">${ic('minus')}</button><span>${x.cant}</span><button type="button" data-act="sqQ" data-i="${i}" data-d="1">${ic('plus')}</button></div></div>`}).join('')}</div>`:'<p class="small muted" style="margin:10px 0 0">Busque y toque los repuestos que salen.</p>'}
+   <div class="sect"><span class="fl">¿Por qué sale?</span><div class="cp">${SAL_MOT.map(([k,l])=>`<button type="button" class="cpc ${SQ.mot===k?'on':''}" data-act="sqMot" data-v="${k}">${l}</button>`).join('')}</div></div>
+   <div class="fr">${SQ.mot==='venta'?`<div class="f"><label>Cliente <span class="opt">(opcional)</span></label><input id="sqCli" value="${esc(SQ.cli)}" list="sqCliL" autocomplete="off"><datalist id="sqCliL">${arr(S.clientes).slice(0,300).map(c=>`<option value="${esc(c.nombre)}">`).join('')}</datalist></div>`:''}<div class="f"><label>Nota <span class="opt">(opcional)</span></label><input id="sqNota" value="${esc(SQ.nota)}" autocomplete="off"></div></div>`,
+   `<span class="small muted">${SQ.items.reduce((a,x)=>a+x.cant,0)} unidad${SQ.items.reduce((a,x)=>a+x.cant,0)!==1?'es':''}</span><span class="sp"></span><button class="btn" data-act="close">Cancelar</button><button class="btn p" data-act="sqOk" ${SQ.items.length?'':'disabled'}>💸 Rebajar del inventario</button>`,'sm');
+  const keep=()=>{const c=$('#sqCli'),n=$('#sqNota');if(c)SQ.cli=c.value;if(n)SQ.nota=n.value};['#sqCli','#sqNota'].forEach(k=>{const e=$(k);if(e)e.oninput=keep});
+  const i=$('#sqQ');i.oninput=e=>{keep();SQ.q=e.target.value;const p=e.target.selectionStart;
+    const ex=arr(S.repuestos).find(r=>r.codBarras&&r.codBarras===SQ.q.trim());if(ex){sqAdd(ex.id);return}
+    sqDraw();const k=$('#sqQ');k.focus();try{k.setSelectionRange(p,p)}catch(x){}};if(!SQ.items.length)setTimeout(()=>i.focus(),80)}
+function sqAdd(id){const c=$('#sqCli'),n=$('#sqNota');if(c)SQ.cli=c.value;if(n)SQ.nota=n.value;const x=SQ.items.find(x=>x.id===id);if(x)x.cant++;else SQ.items.push({id,cant:1});SQ.q='';sqDraw()}
+async function sqOk(){const c=$('#sqCli'),n=$('#sqNota');if(c)SQ.cli=c.value;if(n)SQ.nota=n.value;
+  const falta=SQ.items.filter(x=>num((rep(x.id)||{}).stock)<x.cant);
+  const go2=async()=>{const mot=SAL_MOT.find(m=>m[0]===SQ.mot)[1].replace(/^\S+\s/,'');let k=0;
+    for(const x of SQ.items){const r=rep(x.id);if(!r)continue;await put('movimientos',{id:uid(),repuestoId:r.id,tipo:'salida',motivo:SQ.mot,cant:x.cant,fecha:Date.now(),por:quien(),nota:[mot,SQ.cli?'Cliente: '+SQ.cli.trim():'',SQ.nota.trim()].filter(Boolean).join(' · ')});
+      if(await put('repuestos',{...rep(x.id),stock:num(rep(x.id).stock)-x.cant}))k+=x.cant}
+    closeModal();render();toast(`💸 ${k} unidad${k!==1?'es':''} rebajada${k!==1?'s':''} del inventario`)};
+  if(falta.length)return confirmBox(`⚠️ No alcanza el inventario de: <b>${falta.map(x=>esc(rep(x.id).nombre)).join(', ')}</b>.<br>¿Rebajar de todas formas? (quedaría en negativo; revise con un conteo)`,go2,'Rebajar igual');
+  go2()}
 /* ---------- Conteo de inventario ---------- */
 const CNTK='tallerConteo';let CNT=(()=>{try{return JSON.parse(localStorage.getItem(CNTK)||'{}')}catch(e){return {}}})();
 const cntSave=()=>{try{localStorage.setItem(CNTK,JSON.stringify(CNT))}catch(e){}};
@@ -2965,7 +2992,7 @@ function vRepuestos(){
   if(UI.rStock)rs=rs.filter(r=>UI.rStock==='low'?stockSt(r).k!=='ok':stockSt(r).k===UI.rStock);
   if(q)rs=rs.filter(r=>norm([r.sku,r.codProv,r.codBarras,r.nombre,r.marca,r.compatible,r.categoria,r.descripcion,r.ubicacion,r.proveedor].join(' ')).includes(q));
   rs.sort((a,b)=>String(a.sku).localeCompare(String(b.sku)));const all=arr(S.repuestos);
-  return `<div class="ph"><div><h1>Repuestos</h1><div class="sub">${all.length} artículos · ${all.filter(r=>r.condicion==='Usado').length} de segunda · ${all.filter(r=>stockSt(r).k!=='ok').length} por reponer</div></div><div class="row"><button class="btn" data-act="etiquetas">🏷️ Etiquetas</button><button class="btn" data-act="nav" data-page="conteo">📋 Conteo</button><button class="btn p" data-act="repForm">${ic('plus')} Nuevo repuesto</button></div></div>
+  return `<div class="ph"><div><h1>Repuestos</h1><div class="sub">${all.length} artículos · ${all.filter(r=>r.condicion==='Usado').length} de segunda · ${all.filter(r=>stockSt(r).k!=='ok').length} por reponer</div></div><div class="row"><button class="btn salbtn" data-act="salida">💸 Salida / venta</button><button class="btn" data-act="etiquetas">🏷️ Etiquetas</button><button class="btn" data-act="nav" data-page="conteo">📋 Conteo</button><button class="btn p" data-act="repForm">${ic('plus')} Nuevo repuesto</button></div></div>
   <div class="fbar"><input id="rq" class="inp" data-ui="rq" placeholder="Buscar por código, nombre, modelo compatible o ubicación…" value="${esc(UI.rq)}">
    <select class="sel" id="rCond" data-ui="rCond"><option value="">Nuevos y de segunda</option><option ${UI.rCond==='Nuevo'?'selected':''} value="Nuevo">Solo nuevos</option><option ${UI.rCond==='Usado'?'selected':''} value="Usado">Solo de segunda</option></select>
    <select class="sel" id="rStock" data-ui="rStock"><option value="">Todo el stock</option><option value="ok" ${UI.rStock==='ok'?'selected':''}>Disponibles</option><option value="low" ${UI.rStock==='low'?'selected':''}>Por reponer</option><option value="out" ${UI.rStock==='out'?'selected':''}>Agotados</option></select></div>
@@ -2978,7 +3005,7 @@ function vRepuesto(id){
   const ms=arr(S.movimientos).filter(x=>x.repuestoId===id).sort((a,b)=>b.fecha-a.fecha);
   return `${backBtn()}<div class="card"><div class="ohead"><div class="ticon" style="width:56px;height:56px;border-radius:14px">${ic('box')}</div>
    <div style="flex:1;min-width:220px"><div class="row" style="gap:8px"><span class="onum">${esc(r.sku)}</span><span class="tag ${r.condicion==='Usado'?'u':'n'}">${esc(condLbl(r.condicion))}</span><span class="badge ${s.c}">${s.l}</span></div><div class="otitle">${esc(r.nombre)}</div><div class="muted small">${esc([r.categoria,r.marca].filter(Boolean).join(' · '))}</div>${r.proveedor||r.codProv?`<div class="small" style="margin-top:4px">🏭 ${r.proveedor?`<a href="#" data-act="provOpen" data-n="${esc(r.proveedor)}">${esc(r.proveedor)}</a>`:'Proveedor'}${r.codProv?` · cód. proveedor <b class="mono">${esc(r.codProv)}</b>`:''}</div>`:''}</div>
-   <div class="row"><button class="btn p" data-act="entrada" data-id="${id}">${ic('dl')} Entrada</button>${A?`<button class="btn" data-act="ajuste" data-id="${id}">Ajustar</button><button class="btn" data-act="etiquetas" data-id="${id}">🏷️ Etiqueta</button><button class="btn" data-act="repForm" data-id="${id}">${ic('edit')} Editar</button>`:''}</div></div>
+   <div class="row"><button class="btn p" data-act="entrada" data-id="${id}">${ic('dl')} Entrada</button>${A?`<button class="btn" data-act="ajuste" data-id="${id}">Ajustar</button><button class="btn" data-act="salida" data-id="${id}">💸 Salida</button><button class="btn" data-act="etiquetas" data-id="${id}">🏷️ Etiqueta</button><button class="btn" data-act="repForm" data-id="${id}">${ic('edit')} Editar</button>`:''}</div></div>
    <div class="grid g4" style="padding:0 20px 18px;gap:10px">${[['Disponible',num(r.stock)],['Mínimo',num(r.stockMin)],['Entró',m.ing],['Usado',m.usa]].map(([l,n])=>`<div style="background:var(--soft);border-radius:10px;padding:10px 12px"><div style="font-weight:800;font-size:20px">${n}</div><div class="small muted">${l}</div></div>`).join('')}</div></div>
   <div class="grid g2" style="margin-top:16px;align-items:start">
    <div class="card"><div class="ch"><h2>Detalles</h2></div><div class="cp-in"><dl class="kv"><dt>Compatible con</dt><dd>${esc(r.compatible||'—')}</dd><dt>Detalles</dt><dd style="white-space:pre-wrap">${esc(r.descripcion||'—')}</dd><dt>Ubicación</dt><dd>${esc(r.ubicacion||'—')}</dd><dt>Proveedor</dt><dd>${esc(r.proveedor||'—')}</dd></dl></div></div>
@@ -3039,6 +3066,9 @@ const REPORTS={
  recibidos:{t:'Equipos recibidos',i:'inbox',d:'Todas las órdenes del período con cliente, equipo, falla, técnico y estado.',build(){
    const bs=arr(S.boletas).filter(b=>inRange(b.fechaIngreso)).sort((a,b)=>num(a.numero)-num(b.numero));
    return [{head:['Orden','Fecha','Cliente','Teléfono','Tipo','Marca','Modelo','Serie','Falla','Técnico','Estado','Días'],num:[11],rows:bs.map(b=>{const c=cli(b.clienteId)||{},e=eq(b.equipoId)||{};return [nb(b.numero),fdate(b.fechaIngreso),c.nombre||'',c.telefono||'',e.tipo||'',e.marca||'',e.modelo||'',e.serie||'',fallaTxt(b),b.tecnico||'',b.estado,daysBetween(b.fechaIngreso,b.fechaEntrega||today())]})}]}},
+ salidas:{t:'Salidas sin orden (ventas en mostrador)',i:'box',d:'Repuestos que salieron sin orden: ventas en mostrador, uso del taller, dañados, devoluciones.',build(){
+   const M=arr(S.movimientos).filter(m=>m.tipo==='salida'&&!m.boletaId&&inRange(iso(new Date(num(m.fecha)))));const o={};M.forEach(m=>{const r=rep(m.repuestoId)||{};const k=r.nombre||'?';const x=o[k]||(o[k]={c:0,v:0});x.c+=num(m.cant);if(m.motivo==='venta')x.v+=num(m.cant)});
+   return [{title:`💸 ${M.reduce((a,m)=>a+num(m.cant),0)} unidades salieron sin orden`,head:['Repuesto','Total','En ventas'],num:[1,2],rows:Object.entries(o).sort((a,z)=>z[1].c-a[1].c).map(([k,x])=>[k,x.c,x.v])},{title:'Detalle',head:['Fecha','Repuesto','Cantidad','Motivo y nota','Quién'],num:[2],rows:M.sort((a,z)=>num(z.fecha)-num(a.fecha)).map(m=>[fts(m.fecha),(rep(m.repuestoId)||{}).nombre||'?',m.cant,m.nota||'',m.por||''])}]}},
  consumibles:{t:'Consumibles del taller',i:'box',d:'Lo que salió de la bolsa del negocio (aceite, grasa, limpiador…) en las reparaciones.',build(){
    const o={},ords={};arr(S.boletas).filter(b=>inRange(b.fechaIngreso)).forEach(b=>(b.repuestos||[]).filter(l=>l.consumible).forEach(l=>{const k=l.nombre||'?';o[k]=(o[k]||0)+(num(l.cant)||1);(ords[k]=ords[k]||new Set()).add(b.id)}));
    const L=Object.entries(o).sort((a,z)=>z[1]-a[1]);const tot=L.reduce((a,x)=>a+x[1],0);
@@ -3942,8 +3972,9 @@ async function probarAviso(){
   try{new Notification(t,{body:b,icon:'icons/icon-192.png'})}catch(e){ping(t,b,()=>{})}
 }
 const vCmp=(a,b)=>{const A=String(a).split(/[.-]/).map(Number),B=String(b).split(/[.-]/).map(Number);for(let i=0;i<Math.max(A.length,B.length);i++){const d=(A[i]||0)-(B[i]||0);if(d)return d}return 0};
-const APP_VER='2026.11.18-14';
+const APP_VER='2026.11.18-15';
 const CAMBIOS=[
+ {v:'2026.11.18-15',t:['💸 Repuestos: botón «Salida / venta» para rebajar del inventario lo que se vende en mostrador o sale sin orden','📊 Reporte nuevo: Salidas sin orden']},
  {v:'2026.11.18-14',t:['👥 Personal y puestos: botón Editar para cambiar nombre, usuario, puesto y contraseña de cada persona','🔒 Si una persona tiene contraseña, se la pide al entrar']},
  {v:'2026.11.18-13',t:['👨 El robot ahora busca una voz de hombre; si el aparato no tiene, usa la voz más grave','🗣️ Botón para elegir la voz del robot y probarla']},
  {v:'2026.11.18-12',t:['🇨🇷 El robot habla mucho más tico: diay, mae, upe, brete, qué torta, a cachete, cuál es la vara','🔊 Prefiere voz latinoamericana en vez de la de España']},
@@ -4049,6 +4080,9 @@ const A={
  mantOk:async d=>{const b=S.boletas[d.id];if(!b)return;if(await put('boletas',{...b,mantAvisado:Date.now(),mantPor:quien()})){toast('Listo, recordatorio cerrado');render()}},
  consulta:d=>consultaModal(d.id),
  etiquetas:d=>etiquetasModal(d.id?[d.id]:[]),
+ salida:d=>salidaForm(d.id),sqAdd:d=>sqAdd(d.id),sqQ:d=>{const x=SQ.items[+d.i];if(!x)return;const c=$('#sqCli'),n=$('#sqNota');if(c)SQ.cli=c.value;if(n)SQ.nota=n.value;x.cant+=num(d.d);if(x.cant<=0)SQ.items.splice(+d.i,1);sqDraw()},
+ sqMot:d=>{const c=$('#sqCli'),n=$('#sqNota');if(c)SQ.cli=c.value;if(n)SQ.nota=n.value;SQ.mot=d.v;sqDraw()},sqOk:()=>sqOk(),
+ sqScan:()=>scanCode({title:'Escanear repuesto',hint:'Apunte al código de barras',keep:true,onCode:c=>{const r=arr(S.repuestos).find(r=>[r.codBarras,r.sku,r.codProv].some(v=>v&&String(v).trim()===String(c).trim()));if(r){sqAdd(r.id);toast('➕ '+r.nombre)}else toast('No encontré ese código: '+c)}}),
  garForm:sinBloq(d=>garForm(d.id)),garActivar:async d=>{const b=clone(S.boletas[d.id]);delete b.pendGar;if(!b.tecnico&&esTaller()&&yoNombre())b.tecnico=yoNombre();b.historial=[...(b.historial||[]),{t:Date.now(),estado:b.estado,nota:'🛡️ Garantía pendiente → se empieza a reparar',por:quien(),dev:DEV}];if(await put('boletas',b)){render();toast('🔧 Lista para reparar')}},garRecibir:soloR(()=>{closeMore&&closeMore();garRecibir()}),
  grPick:d=>{GR.sel=d.id;const b=S.boletas[d.id];const pi=b?daysBetween(String(b.fechaEntrega||today()).slice(0,10),today()):0;GR.tipo=pi<=num(b.garantiaDias??CFG.garantia)?'taller':'fabricante';grDraw()},grBack:()=>{GR.sel=null;grDraw()},
  grTipo:d=>{GR.falla=($('#grFalla')||{}).value??GR.falla;GR.tipo=d.v;grDraw()},grPend:d=>{GR.falla=($('#grFalla')||{}).value??GR.falla;GR.pend=d.v==='1';grDraw()},
