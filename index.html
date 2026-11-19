@@ -1119,12 +1119,19 @@ function waPreview(href,after){
   const nm=who?(who.nombre||who.n):'';
   openModal('💬 Vista previa del mensaje',`<div class="row" style="margin-bottom:12px;gap:10px"><div class="av" style="background:linear-gradient(135deg,#25d366,#128c7e)">${nm?esc(initials(nm)):'📱'}</div><div style="flex:1;min-width:0"><div style="font-weight:700" class="ell">${esc(nm||'Contacto')}</div><input class="inp" id="wapTel" value="${esc(p.tel)}" inputmode="tel" style="margin-top:4px;padding:6px 10px;width:100%;max-width:220px" title="Número de WhatsApp"></div></div>
    <div class="f"><label>Mensaje <span class="opt">(puede editarlo antes de enviar)</span></label><textarea id="wapTxt" style="min-height:260px;font-size:14.5px;line-height:1.5">${esc(p.text)}</textarea></div>
-   <div class="small muted">Los *asteriscos* salen en negrita en WhatsApp.</div>`,
+   <div class="small muted">Los *asteriscos* salen en negrita en WhatsApp.</div>${WA_MOB?'':`<div class="row" style="gap:8px;margin-top:10px;align-items:center"><span class="small muted">Abrir en:</span><div class="paga"><button type="button" class="${waModo()==='app'?'on':''}" data-act="waModo" data-v="app">🖥️ App de WhatsApp</button><button type="button" class="${waModo()==='web'?'on':''}" data-act="waModo" data-v="web">🌐 WhatsApp Web</button></div></div>`}`,
    `<button class="btn" data-act="wapCopy">Copiar</button><button class="btn" data-act="wapPrint">${ic('print')} Imprimir</button><span class="sp"></span><button class="btn" data-act="close">Cancelar</button><button class="btn wa" data-act="wapSend">${ic('msg')} Enviar por WhatsApp</button>`);
 }
+const WA_MOB=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+const waModo=()=>{try{return localStorage.getItem('waModo')||'app'}catch(e){return 'app'}};
+function waOpen(d,txt){const t=encodeURIComponent(txt);
+  if(WA_MOB){window.open('https://wa.me/'+d+'?text='+t,'_blank','noopener');return}
+  if(waModo()==='web'){window.open('https://web.whatsapp.com/send?phone='+d+'&text='+t,'_blank','noopener');return}
+  const a=document.createElement('a');a.href='whatsapp://send?phone='+d+'&text='+t;a.style.display='none';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),500);
+  toast('💬 Abriendo WhatsApp… si no abre, cambie a «WhatsApp Web» en la vista previa')}
 function wapSend(){
   if(!WAP)return;let d=($('#wapTel')?.value||'').replace(/\D/g,'');if(d.length===8)d='506'+d;if(!d)return toast('Falta el número de WhatsApp');
-  const txt=$('#wapTxt')?.value||'';window.open('https://wa.me/'+d+'?text='+encodeURIComponent(txt),'_blank','noopener');
+  const txt=$('#wapTxt')?.value||'';waOpen(d,txt);
   const after=WAP.after;WAP=null;closeModal();if(after)after();
 }
 function waLink(tel,msg){let d=String(tel||'').replace(/\D/g,'');if(!d)return '';if(d.length===8)d='506'+d;return 'https://wa.me/'+d+'?text='+encodeURIComponent(msg)}
@@ -4134,9 +4141,9 @@ async function probarAviso(){
   try{new Notification(t,{body:b,icon:'icons/icon-192.png'})}catch(e){ping(t,b,()=>{})}
 }
 const vCmp=(a,b)=>{const A=String(a).split(/[.-]/).map(Number),B=String(b).split(/[.-]/).map(Number);for(let i=0;i<Math.max(A.length,B.length);i++){const d=(A[i]||0)-(B[i]||0);if(d)return d}return 0};
-const APP_VER='2026.11.19-10';
+const APP_VER='2026.11.19-11';
 const CAMBIOS=[
- {v:'2026.11.19-10',t:['🎁 Santa deja un regalo con el nombre del cliente cuando se entrega una máquina','🌙 De noche la casita sale con cielo oscuro, estrellas y luna','🏡 Casitas distintas: clásica, de madera, de zinc tico y con arbolito','🎆 24 y 31 de diciembre: mensaje especial y fuegos artificiales']},{v:'2026.11.19-9',t:['🎅 En Navidad el robot anda de Santa en trineo con dos renos: cruza la pantalla y se mete por la chimenea de una casita','🎁 Tóquelo y le sigue respondiendo como siempre']},{v:'2026.11.19-8',t:['🎤 El dictado por voz ahora se detiene a los 2 segundos de silencio']},{v:'2026.11.19-7',t:['🖨️ Las boletas se imprimen en una sola hoja: si no cabe, se ajusta sola para que la firma quede en la misma página']},{v:'2026.11.19-6',t:['🚜 3D nuevo del tractor cortacésped: carrocería, motor vertical y carburador / combustible, cada uno en su grupo','⛽ El cortacésped también separa el carburador y combustible del motor']},{v:'2026.11.19-5',t:['🌱 3D nuevo del cortacésped de 4 ruedas: carcasa, cuchilla, ruedas, manubrio, bolsa y motor de eje vertical completo','📋 Piezas ordenadas: arriba la máquina / carcasa, abajo el motor']},{v:'2026.11.19-4',t:['🔍 Fumigadora de motor (bomba de espalda): «Abrir la bomba» con despiece de pistón, copas, válvulas, cámara, manómetro y regulador']},{v:'2026.11.19-3',t:['💵🧴 En cada repuesto de la orden: «Se le cobra al cliente» o «Lo pone el negocio»','🧾 Lo que pone el negocio no sale en la boleta del cliente, solo en el sistema y en la hoja de taller']},
+ {v:'2026.11.19-11',t:['💬 En la PC, WhatsApp abre directo la aplicación, sin abrir la página web','🌐 En la vista previa puede elegir «App de WhatsApp» o «WhatsApp Web»']},{v:'2026.11.19-10',t:['🎁 Santa deja un regalo con el nombre del cliente cuando se entrega una máquina','🌙 De noche la casita sale con cielo oscuro, estrellas y luna','🏡 Casitas distintas: clásica, de madera, de zinc tico y con arbolito','🎆 24 y 31 de diciembre: mensaje especial y fuegos artificiales']},{v:'2026.11.19-9',t:['🎅 En Navidad el robot anda de Santa en trineo con dos renos: cruza la pantalla y se mete por la chimenea de una casita','🎁 Tóquelo y le sigue respondiendo como siempre']},{v:'2026.11.19-8',t:['🎤 El dictado por voz ahora se detiene a los 2 segundos de silencio']},{v:'2026.11.19-7',t:['🖨️ Las boletas se imprimen en una sola hoja: si no cabe, se ajusta sola para que la firma quede en la misma página']},{v:'2026.11.19-6',t:['🚜 3D nuevo del tractor cortacésped: carrocería, motor vertical y carburador / combustible, cada uno en su grupo','⛽ El cortacésped también separa el carburador y combustible del motor']},{v:'2026.11.19-5',t:['🌱 3D nuevo del cortacésped de 4 ruedas: carcasa, cuchilla, ruedas, manubrio, bolsa y motor de eje vertical completo','📋 Piezas ordenadas: arriba la máquina / carcasa, abajo el motor']},{v:'2026.11.19-4',t:['🔍 Fumigadora de motor (bomba de espalda): «Abrir la bomba» con despiece de pistón, copas, válvulas, cámara, manómetro y regulador']},{v:'2026.11.19-3',t:['💵🧴 En cada repuesto de la orden: «Se le cobra al cliente» o «Lo pone el negocio»','🧾 Lo que pone el negocio no sale en la boleta del cliente, solo en el sistema y en la hoja de taller']},
  {v:'2026.11.19-2',t:['🔄 El aviso de versión nueva ahora llega más rápido']},
  {v:'2026.11.19-1',t:['🧩 3D nuevo: bomba manual tipo Carpi, picadora de pasto e hidrolavadora eléctrica (y la de gasolina mejorada)','🔍 En 3D: abrir el carburador o la bomba de alta presión y marcar sus piezas por dentro']},
  {v:'2026.11.18-15',t:['💸 Repuestos: botón «Salida / venta» para rebajar del inventario lo que se vende en mostrador o sale sin orden','📊 Reporte nuevo: Salidas sin orden']},
@@ -4396,6 +4403,7 @@ const A={
  pWa:()=>{setTimeout(()=>confirmBox('¿Ya le envió el mensaje al proveedor? Márquelo como pedido para recibirlo después y no pedirlo dos veces.',async()=>{closeModal();await pMark()},'Marcar como pedido'),900)},
  pMark:()=>pMark(),
  wapSend:()=>wapSend(),
+ waModo:d=>{try{localStorage.setItem('waModo',d.v)}catch(e){}document.querySelectorAll('[data-act=waModo]').forEach(b=>b.classList.toggle('on',b.dataset.v===d.v));toast(d.v==='app'?'🖥️ Se abrirá la aplicación de WhatsApp':'🌐 Se abrirá WhatsApp Web')},
  syncInfo:()=>{const st=syncState();const t=SYNC_T?new Date(SYNC_T).toLocaleTimeString('es-CR',{hour:'numeric',minute:'2-digit'}):'';
   toast({ok:`🟢 Todo sincronizado con la nube${t?' · desde las '+t:''}. Los cambios llegan a los demás aparatos al instante.`,sync:'🟡 Enviando cambios a la nube…',conn:'🟡 Conectando con la nube…',off:'🔴 Sin internet. Lo que haga se guarda aquí y se sincroniza solo cuando vuelva la conexión.',local:'⚪ Modo local: esta versión no sincroniza. Use jbilly1987.github.io/Taller'}[st])},
  wapCopy:async()=>{try{await navigator.clipboard.writeText($('#wapTxt').value);toast('Mensaje copiado')}catch(e){toast('No se pudo copiar')}},
