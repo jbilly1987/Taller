@@ -3535,11 +3535,11 @@ function micToggle(sel,btn){
   const base=ta.value?ta.value.replace(/\s*$/,' '):'';let fin='';
   let sil=null,habl=false;const tick=ms=>{clearTimeout(sil);sil=setTimeout(()=>{try{r.stop()}catch(e){}},ms)};
   const cap=t=>t.replace(/^\s+/,'').replace(/^./,c=>base&&!/[.!?]\s*$/.test(base)?c:c.toUpperCase());
-  r.onresult=e=>{habl=true;tick(3000);let inter='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)fin+=(fin&&!/\s$/.test(fin)?' ':'')+t.trim();else inter+=' '+t}
+  r.onresult=e=>{habl=true;tick(2000);let inter='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)fin+=(fin&&!/\s$/.test(fin)?' ':'')+t.trim();else inter+=' '+t}
     const el=$(sel);if(!el)return;el.value=base+cap((fin+inter).trim());el.dispatchEvent(new Event('input',{bubbles:true}))};
   const off=()=>{clearTimeout(sil);document.querySelectorAll('.mic.on').forEach(b=>b.classList.remove('on'));if(REC===r)REC=null;if(render._pend&&view.page==='orden')setTimeout(()=>{if(!REC)render()},300)};
   r.onend=off;r.onerror=e=>{off();if(e.error==='not-allowed'||e.error==='service-not-allowed')toast('Permita el micrófono para dictar (candado junto a la dirección → Micrófono).');else if(e.error==='no-speech')toast('No se escuchó nada. Toque 🎤 y hable.');else if(e.error==='network')toast('Para dictar se necesita internet.')};
-  try{r.start();REC=r;tick(7000);document.querySelectorAll(`.mic[data-t="${sel}"]`).forEach(b=>b.classList.add('on'));toast('🎤 Hable… se detiene solo al quedarse callado 3 segundos')}catch(e){toast('No se pudo iniciar el dictado')}
+  try{r.start();REC=r;tick(7000);document.querySelectorAll(`.mic[data-t="${sel}"]`).forEach(b=>b.classList.add('on'));toast('🎤 Hable… se detiene solo al quedarse callado 2 segundos')}catch(e){toast('No se pudo iniciar el dictado')}
 }
 /* ---------- Mano de obra ---------- */
 const MO_EM=[['diagn','🔍'],['manten','🧰'],['cadena','⛓️'],['afil','🪚'],['espada','🪚'],['carbur','⛽'],['combust','⛽'],['motor','⚙️'],['arranc','🔄'],['encend','⚡'],['bujía','⚡'],['embrag','🔩'],['transm','🔩'],['sold','🔥'],['fabric','🔥'],['eléctr','🔌'],['electr','🔌'],['prueba','✅'],['ajuste final','✅'],['limpi','🧽'],['pint','🎨'],['cambio','🔧']];
@@ -4002,9 +4002,9 @@ async function probarAviso(){
   try{new Notification(t,{body:b,icon:'icons/icon-192.png'})}catch(e){ping(t,b,()=>{})}
 }
 const vCmp=(a,b)=>{const A=String(a).split(/[.-]/).map(Number),B=String(b).split(/[.-]/).map(Number);for(let i=0;i<Math.max(A.length,B.length);i++){const d=(A[i]||0)-(B[i]||0);if(d)return d}return 0};
-const APP_VER='2026.11.19-7';
+const APP_VER='2026.11.19-8';
 const CAMBIOS=[
- {v:'2026.11.19-7',t:['🖨️ Las boletas se imprimen en una sola hoja: si no cabe, se ajusta sola para que la firma quede en la misma página']},{v:'2026.11.19-6',t:['🚜 3D nuevo del tractor cortacésped: carrocería, motor vertical y carburador / combustible, cada uno en su grupo','⛽ El cortacésped también separa el carburador y combustible del motor']},{v:'2026.11.19-5',t:['🌱 3D nuevo del cortacésped de 4 ruedas: carcasa, cuchilla, ruedas, manubrio, bolsa y motor de eje vertical completo','📋 Piezas ordenadas: arriba la máquina / carcasa, abajo el motor']},{v:'2026.11.19-4',t:['🔍 Fumigadora de motor (bomba de espalda): «Abrir la bomba» con despiece de pistón, copas, válvulas, cámara, manómetro y regulador']},{v:'2026.11.19-3',t:['💵🧴 En cada repuesto de la orden: «Se le cobra al cliente» o «Lo pone el negocio»','🧾 Lo que pone el negocio no sale en la boleta del cliente, solo en el sistema y en la hoja de taller']},
+ {v:'2026.11.19-8',t:['🎤 El dictado por voz ahora se detiene a los 2 segundos de silencio']},{v:'2026.11.19-7',t:['🖨️ Las boletas se imprimen en una sola hoja: si no cabe, se ajusta sola para que la firma quede en la misma página']},{v:'2026.11.19-6',t:['🚜 3D nuevo del tractor cortacésped: carrocería, motor vertical y carburador / combustible, cada uno en su grupo','⛽ El cortacésped también separa el carburador y combustible del motor']},{v:'2026.11.19-5',t:['🌱 3D nuevo del cortacésped de 4 ruedas: carcasa, cuchilla, ruedas, manubrio, bolsa y motor de eje vertical completo','📋 Piezas ordenadas: arriba la máquina / carcasa, abajo el motor']},{v:'2026.11.19-4',t:['🔍 Fumigadora de motor (bomba de espalda): «Abrir la bomba» con despiece de pistón, copas, válvulas, cámara, manómetro y regulador']},{v:'2026.11.19-3',t:['💵🧴 En cada repuesto de la orden: «Se le cobra al cliente» o «Lo pone el negocio»','🧾 Lo que pone el negocio no sale en la boleta del cliente, solo en el sistema y en la hoja de taller']},
  {v:'2026.11.19-2',t:['🔄 El aviso de versión nueva ahora llega más rápido']},
  {v:'2026.11.19-1',t:['🧩 3D nuevo: bomba manual tipo Carpi, picadora de pasto e hidrolavadora eléctrica (y la de gasolina mejorada)','🔍 En 3D: abrir el carburador o la bomba de alta presión y marcar sus piezas por dentro']},
  {v:'2026.11.18-15',t:['💸 Repuestos: botón «Salida / venta» para rebajar del inventario lo que se vende en mostrador o sale sin orden','📊 Reporte nuevo: Salidas sin orden']},
