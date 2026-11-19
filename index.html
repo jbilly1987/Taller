@@ -4001,8 +4001,9 @@ async function probarAviso(){
   try{new Notification(t,{body:b,icon:'icons/icon-192.png'})}catch(e){ping(t,b,()=>{})}
 }
 const vCmp=(a,b)=>{const A=String(a).split(/[.-]/).map(Number),B=String(b).split(/[.-]/).map(Number);for(let i=0;i<Math.max(A.length,B.length);i++){const d=(A[i]||0)-(B[i]||0);if(d)return d}return 0};
-const APP_VER='2026.11.19-1';
+const APP_VER='2026.11.19-2';
 const CAMBIOS=[
+ {v:'2026.11.19-2',t:['🔄 El aviso de versión nueva ahora llega más rápido']},
  {v:'2026.11.19-1',t:['🧩 3D nuevo: bomba manual tipo Carpi, picadora de pasto e hidrolavadora eléctrica (y la de gasolina mejorada)','🔍 En 3D: abrir el carburador o la bomba de alta presión y marcar sus piezas por dentro']},
  {v:'2026.11.18-15',t:['💸 Repuestos: botón «Salida / venta» para rebajar del inventario lo que se vende en mostrador o sale sin orden','📊 Reporte nuevo: Salidas sin orden']},
  {v:'2026.11.18-14',t:['👥 Personal y puestos: botón Editar para cambiar nombre, usuario, puesto y contraseña de cada persona','🔒 Si una persona tiene contraseña, se la pide al entrar']},
@@ -4038,7 +4039,7 @@ function quéCambió(){if(!adminReal()){try{localStorage.setItem('appVer',APP_VE
   d.style.cssText='position:fixed;top:calc(74px + env(safe-area-inset-top));right:14px;z-index:9998;padding:14px 16px;border-radius:18px;background:var(--surface-hi,#fff);box-shadow:0 14px 40px rgba(0,0,0,.18);width:min(360px,calc(100vw - 28px));border:1px solid rgba(34,197,94,.35);animation:rise .4s both';
   document.body.appendChild(d);d.querySelector('button').onclick=()=>d.remove();setTimeout(()=>d.remove(),15000)}catch(e){}}
 setTimeout(quéCambió,2500);
-async function checkVer(){if(!GH_BUILD_OK())return;try{const r=await fetch('version.json',{cache:'no-store'});if(!r.ok)return;const j=await r.json();if(j&&j.v&&vCmp(j.v,APP_VER)>0)newVersion()}catch(e){}}
+async function checkVer(){if(!GH_BUILD_OK())return;try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const j=await r.json();if(j&&j.v&&vCmp(j.v,APP_VER)>0)newVersion()}catch(e){}}
 function GH_BUILD_OK(){return location.protocol.startsWith('http')&&!/localhost|127\.0\.0\.1/.test(location.hostname)}
 setTimeout(checkVer,8000);setInterval(checkVer,3*60e3);document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkVer()});
 if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.open)go({page:'orden',id:e.data.open})});
