@@ -748,6 +748,28 @@ body.tvmode #view{padding:18px 22px!important;max-width:none!important}
 .rb-pom{transform-origin:24px -8px;animation:rbPom 2.6s ease-in-out infinite}
 @keyframes rbPom{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg)}}
 .rbc.on{background:#2563eb;color:#fff;border-color:#2563eb}
+#rbFloat .rbbot.sleigh{width:180px;height:76px;transform-origin:center}
+.slsvg,.snsvg{width:100%;height:100%;display:block;overflow:visible;pointer-events:none}
+.slsvg *{pointer-events:visiblePainted;cursor:pointer}
+.rbsanta{position:absolute;left:0;top:0;width:36px;height:43.2px;will-change:transform;pointer-events:auto;cursor:pointer}
+.rbhouse{position:absolute;left:0;top:0;width:110px;height:100.8px;opacity:0;transition:opacity .8s;pointer-events:none}
+.rbhouse.on{opacity:1}.rbhouse svg{width:100%;height:100%;display:block}
+.hs-w{fill:#334155;transition:fill .8s}.rbhouse.lit .hs-w{fill:#fbbf24}
+.hs-smoke circle{opacity:0;transform-box:fill-box;transform-origin:center}.rbhouse.smoke .hs-smoke circle{animation:hsSm 2.4s ease-out infinite}
+@keyframes hsSm{0%{opacity:.85;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(-10px,-30px) scale(1.9)}}
+.sl-legA,.sl-legB{transform-box:fill-box;transform-origin:50% 0}
+.rbbot.sleigh.ride .sl-legA,.rbbot.sleigh.ride .sl-legB{animation:slLeg .5s ease-in-out infinite alternate}
+.rbbot.sleigh.ride .sl-legB{animation-direction:alternate-reverse}
+@keyframes slLeg{from{transform:rotate(-24deg)}to{transform:rotate(24deg)}}
+.rbbot.sleigh.ride .sl-bob{animation:slBob .5s ease-in-out infinite alternate}
+@keyframes slBob{from{transform:translateY(-2.5px)}to{transform:translateY(2.5px)}}
+.sl-trail circle{opacity:0}.rbbot.sleigh.ride .sl-trail circle{animation:slTw 1s linear infinite}
+@keyframes slTw{0%{opacity:0;transform:translateX(0)}30%{opacity:1}100%{opacity:0;transform:translateX(-28px)}}
+.sn-arm{transform-box:fill-box;transform-origin:50% 10%;animation:snWave .7s ease-in-out infinite alternate}
+@keyframes snWave{from{transform:rotate(-165deg)}to{transform:rotate(-125deg)}}
+.sn-eyes{transform-box:fill-box;transform-origin:center;animation:snBl 4s infinite}
+@keyframes snBl{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@media (max-width:860px){#rbFloat .rbbot.sleigh{width:140px;height:59px}.rbsanta{width:28px;height:33.6px}.rbhouse{width:84px;height:77px}}
 .rbtico{font-weight:700;margin:2px 0 4px}
 #rbFloat{position:fixed;inset:0;pointer-events:none;z-index:55;transition:opacity .3s;contain:strict}
 #rbFloat.away{opacity:0}#rbFloat.away *{animation-play-state:paused!important}
@@ -2125,15 +2147,88 @@ function robotSVG(){return `<svg class="rbsvg" viewBox="-60 -10 240 185" overflo
 <!-- brazo adelante -->
 <g class="rb-af"><rect x="57" y="68" width="11" height="35" rx="5.5" fill="#f1f5f9" stroke="#94a3b8"/><circle cx="62.5" cy="68" r="6.5" fill="url(#rbBl)"/><circle cx="62.5" cy="103" r="6.5" fill="#fff" stroke="#94a3b8"/></g>
 </svg>`}
+/* ---------- modo Navidad: Santa en trineo con renos ---------- */
+function santaSVG(){return `<svg viewBox="0 0 60 72" class="snsvg" aria-hidden="true"><defs><linearGradient id="snW" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#dbe4f0"/></linearGradient><linearGradient id="snBl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7dd3fc"/><stop offset="1" stop-color="#2563eb"/></linearGradient></defs>
+<rect x="13" y="40" width="34" height="30" rx="12" fill="#dc2626"/><rect x="28" y="40" width="5" height="30" fill="#fff"/><rect x="13" y="56" width="34" height="5" fill="#111827"/><rect x="26.5" y="54.5" width="8" height="8" rx="1.5" fill="none" stroke="#facc15" stroke-width="2"/>
+<g class="sn-arm"><rect x="40" y="38" width="8" height="20" rx="4" fill="#dc2626"/><rect x="40" y="52" width="8" height="4" fill="#fff"/><circle cx="44" cy="59" r="4.5" fill="#fff" stroke="#e2e8f0"/></g>
+<circle cx="31" cy="25" r="17" fill="url(#snW)" stroke="#94a3b8" stroke-width="1.2"/><circle cx="14.5" cy="26" r="5" fill="url(#snBl)" stroke="#1d4ed8" stroke-width=".8"/>
+<rect x="19" y="16" width="27" height="15" rx="7.5" fill="#0f172a"/><g class="sn-eyes"><ellipse cx="30" cy="23" rx="2.4" ry="3" fill="#67e8f9"/><ellipse cx="40" cy="23" rx="2.4" ry="3" fill="#67e8f9"/></g>
+<path d="M18 31 q14 16 30 0 q-1 13 -15 17 q-14 -4 -15 -17z" fill="#fff" stroke="#e2e8f0"/><path d="M25 33 q5 -4 8 0 q3 -4 8 0" fill="#fff" stroke="#cbd5e1" stroke-width="1.2"/>
+<path d="M14 14 C17 -5 42 -9 49 12 Z" fill="#dc2626"/><path d="M33 -3 C24 -9 14 -7 8 1" fill="none" stroke="#dc2626" stroke-width="7" stroke-linecap="round"/><circle class="sn-pom" cx="7" cy="3" r="4.8" fill="#fff" stroke="#e2e8f0"/><rect x="11" y="9.5" width="40" height="7.5" rx="3.7" fill="#fff" stroke="#e2e8f0"/></svg>`}
+function slRd(x,y,nose,dl){return `<g transform="translate(${x} ${y})"><g class="sl-bob" style="animation-delay:${dl}s">
+<g class="sl-legB" style="animation-delay:${dl-.22}s"><path d="M-7 5 l2 13 M13 5 l-1 13" stroke="#78350f" stroke-width="3" stroke-linecap="round"/></g>
+<ellipse cx="0" cy="0" rx="18" ry="9" fill="#b45309"/><ellipse cx="-1" cy="3.5" rx="12" ry="4.5" fill="#fde68a" opacity=".55"/><circle cx="-18" cy="-3" r="3.2" fill="#fef3c7"/>
+<g class="sl-legA" style="animation-delay:${dl}s"><path d="M-11 5 l-3 13 M9 5 l4 13" stroke="#92400e" stroke-width="3" stroke-linecap="round"/></g>
+<path d="M9 -5 L17 -17 L24 -14 L17 -1Z" fill="#b45309"/><ellipse cx="24" cy="-17" rx="8" ry="5.5" fill="#b45309" transform="rotate(15 24 -17)"/><circle cx="31.5" cy="-14.5" r="2.7" fill="${nose}"/><circle cx="24.5" cy="-19" r="1.3" fill="#111"/><ellipse cx="18" cy="-22" rx="3.2" ry="1.6" fill="#92400e" transform="rotate(-30 18 -22)"/>
+<path d="M20 -22 l-4 -12 M18 -30 l-6 -2 M17 -26 l4 -5 M24 -22 l2 -12 M25.3 -30 l5 -3 M25.7 -26 l-4 -3" stroke="#78350f" stroke-width="2" stroke-linecap="round" fill="none"/>
+<path d="M11 -6 q5 4 10 -1" stroke="#dc2626" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="16" cy="-2.5" r="2.2" fill="#facc15"/></g></g>`}
+function sleighSVG(){return `<svg viewBox="0 0 200 84" class="slsvg" overflow="visible" aria-hidden="true"><defs><linearGradient id="slR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ef4444"/><stop offset="1" stop-color="#991b1b"/></linearGradient></defs>
+<g class="sl-trail" fill="#fde68a"><circle cx="8" cy="50" r="2"/><circle cx="2" cy="58" r="1.5" style="animation-delay:.3s"/><circle cx="12" cy="62" r="1.8" style="animation-delay:.6s"/><circle cx="-2" cy="46" r="1.3" style="animation-delay:.8s"/></g>
+<path d="M98 34 L136 40 M100 40 L136 44 M150 38 L172 36" stroke="#78350f" stroke-width="1.6" fill="none"/>
+${slRd(136,48,'#78350f',-.2)}${slRd(178,42,'#dc2626',0)}
+<path d="M14 32 q-6 -24 14 -26 q18 2 14 26z" fill="#a16207"/><rect x="16" y="6" width="11" height="10" rx="1.5" fill="#22c55e"/><path d="M21.5 6v10M16 11h11" stroke="#facc15" stroke-width="1.5"/><rect x="27" y="1" width="10" height="13" rx="1.5" fill="#3b82f6"/><path d="M32 1v13M27 7h10" stroke="#f472b6" stroke-width="1.5"/>
+<path d="M10 34 Q8 20 22 22 L32 30 L78 30 Q92 28 96 16 Q104 8 106 20 Q104 44 82 54 L24 54 Q10 54 10 34Z" fill="url(#slR)" stroke="#7f1d1d" stroke-width="1.5"/>
+<path d="M18 46 L86 46" stroke="#facc15" stroke-width="2.5" stroke-linecap="round"/><circle cx="52" cy="40" r="3" fill="none" stroke="#facc15" stroke-width="1.5"/><path d="M100 16 q4 -2 3 4" stroke="#facc15" stroke-width="2" fill="none"/>
+<path d="M30 54v7M78 54v7" stroke="#a16207" stroke-width="3"/><path d="M14 62 L94 62 Q110 62 108 50" fill="none" stroke="#facc15" stroke-width="3.5" stroke-linecap="round"/></svg>`}
+function houseSVG(){return `<svg viewBox="0 0 120 110" aria-hidden="true">
+<g class="hs-smoke" fill="#e5e7eb"><circle cx="88" cy="0" r="5"/><circle cx="88" cy="0" r="5" style="animation-delay:.8s"/><circle cx="88" cy="0" r="5" style="animation-delay:1.6s"/></g>
+<rect x="80" y="4" width="16" height="34" fill="#b91c1c" stroke="#7f1d1d"/><path d="M80 14h16M80 24h16M88 4v10M84 14v10M92 24v10" stroke="#7f1d1d" stroke-width="1"/><rect x="77" y="0" width="22" height="7" rx="3.5" fill="#fff"/>
+<path d="M0 50 L60 8 L120 50Z" fill="#7f1d1d"/><path d="M-2 51 L60 6 L122 51" stroke="#fff" stroke-width="6" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="12" y="49" width="96" height="59" fill="#fde68a" stroke="#d97706"/>
+<g class="rb-lights"><circle class="l1" cx="18" cy="50" r="2.4" fill="#ef4444"/><circle class="l2" cx="32" cy="50" r="2.4" fill="#facc15"/><circle class="l3" cx="46" cy="50" r="2.4" fill="#22c55e"/><circle class="l1" cx="60" cy="50" r="2.4" fill="#3b82f6"/><circle class="l2" cx="74" cy="50" r="2.4" fill="#ef4444"/><circle class="l3" cx="88" cy="50" r="2.4" fill="#facc15"/><circle class="l1" cx="102" cy="50" r="2.4" fill="#22c55e"/></g>
+<rect class="hs-w" x="20" y="62" width="20" height="18" rx="2"/><rect class="hs-w" x="80" y="62" width="20" height="18" rx="2"/><path d="M30 62v18M20 71h20M90 62v18M80 71h20" stroke="#92400e" stroke-width="1.5"/>
+<rect x="50" y="76" width="20" height="32" rx="9" fill="#7c2d12"/><circle cx="60" cy="86" r="5" fill="none" stroke="#16a34a" stroke-width="3"/><circle cx="60" cy="91" r="1.6" fill="#dc2626"/>
+<ellipse cx="60" cy="108" rx="64" ry="4" fill="#fff"/></svg>`}
+const RBX_PH=['ride','land','hop','down','in','up','back','go','rest','chat'];
+function rbxRide(now){const W=innerWidth,H=innerHeight,ph=W<=860,{w}=RB.sz,k=w/200,hk=RB.hk,hw=120*hk,hh=110*hk;RB.dir=-RB.dir;const d=RB.dir;
+  const hy=H-hh-(ph?92:14);let hx=d>0?W-8-80*k-88*hk-10:8+80*k-88*hk+10;hx=Math.max(6,Math.min(W-hw-6,hx));
+  RB.house.style.transform=`translate(${Math.round(hx)}px,${Math.round(hy)}px)`;const cx=hx+88*hk,cy=hy+4*hk;
+  const seatC=cx-d*75*k,x1=seatC-(d>0?60:140)*k,y1=cy-78*k,x0=d>0?-w-30:W+30,y0=Math.max(70,H*.12+Math.random()*H*.15);
+  RB.p={x0,y0,x1,y1,T:Math.max(6000,Math.abs(x1-x0)/(ph?70:95)*1000),cx,cy};RB.x=x0;RB.y=y0;RB.ph='ride';RB.tPh=now;RB.sIn=true;
+  RB.house.classList.remove('lit','smoke');RB.house.classList.add('on')}
+function rbxGo(now){const W=innerWidth,{w}=RB.sz;RB.p={x0:RB.x,y0:RB.y,x1:RB.dir>0?W+40:-w-40,y1:Math.max(40,innerHeight*.08),T:W<=860?3500:4500};RB.ph='go';RB.tPh=now;RB.sIn=true;RB.house.classList.remove('smoke')}
+function rbLoopX(ts){if(document.hidden){RB.last=ts;return}const slow=RB.ph==='in'||RB.ph==='rest';if(ts-(RB.last||0)<(slow?150:30))return;
+  const dt=Math.min(.2,(ts-(RB.last||ts))/1000);RB.last=ts;const now=Date.now();
+  if(!RB.sz||now-RB.szT>3000){RB.sz=rbSize();RB.hk=(RB.house.offsetWidth||120)/120;RB.szT=now}const {w,h}=RB.sz,k=w/200;
+  if(now-(RB.mT||0)>500){RB.mT=now;const hideM=!!document.querySelector('#modal:not(.hidden)');if(hideM!==RB.away){RB.away=hideM;RB.f.classList.toggle('away',hideM)}}
+  if(now-(RB.xT||0)>2000){RB.xT=now;if(!rbXmas()&&!RB.chat){RB.f.remove();RB=null;return}}
+  const W=innerWidth;
+  if(RB.chat&&RB.ph!=='chat'){RB.ph='chat';RB.sIn=true;RB.house.classList.remove('on','lit','smoke');rbPick();RB.pkT=now}
+  else if(!RB.chat&&(RB.ph==='chat'||!RBX_PH.includes(RB.ph)))rbxGo(now);
+  const e=now-RB.tPh;
+  const P=RB.p||{},ez=p=>p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+  // posición del Santa fuera del trineo
+  const seat=()=>({x:RB.x+(RB.dir>0?40:120)*k,y:RB.y-16*k}),chim=()=>({x:P.cx-20*k,y:P.cy-46*k});
+  let sx=null,sy=null,clip=0;
+  if(RB.ph==='rest'){if(e>2500)rbxRide(now)}
+  else if(RB.ph==='ride'){const p=Math.min(1,e/P.T),z=ez(p);RB.x=P.x0+(P.x1-P.x0)*z;RB.y=P.y0+(P.y1-P.y0)*z-Math.sin(p*Math.PI*4)*12*k*(1-p);if(p>=1){RB.ph='land';RB.tPh=now}}
+  else if(RB.ph==='land'){if(e>700){RB.ph='hop';RB.tPh=now;RB.sIn=false}}
+  else if(RB.ph==='hop'||RB.ph==='back'){const p=Math.min(1,e/700),a=RB.ph==='hop'?seat():chim(),b=RB.ph==='hop'?chim():seat();sx=a.x+(b.x-a.x)*p;sy=a.y+(b.y-a.y)*p-Math.sin(p*Math.PI)*26*k;
+    if(p>=1){if(RB.ph==='hop'){RB.ph='down';RB.tPh=now}else rbxGo(now)}}
+  else if(RB.ph==='down'||RB.ph==='up'){const p=Math.min(1,e/1000),c=chim(),dy=(RB.ph==='down'?p:1-p)*50*k;sx=c.x;sy=c.y+dy;clip=Math.max(0,48*k-(P.cy-sy));
+    if(p>=1){if(RB.ph==='down'){RB.ph='in';RB.tPh=now;RB.house.classList.add('lit','smoke');if(!RB.bubOn)rbSay({t:RB_PICK(['🎁 ¡Jo, jo, jo! Dejando regalos…','🎅 Bajando por la chimenea, mae','🎄 ¡Pura vida! Aquí van los regalos'])},3800)}else{RB.ph='back';RB.tPh=now}}}
+  else if(RB.ph==='in'){sx=chim().x;sy=P.cy+10*k;clip=99;if(e>5000){RB.ph='up';RB.tPh=now}}
+  else if(RB.ph==='go'){const p=Math.min(1,e/P.T);RB.x=P.x0+(P.x1-P.x0)*p*p;RB.y=P.y0+(P.y1-P.y0)*ez(p);if(e>1500)RB.house.classList.remove('on','lit');if(p>=1){RB.ph='rest';RB.tPh=now;if(RB.bubOn)rbHideBub()}}
+  else if(RB.ph==='chat'){if(now-RB.pkT>1000){RB.pkT=now;rbPick()}const dx=RB.tx-RB.x,dy=RB.ty-RB.y,d=Math.hypot(dx,dy);if(Math.abs(dx)>3)RB.dir=RB.dirLock||(dx>0?1:-1);if(d>3){const s=Math.min(d,260*k*dt);RB.x+=dx/d*s;RB.y+=dy/d*s}}
+  const moving=RB.ph==='ride'||RB.ph==='go'||RB.ph==='chat';if(moving!==RB.mv){RB.mv=moving;RB.bot.classList.toggle('ride',moving)}
+  const tf=`translate(${Math.round(RB.x)}px,${Math.round(RB.y)}px) scaleX(${RB.dir})`;if(tf!==RB.tf){RB.tf=tf;RB.bot.style.transform=tf}
+  if(sx===null){const s=seat();sx=s.x;sy=s.y}
+  const st=`translate(${Math.round(sx)}px,${Math.round(sy)}px) scaleX(${RB.dir})`;if(st!==RB.st){RB.st=st;RB.santa.style.transform=st}
+  const cp=clip>=48*k?'inset(0 0 100% 0)':clip>0?`inset(0 0 ${clip.toFixed(1)}px 0)`:'';if(cp!==RB.cp){RB.cp=cp;RB.santa.style.clipPath=cp}
+  if(RB.bubOn){if(!RB.bubW)RB.bubW=RB.bub.offsetWidth||200;const bw=RB.bubW,bx=Math.max(8,Math.min(W-bw-8,RB.x+w*.5-bw/2)),by=Math.max(60,RB.y-6),bt=`translate(${Math.round(bx)}px,${Math.round(by)}px)`;if(bt!==RB.bt){RB.bt=bt;RB.bub.style.transform=bt}}
+  if(RB.bubOn&&now>RB.tHide)rbHideBub();
+  const onS=RB.x>-w*.2&&RB.x<W-w*.8&&RB.ph!=='rest';
+  if(!RB.bubOn&&!RB.chat&&onS&&now>RB.tMsg){const L=rbMsgs();rbSay(L[RB.msgI++%L.length])}}
 let RB=null;
 const rbDur=()=>60e3+Math.random()*60e3;
 const RB_LOW=(navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=3;
 function rbXmas(){try{const v=localStorage.getItem('rbXmas');if(v==='on')return true;if(v==='off')return false}catch(e){}const d=new Date(),m=d.getMonth()+1,day=d.getDate();return (m===11&&day>=15)||m===12||(m===1&&day<=6)}
 function rbBuild(){const f=document.createElement('div');f.id='rbFloat';if(rbXmas())f.classList.add('xmas');
-  f.innerHTML=`<div class="rbbot" id="rbBot"><div class="rbtilt"><div class="rbbob">${robotSVG()}</div></div></div><button class="rbbub" id="rbBub" type="button"></button>`;
+  const xm=rbXmas();
+  f.innerHTML=xm?`<div class="rbhouse" id="rbHouse">${houseSVG()}</div><div class="rbsanta" id="rbSanta">${santaSVG()}</div><div class="rbbot sleigh" id="rbBot">${sleighSVG()}</div><button class="rbbub" id="rbBub" type="button"></button>`:`<div class="rbbot" id="rbBot"><div class="rbtilt"><div class="rbbob">${robotSVG()}</div></div></div><button class="rbbub" id="rbBub" type="button"></button>`;
   document.body.appendChild(f);
   RB={f,bot:f.querySelector('#rbBot'),bub:f.querySelector('#rbBub'),x:innerWidth-200,y:innerHeight-260,dir:-1,tx:0,ty:0,act:RB_ACTS[Math.floor(Math.random()*4)],ph:'fly',tAct:Date.now()+rbDur(),tPh:0,last:0,msgI:0,tMsg:Date.now()+4000,bubOn:false,alert:null,chat:false};
-  RB.bot.dataset.act=RB.act;rbPick();
+  RB.bot.dataset.act=RB.act;rbPick();if(xm){RB.xm=true;RB.house=f.querySelector('#rbHouse');RB.santa=f.querySelector('#rbSanta');RB.dir=-1;RB.ph='rest';RB.tPh=Date.now()-2000;RB.x=-400;RB.y=-400;RB.santa.addEventListener('click',e=>{e.stopPropagation();rbChat(!RB.chat)})}
   RB.bot.addEventListener('click',e=>{e.stopPropagation();rbChat(!RB.chat)});
   RB.bub.onclick=e=>{e.stopPropagation();const a=RB.alert;if(a&&a.go){go(a.go);rbHideBub()}else rbChat(true)};
   addEventListener('resize',()=>{if(!RB)return;rbPick();const {w,h}=rbSize();if(RB.x>innerWidth-w*.5||RB.y>innerHeight-h*.5||RB.x<-w*.5){RB.x=RB.tx;RB.y=RB.ty}});
@@ -2153,10 +2248,10 @@ function rbMsgs(){const L=[];try{const k='rbDia'+today();if(!localStorage.getIte
   if(!L.length){const ab=arr(S.boletas).filter(isOpen).length;L.push({t:'¡Todo pura vida! 💪 Tóqueme si ocupa algo'},{t:`${ab} máquina${ab!==1?'s':''} en el taller 🔧`})}
   else L.push({t:['¿Ocupa algo? Tóqueme y pregúnteme 🙂','Diay mae, ¿le ayudo con algo? 🙂','¡Upe, mae! Aquí estoy para lo que ocupe 🤖'][Math.floor(Math.random()*3)]});
   L.push({t:RB_PICK(['¡A darle al brete, mae! 💪','Diay mae, ¿cuál es la vara? 🤙','¡Tuanis el día! Tóqueme si ocupa algo','¡Qué chiva estar aquí! 🤖','Upe, si ocupa algo me avisa, mae'])});
-  if(RB&&RB.f.classList.contains('xmas'))L.push({t:['¡Jo, jo, jo! 🎅 Feliz Navidad','🎄 Que no falten las máquinas listas para Navidad','🎁 ¿Ya revisó lo pendiente antes de las fiestas?'][Math.floor(Math.random()*3)]});
+  if(RB&&RB.f.classList.contains('xmas'))L.push({t:['🦌 ¡Vamos, renos! Hay regalos que repartir','🛷 ¡Jo, jo, jo! Paseando en trineo por el taller','¡Jo, jo, jo! 🎅 Feliz Navidad','🎄 Que no falten las máquinas listas para Navidad','🎁 ¿Ya revisó lo pendiente antes de las fiestas?'][Math.floor(Math.random()*3)]});
   try{const nm=yoNombre();rbRecs().slice(0,3).forEach(x=>L.splice(1,0,{t:`${nm?nm+', ':''}${x.em} ${x.txt}${x.b?' '+nb(x.b.numero):''}`,sev:x.pr<=2?'a':'',go:x.b?{page:'orden',id:x.b.id}:x.go}))}catch(e){}
   return L}
-function rbLoop(ts){if(!RB)return;requestAnimationFrame(rbLoop);if(document.hidden){RB.last=ts;return}
+function rbLoop(ts){if(!RB)return;requestAnimationFrame(rbLoop);if(RB.xm)return rbLoopX(ts);if(Date.now()-(RB.xT||0)>2000){RB.xT=Date.now();if(rbXmas()&&!RB.chat){RB.f.remove();RB=null;return}}if(document.hidden){RB.last=ts;return}
   if(RB.ph!=='fly'&&ts-(RB.last||0)<180)return;if(RB.ph==='fly'&&ts-(RB.last||0)<30)return;
   const dt=Math.min(.2,(ts-(RB.last||ts))/1000);RB.last=ts;const now=Date.now();if(!RB.sz||now-RB.szT>3000){RB.sz=rbSize();RB.szT=now}const {w,h}=RB.sz;const k=w/145;
   if(now-(RB.mT||0)>500){RB.mT=now;const hideM=!!document.querySelector('#modal:not(.hidden)');if(hideM!==RB.away){RB.away=hideM;RB.f.classList.toggle('away',hideM)}}
@@ -2485,7 +2580,7 @@ const RB_KB=[
 function rbBrain(n,D){const sec=(t,L,f,max)=>L.length?`<div class="rbsec"><div class="rbh">${t} <span>${L.length}</span></div>${rbList(L,f,max)}</div>`:'';
   const has=re=>re.test(n);const nom=yoNombre()?', '+esc(yoNombre()):'';
   if(/(gorro|navid|luces|luce)/.test(n)&&/(quit|sac|apag|no quiero|fuera)/.test(n)){try{localStorage.setItem('rbXmas','off')}catch(e){}RB&&RB.f.classList.remove('xmas');return 'Listo, me quité el gorro y las luces 🎄➡️📦'}
-  if(/(gorro|navid|luces|luce)/.test(n)&&/(pon|ponga|ponte|encend|quiero|usa)/.test(n)){try{localStorage.setItem('rbXmas','on')}catch(e){}RB&&RB.f.classList.add('xmas');return '¡Jo, jo, jo! 🎅 Ya tengo mi gorro y mis luces 🎄✨'}
+  if(/(gorro|navid|luces|luce)/.test(n)&&/(pon|ponga|ponte|encend|quiero|usa)/.test(n)){try{localStorage.setItem('rbXmas','on')}catch(e){}RB&&RB.f.classList.add('xmas');return '¡Jo, jo, jo! 🎅 Al cerrar el chat saco el trineo y los renos 🦌🛷'}
   if(/(voz|habla|hablar)/.test(n)&&/(cambi|elig|escog|hombre|masculin|otra|mujer)/.test(n))return rbVozMenu();
   // máquinas por reparar / qué hay en el taller
   if(/(para|por|que|hay que|tengo que|toca) (reparar|arreglar|revisar|hacer|trabajar)|(maquina|orden|trabajo|equipo)s? (hay|tengo|tenemos|quedan|faltan|pendiente|en el taller|sin terminar|abierta)|(que|cuales|cuantas) (maquina|orden|trabajo|equipo)|en el taller|sin terminar|que hay|que tenemos|lo que hay|en reparacion|trabajo hay|hay trabajo|que falta por/.test(n)&&!/(repuest|bujia|cadena|filtro|listas? para entregar|entregar|atrasad|detenid|pendient|hoy|ayer|semana|mes\b)/.test(n)&&!arr(S.equipos).some(e=>e.tipo&&norm(e.tipo).split(/[\s/]+/).some(w=>w.length>4&&n.includes(w.replace(/s$/,''))))&&![...new Set(arr(S.boletas).map(b=>b.tecnico).filter(Boolean))].some(t=>norm(t).split(' ').some(w=>w.length>2&&new RegExp('\\b'+w+'\\b').test(n))))return rbAnswer('reparar');
@@ -4002,9 +4097,9 @@ async function probarAviso(){
   try{new Notification(t,{body:b,icon:'icons/icon-192.png'})}catch(e){ping(t,b,()=>{})}
 }
 const vCmp=(a,b)=>{const A=String(a).split(/[.-]/).map(Number),B=String(b).split(/[.-]/).map(Number);for(let i=0;i<Math.max(A.length,B.length);i++){const d=(A[i]||0)-(B[i]||0);if(d)return d}return 0};
-const APP_VER='2026.11.19-8';
+const APP_VER='2026.11.19-9';
 const CAMBIOS=[
- {v:'2026.11.19-8',t:['🎤 El dictado por voz ahora se detiene a los 2 segundos de silencio']},{v:'2026.11.19-7',t:['🖨️ Las boletas se imprimen en una sola hoja: si no cabe, se ajusta sola para que la firma quede en la misma página']},{v:'2026.11.19-6',t:['🚜 3D nuevo del tractor cortacésped: carrocería, motor vertical y carburador / combustible, cada uno en su grupo','⛽ El cortacésped también separa el carburador y combustible del motor']},{v:'2026.11.19-5',t:['🌱 3D nuevo del cortacésped de 4 ruedas: carcasa, cuchilla, ruedas, manubrio, bolsa y motor de eje vertical completo','📋 Piezas ordenadas: arriba la máquina / carcasa, abajo el motor']},{v:'2026.11.19-4',t:['🔍 Fumigadora de motor (bomba de espalda): «Abrir la bomba» con despiece de pistón, copas, válvulas, cámara, manómetro y regulador']},{v:'2026.11.19-3',t:['💵🧴 En cada repuesto de la orden: «Se le cobra al cliente» o «Lo pone el negocio»','🧾 Lo que pone el negocio no sale en la boleta del cliente, solo en el sistema y en la hoja de taller']},
+ {v:'2026.11.19-9',t:['🎅 En Navidad el robot anda de Santa en trineo con dos renos: cruza la pantalla y se mete por la chimenea de una casita','🎁 Tóquelo y le sigue respondiendo como siempre']},{v:'2026.11.19-8',t:['🎤 El dictado por voz ahora se detiene a los 2 segundos de silencio']},{v:'2026.11.19-7',t:['🖨️ Las boletas se imprimen en una sola hoja: si no cabe, se ajusta sola para que la firma quede en la misma página']},{v:'2026.11.19-6',t:['🚜 3D nuevo del tractor cortacésped: carrocería, motor vertical y carburador / combustible, cada uno en su grupo','⛽ El cortacésped también separa el carburador y combustible del motor']},{v:'2026.11.19-5',t:['🌱 3D nuevo del cortacésped de 4 ruedas: carcasa, cuchilla, ruedas, manubrio, bolsa y motor de eje vertical completo','📋 Piezas ordenadas: arriba la máquina / carcasa, abajo el motor']},{v:'2026.11.19-4',t:['🔍 Fumigadora de motor (bomba de espalda): «Abrir la bomba» con despiece de pistón, copas, válvulas, cámara, manómetro y regulador']},{v:'2026.11.19-3',t:['💵🧴 En cada repuesto de la orden: «Se le cobra al cliente» o «Lo pone el negocio»','🧾 Lo que pone el negocio no sale en la boleta del cliente, solo en el sistema y en la hoja de taller']},
  {v:'2026.11.19-2',t:['🔄 El aviso de versión nueva ahora llega más rápido']},
  {v:'2026.11.19-1',t:['🧩 3D nuevo: bomba manual tipo Carpi, picadora de pasto e hidrolavadora eléctrica (y la de gasolina mejorada)','🔍 En 3D: abrir el carburador o la bomba de alta presión y marcar sus piezas por dentro']},
  {v:'2026.11.18-15',t:['💸 Repuestos: botón «Salida / venta» para rebajar del inventario lo que se vende en mostrador o sale sin orden','📊 Reporte nuevo: Salidas sin orden']},
