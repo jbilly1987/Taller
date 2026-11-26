@@ -85,7 +85,10 @@ h2{font-size:15px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
 </head>
 <body>
 <div class="bg"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+<script>/* QR de la etiqueta: en los aparatos del taller abre la orden en el sistema; el cliente ve esta consulta */(function(){try{var p=new URLSearchParams(location.search),o=p.get('o');if(o&&/^\d+$/.test(o)&&localStorage.getItem('tallerStaff')==='1'&&p.get('ver')!=='cliente'){location.replace('./#os-'+o)}}catch(e){}})()</script>
 <div class="wrap" id="app"><div class="ctr"><div class="saw">🪚</div><p class="muted">Buscando su máquina…</p></div></div>
+<p id="staffL" style="text-align:center;margin:18px 0 30px;display:none"><a style="font-size:12px;color:#64748b" href="#">🔧 ¿Es del taller? Abrir la orden en el sistema</a></p>
+<script>(function(){try{var o=new URLSearchParams(location.search).get('o');if(o&&/^\d+$/.test(o)){var l=document.getElementById('staffL');l.style.display='';l.firstChild.href='./#os-'+o}}catch(e){}})()</script>
 <script src="firebase-config.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
