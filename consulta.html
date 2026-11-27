@@ -88,6 +88,7 @@ h2{font-size:15px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
 <div class="wrap" id="app"><div class="ctr"><div class="saw">🪚</div><p class="muted">Buscando su máquina…</p></div></div>
 
 <script src="firebase-config.js"></script>
+<script>/* consulta de otro taller: usa la base de datos de ese taller */(function(){try{var c=new URLSearchParams(location.search).get('tl');if(c&&/^AIza[\w-]{30,}\.[a-z0-9-]{4,}$/.test(c)){var i=c.indexOf('.'),p=c.slice(i+1);window.FIREBASE_CONFIG={apiKey:c.slice(0,i),authDomain:p+'.firebaseapp.com',projectId:p,storageBucket:p+'.firebasestorage.app'}}}catch(e){}})()</script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
